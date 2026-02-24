@@ -1,0 +1,28 @@
+{
+  "name": "client",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.ts",
+  "scripts": {
+    "css:build": "tailwindcss -i input.css -o ../resources/static/css/output.css --minify",
+    "css:watch": "tailwindcss -i input.css -o ../resources/static/css/output.css --watch",
+    "ts:build": "esbuild main.ts --bundle --minify --outfile=../resources/static/js/main.js",
+    "ts:watch": "esbuild main.ts --bundle --sourcemap --outfile=../resources/static/js/main.js --watch",
+    "dev": "concurrently \"npm run css:watch\" \"npm run ts:watch\"",
+    "build": "npm run css:build && npm run ts:build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "@types/alpinejs": "^3.17.0",
+    "concurrently": "^10.0.6",
+    "typescript": "^7.0.2",
+    "alpinejs": "^3.17.4",
+    "daisyui": "^5.7.50",
+    "esbuild": "^0.28.2",
+    "htmx.org": "^4.0.0",
+    "tailwindcss": "^4.3.3"
+  }
+}

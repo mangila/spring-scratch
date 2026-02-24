@@ -1,0 +1,40 @@
+monorepo_root = true
+
+[monorepo]
+config_roots = ["spring1", "spring2", "spring3"]
+
+[tools]
+graalvm = "25.0.2"
+maven = "3.10.0"
+node = "24.21.0"
+python = "3.15.0"
+"aqua:tailwindlabs/tailwindcss" = "4.3.3"
+
+[env]
+_.python.venv = { path = ".venv", create = true }
+
+[tasks.commit]
+description = "Add all, amend commit and force push"
+run = "git add . && git commit --amend --no-edit && git push --force-with-lease"
+
+[tasks.format]
+description = "Format Java code and pom.xml"
+run = "mvn spotless:apply"
+
+[tasks.test]
+description = "Format & Test"
+run = "mise format && mvn clean verify"
+
+[tasks.build]
+description = "Format, Test & Build"
+run = "mise format && mvn clean verify spring-boot:build-image"
+
+[tasks.rustfs]
+description = "Start local RustFS container"
+run = """
+# Create data and logs directories
+mkdir -p data logs
+
+# Run the container (podman will automatically set the folders ownership)
+podman run -d -p 9000:9000 -p 9001:9001 -v $(pwd)/data:/data:Z,U -v $(pwd)/logs:/logs:Z,U rustfs/rustfs:latest -e "RUSTFS_ACCESS_KEY=rustfsadmin" -e "RUSTFS_SECRET_KEY=rustfsadmin123" \
+"""

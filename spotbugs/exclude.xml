@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <Match>
+        <Package name="~io\.github\.mangila\.spring1\.pokemon\.internal\.integration\..*"/>
+    </Match>
+    <Match>
+        <Package name="~io\.github\.mangila\.spring1\.pokemon\.internal\.rest\.(api|model).*"/>
+    </Match>
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+</FindBugsFilter>

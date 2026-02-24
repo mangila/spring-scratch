@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "vaadin": {
+      "command": "npx",
+      "args": ["@pyroprompts/mcp-stdio-to-streamable-http-adapter"],
+      "env": {
+        "URI": "https://mcp.vaadin.com/docs",
+        "MCP_NAME": "vaadin"
+      }
+    }
+  }
+}

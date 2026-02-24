@@ -1,0 +1,17 @@
+[tasks.dev]
+description = "Tailwind and Typescript watch"
+dir = "src/main/client"
+run = "npm run dev"
+
+[tasks.build]
+description = "Tailwind and Typescript build"
+dir = "src/main/client"
+run = "npm run build"
+
+[tasks.container]
+description = "Run Spring3 container"
+run = """
+podman run -d --name spring3-container \
+  -p 8080:8080 \
+  docker.io/library/spring3:1.0.0
+"""
