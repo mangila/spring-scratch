@@ -1,0 +1,16 @@
+[tools]
+java = "25"
+maven = "3"
+python = "3"
+
+[tasks.commit]
+description = "Add all, amend commit and force push"
+run = "git add . && git commit --amend --no-edit && git push --force-with-lease"
+
+[tasks.format]
+description = "Format Java code and pom.xml"
+run = "mvn spotless:apply"
+
+[tasks.test]
+description = "Format & Test"
+run = "mise format && mvn clean verify"

@@ -1,0 +1,9 @@
+# App
+app:
+  integration:
+    pokemon-api:
+      url: "http://localhost"
+# JobRunr
+jobrunr:
+  dashboard:
+    enabled: false

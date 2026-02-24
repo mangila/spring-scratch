@@ -1,0 +1,9 @@
+GET http://localhost:8080/api/v1/pokemon
+Accept: application/json
+###
+GET http://localhost:8080/api/v1/pokemon/0
+Accept: application/json
+###
+DELETE http://localhost:8080/api/v1/pokemon/25
+###
+POST http://localhost:8080/api/v1/pokemon/schedule/GENERATION_I

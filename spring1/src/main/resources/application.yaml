@@ -1,0 +1,37 @@
+# App
+app:
+  integration:
+    pokemon-api:
+      url: "https://pokeapi.co/api/v2"
+# Spring
+spring:
+  application:
+    name: spring1
+  mvc:
+    problemdetails:
+      enabled: true
+  docker:
+    compose:
+      enabled: true
+      file: ./spring1/compose.yaml
+      skip:
+        in-tests: true
+  threads:
+    virtual:
+      enabled: true
+# JobRunr
+jobrunr:
+  background-job-server:
+    enabled: true
+  dashboard:
+    enabled: true
+# SpringDoc
+springdoc:
+  show-actuator: true
+# Decorator
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: true
+      multiline: true
+      logging: slf4j
