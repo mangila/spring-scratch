@@ -1,0 +1,13 @@
+<div th:fragment="chunk(sequence, fibonacciNumber)"
+     class="stream-card-appear relative flex flex-col justify-between overflow-hidden rounded-xl bg-base-100 p-4 shadow-sm border border-base-200 hover:border-primary/50 hover:shadow-md transition-all duration-200 min-w-[140px] max-w-[280px] flex-1">
+    <div class="flex items-center justify-between gap-2 pb-2 border-b border-base-200">
+        <span class="badge badge-primary badge-sm font-mono font-semibold" th:text="'#' + ${sequence}">#1</span>
+        <span class="text-[11px] font-mono font-medium text-base-content/50 uppercase">Term</span>
+    </div>
+    <div class="pt-3">
+        <div class="font-mono text-lg font-bold text-base-content tracking-tight break-all select-all leading-tight"
+             th:text="${fibonacciNumber}">
+            0
+        </div>
+    </div>
+</div>

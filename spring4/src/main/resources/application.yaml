@@ -1,0 +1,18 @@
+# Spring
+spring:
+  application:
+    name: spring4
+  main:
+    web-application-type: servlet
+  threads:
+    virtual:
+      enabled: true
+  websocket:
+    messaging:
+      preferred-json-mapper: jackson
+# Server
+server:
+  http2:
+    enabled: true
+  compression:
+    enabled: true

@@ -1,0 +1,190 @@
+openapi: 3.1.0
+info:
+  title: Pokemon Service API
+  version: 1.0.0
+  description: API for managing and fetching Pokemon data
+servers:
+  - url: http://localhost:8080
+paths:
+  /api/v1/pokemon:
+    get:
+      tags:
+        - Pokemon
+      summary: Find all pokemon
+      operationId: findAllPokemon
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: Page number (0-based)
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          required: false
+          description: Page size
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Successfully retrieved paged pokemon list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedPokemonDto'
+        '400':
+          description: Invalid pagination parameters
+
+  /api/v1/pokemon/id/{pokedexId}:
+    get:
+      tags:
+        - Pokemon
+      summary: Find pokemon by pokedex id
+      operationId: findPokemonByPokedexId
+      parameters:
+        - name: pokedexId
+          in: path
+          required: true
+          description: The pokedex ID of the pokemon
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 151
+      responses:
+        '200':
+          description: Successfully retrieved pokemon
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PokemonDto'
+        '400':
+          description: Invalid pokedex ID supplied
+        '404':
+          description: Pokemon not found
+    delete:
+      tags:
+        - Pokemon
+      summary: Delete pokemon by pokedex id
+      operationId: deletePokemonByPokedexId
+      parameters:
+        - name: pokedexId
+          in: path
+          required: true
+          description: The pokedex ID of the pokemon
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 151
+      responses:
+        '204':
+          description: Pokemon successfully deleted
+        '400':
+          description: Invalid pokedex ID supplied
+        '404':
+          description: Pokemon not found
+
+  /api/v1/pokemon/name/{pokemonName}:
+    get:
+      tags:
+        - Pokemon
+      summary: Find pokemon by name
+      operationId: findPokemonByName
+      parameters:
+        - name: pokemonName
+          in: path
+          required: true
+          description: The name of the pokemon
+          schema:
+            type: string
+            minLength: 2
+            maxLength: 100
+      responses:
+        '200':
+          description: Successfully retrieved pokemon
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PokemonDto'
+        '400':
+          description: Invalid pokemon name supplied
+        '404':
+          description: Pokemon not found
+
+  /api/v1/pokemon/schedule/{generation}:
+    post:
+      tags:
+        - Pokemon
+      summary: Enqueue pokemon generation
+      operationId: enqueuePokemonGeneration
+      parameters:
+        - name: generation
+          in: path
+          required: true
+          description: Pokemon generation to schedule
+          schema:
+            $ref: '#/components/schemas/Generation'
+      responses:
+        '200':
+          description: Pokemon generation scheduling triggered successfully
+        '400':
+          description: Invalid generation supplied
+
+components:
+  schemas:
+    Generation:
+      type: string
+      enum:
+        - generation-i
+        - unknown
+    PokemonDto:
+      type: object
+      required:
+        - pokedexId
+        - name
+        - generation
+      properties:
+        pokedexId:
+          type: integer
+          minimum: 0
+          maximum: 151
+        name:
+          type: string
+        generation:
+          $ref: '#/components/schemas/Generation'
+    PageMetadata:
+      type: object
+      required:
+        - size
+        - totalElements
+        - totalPages
+        - number
+      properties:
+        size:
+          type: integer
+          format: int64
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int64
+        number:
+          type: integer
+          format: int64
+    PagedPokemonDto:
+      type: object
+      required:
+        - content
+        - page
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/PokemonDto'
+        page:
+          $ref: '#/components/schemas/PageMetadata'
