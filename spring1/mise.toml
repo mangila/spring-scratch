@@ -1,0 +1,19 @@
+[tasks.container]
+env = { PG_PORT = 5022 }
+description = "Run Spring1 container with Postgres"
+run = """
+podman rm -f postgres-db spring1-container 2>/dev/null || true
+podman run -d --name postgres-db \
+  -p ${PG_PORT}:5432 \
+  -e POSTGRES_DB=mydatabase \
+  -e POSTGRES_USER=myuser \
+  -e POSTGRES_PASSWORD=mypassword \
+  docker.io/library/postgres:18-alpine >/dev/null
+podman run -d --name spring1-container \
+  -p 8080:8080 \
+  -p 8000:8000 \
+  -e SPRING_DATASOURCE_URL=jdbc:postgresql://host.containers.internal:${PG_PORT}/mydatabase \
+  -e SPRING_DATASOURCE_USERNAME=myuser \
+  -e SPRING_DATASOURCE_PASSWORD=mypassword \
+  docker.io/library/spring1:1.0.0
+"""

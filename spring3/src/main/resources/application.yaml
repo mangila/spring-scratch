@@ -1,0 +1,11 @@
+# Spring
+spring:
+  application:
+    name: spring3
+  threads:
+    virtual:
+      enabled: true
+# Server
+server:
+  http2:
+    enabled: true

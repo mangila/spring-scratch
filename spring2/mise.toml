@@ -1,0 +1,7 @@
+[tasks.container]
+description = "Run Spring2 container"
+run = """
+podman run -d --name spring2-container \
+  -p 8080:8080 \
+  docker.io/library/spring2:1.0.0
+"""
