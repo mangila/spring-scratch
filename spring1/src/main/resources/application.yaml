@@ -1,0 +1,85 @@
+# App
+app:
+  integration:
+    pokemon-api:
+      url: "https://pokeapi.co/api/v2"
+# Spring
+spring:
+  application:
+    name: spring1
+  flyway:
+    enabled: true
+    fail-on-missing-locations: true
+    postgresql:
+      transactional-lock: true
+    connect-retries: 3
+  modulith:
+    runtime:
+      flyway-enabled: true
+    events:
+      jdbc:
+        schema-initialization:
+          enabled: false
+  mvc:
+    problemdetails:
+      enabled: true
+  web:
+    resources:
+      static-locations:
+        - classpath:/META-INF/resources/
+        - classpath:/resources/
+        - classpath:/static/
+        - classpath:/static/browser/
+        - classpath:/public/
+    error:
+      whitelabel:
+        enabled: false
+  docker:
+    compose:
+      enabled: true
+      file: ./spring1/compose.yaml
+      skip:
+        in-tests: true
+  threads:
+    virtual:
+      enabled: true
+  data:
+    jdbc:
+      dialect: postgresql
+# Server
+server:
+  http2:
+    enabled: true
+  forward-headers-strategy: native
+  compression:
+    enabled: true
+    min-response-size: 1024
+    mime-types:
+      - text/html
+      - text/xml
+      - text/plain
+      - text/css
+      - text/javascript
+      - application/javascript
+      - application/json
+      - application/xml
+      - application/problem+json
+      - image/svg+xml
+# JobRunr
+jobrunr:
+  background-job-server:
+    enabled: true
+  dashboard:
+    enabled: true
+  job-scheduler:
+    enabled: true
+# SpringDoc
+springdoc:
+  show-actuator: true
+# Decorator
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: true
+      multiline: true
+      logging: slf4j

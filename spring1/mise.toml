@@ -1,0 +1,6 @@
+[tasks.container]
+description = "Run spring1 container"
+env = {
+    PG_PORT = 38835 # random port
+}
+run = "podman run -d --name spring1-container -p 8080:8080 -p 8000:8000 -e SPRING_DATASOURCE_URL=jdbc:postgresql://host.containers.internal:${PG_PORT}/mydatabase -e SPRING_DATASOURCE_USERNAME=myuser -e SPRING_DATASOURCE_PASSWORD=mypassword docker.io/library/spring1:1.0.0"

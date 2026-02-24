@@ -1,0 +1,24 @@
+# App
+app:
+  integration:
+    pokemon-api:
+      url: "http://localhost"
+# Spring
+spring:
+  flyway:
+    clean-disabled: false
+# JobRunr
+jobrunr:
+  dashboard:
+    enabled: false
+  background-job-server:
+    poll-interval-in-seconds: 5
+    enabled: true
+  job-scheduler:
+    enabled: true
+# SpringDoc
+springdoc:
+  swagger-ui:
+    enabled: false
+  api-docs:
+    enabled: false
