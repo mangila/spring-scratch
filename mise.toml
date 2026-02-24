@@ -1,0 +1,8 @@
+[env]
+HELLO = "hello"
+
+[tools]
+terraform = '1.14.5'
+
+[tasks.build]
+run = "terraform -v && echo $HELLO"
