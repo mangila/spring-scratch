@@ -3,6 +3,7 @@ HELLO = "hello"
 
 [tools]
 terraform = '1.14.5'
+java = "graalvm-community-25.0.2"
 
 [tasks.build]
-run = "terraform -v && echo $HELLO"
+run = "terraform -v && java --version"
