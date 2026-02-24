@@ -1,0 +1,277 @@
+<div class="app-container">
+  <!-- Header Toolbar -->
+  <mat-toolbar color="primary" class="app-toolbar">
+    <div class="brand">
+      <div class="pokeball-icon">
+        <div class="pokeball-top"></div>
+        <div class="pokeball-center"></div>
+        <div class="pokeball-bottom"></div>
+      </div>
+      <div class="brand-text">
+        <span class="app-title">PokéDex Explorer</span>
+        <span class="app-subtitle">Spring Boot & OpenAPI Client</span>
+      </div>
+    </div>
+
+    <span class="toolbar-spacer"></span>
+
+    <div class="toolbar-actions">
+      <button
+        mat-flat-button
+        class="sync-btn"
+        (click)="openScheduleDialog()"
+        matTooltip="Schedule background ingestion from PokeAPI"
+      >
+        <mat-icon>sync</mat-icon>
+        <span>Schedule Ingestion</span>
+      </button>
+
+      <button
+        mat-icon-button
+        (click)="loadPokemon()"
+        matTooltip="Refresh list"
+        [disabled]="loading()"
+      >
+        <mat-icon>refresh</mat-icon>
+      </button>
+    </div>
+  </mat-toolbar>
+
+  <!-- Progress Bar -->
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate" class="header-loader"></mat-progress-bar>
+  }
+
+  <main class="main-content">
+    <!-- Search & Controls Bar -->
+    <section class="control-panel">
+      <div class="search-box">
+        <mat-form-field appearance="outline" class="search-field" subscriptSizing="dynamic">
+          <mat-label>Search by Name or Pokédex #</mat-label>
+          <input
+            matInput
+            [(ngModel)]="searchQuery"
+            (keyup.enter)="onSearch()"
+            placeholder="e.g. pikachu, charmander, 25"
+          />
+          <mat-icon matPrefix class="search-icon">search</mat-icon>
+          @if (searchQuery()) {
+            <button matSuffix mat-icon-button aria-label="Clear" (click)="clearSearch()">
+              <mat-icon>close</mat-icon>
+            </button>
+          }
+        </mat-form-field>
+        <button mat-flat-button color="primary" class="search-submit-btn" (click)="onSearch()">
+          Search
+        </button>
+      </div>
+
+      <div class="view-controls">
+        @if (isSearchActive()) {
+          <mat-chip-row class="active-filter-chip" (removed)="clearSearch()">
+            Filtering: {{ searchQuery() }}
+            <button matChipRemove aria-label="Remove search filter">
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </mat-chip-row>
+        }
+
+        <div class="total-badge">
+          <mat-icon class="total-icon">catching_pokemon</mat-icon>
+          <span>{{ totalElements() }} Pokémon</span>
+        </div>
+
+        <mat-button-toggle-group
+          [value]="viewMode()"
+          (change)="viewMode.set($event.value)"
+          aria-label="View mode"
+          class="mode-toggle"
+        >
+          <mat-button-toggle value="grid" matTooltip="Grid View">
+            <mat-icon>grid_view</mat-icon>
+          </mat-button-toggle>
+          <mat-button-toggle value="table" matTooltip="Table View">
+            <mat-icon>table_rows</mat-icon>
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
+    </section>
+
+    <!-- Pokémon Grid / List Content -->
+    @if (pokemonList().length > 0) {
+      @if (viewMode() === 'grid') {
+        <section class="pokemon-grid">
+          @for (pokemon of pokemonList(); track pokemon.pokedexId) {
+            <mat-card
+              class="pokemon-card"
+              (click)="openDetailDialog(pokemon)"
+              [matTooltip]="'Click for details on ' + pokemon.name"
+            >
+              <div class="card-top-bar">
+                <span class="dex-number">#{{ padDexId(pokemon.pokedexId) }}</span>
+                <span class="gen-tag">{{ formatGeneration(pokemon.generation) }}</span>
+              </div>
+
+              <div class="card-image-container">
+                <img
+                  [src]="getPokemonImageUrl(pokemon)"
+                  [alt]="pokemon.name"
+                  class="pokemon-thumb"
+                  loading="lazy"
+                />
+              </div>
+
+              <mat-card-content class="card-info">
+                <h3 class="pokemon-name">{{ pokemon.name }}</h3>
+              </mat-card-content>
+
+              <mat-card-actions class="card-actions" align="end" (click)="$event.stopPropagation()">
+                <button
+                  mat-icon-button
+                  color="primary"
+                  matTooltip="View details"
+                  (click)="openDetailDialog(pokemon)"
+                >
+                  <mat-icon>info</mat-icon>
+                </button>
+                <button
+                  mat-icon-button
+                  color="warn"
+                  matTooltip="Delete Pokémon"
+                  (click)="deletePokemon(pokemon, $event)"
+                >
+                  <mat-icon>delete_outline</mat-icon>
+                </button>
+              </mat-card-actions>
+            </mat-card>
+          }
+        </section>
+      } @else {
+        <!-- Table View -->
+        <div class="table-container mat-elevation-z1">
+          <table mat-table [dataSource]="pokemonList()" class="pokemon-table">
+            <!-- ID Column -->
+            <ng-container matColumnDef="pokedexId">
+              <th mat-header-cell *matHeaderCellDef class="th-dex"># ID</th>
+              <td mat-cell *matCellDef="let p">
+                <span class="table-dex-badge">#{{ padDexId(p.pokedexId) }}</span>
+              </td>
+            </ng-container>
+
+            <!-- Sprite Column -->
+            <ng-container matColumnDef="sprite">
+              <th mat-header-cell *matHeaderCellDef class="th-sprite">Sprite</th>
+              <td mat-cell *matCellDef="let p">
+                <img
+                  [src]="getPokemonImageUrl(p)"
+                  [alt]="p.name"
+                  class="table-sprite"
+                  loading="lazy"
+                />
+              </td>
+            </ng-container>
+
+            <!-- Name Column -->
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef>Name</th>
+              <td mat-cell *matCellDef="let p">
+                <span class="table-pokemon-name">{{ p.name }}</span>
+              </td>
+            </ng-container>
+
+            <!-- Generation Column -->
+            <ng-container matColumnDef="generation">
+              <th mat-header-cell *matHeaderCellDef>Generation</th>
+              <td mat-cell *matCellDef="let p">
+                <span class="gen-chip">{{ formatGeneration(p.generation) }}</span>
+              </td>
+            </ng-container>
+
+            <!-- Actions Column -->
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef class="th-actions">Actions</th>
+              <td mat-cell *matCellDef="let p" class="td-actions">
+                <button
+                  mat-icon-button
+                  color="primary"
+                  matTooltip="View Details"
+                  (click)="openDetailDialog(p)"
+                >
+                  <mat-icon>visibility</mat-icon>
+                </button>
+                <button
+                  mat-icon-button
+                  color="warn"
+                  matTooltip="Delete Pokémon"
+                  (click)="deletePokemon(p, $event)"
+                >
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr
+              mat-row
+              *matRowDef="let row; columns: displayedColumns"
+              class="table-row"
+              (click)="openDetailDialog(row)"
+            ></tr>
+          </table>
+        </div>
+      }
+
+      <!-- Pagination (shown when not filtered or total > 0) -->
+      @if (!isSearchActive()) {
+        <mat-paginator
+          [length]="totalElements()"
+          [pageSize]="pageSize()"
+          [pageIndex]="pageIndex()"
+          [pageSizeOptions]="[10, 20, 50, 100]"
+          (page)="onPageChange($event)"
+          showFirstLastButtons
+          class="paginator mat-elevation-z1"
+          aria-label="Select Pokémon page"
+        >
+        </mat-paginator>
+      }
+    } @else if (!loading()) {
+      <!-- Empty State -->
+      <section class="empty-state">
+        <div class="empty-card">
+          <div class="empty-icon-wrap">
+            <mat-icon class="empty-icon">catching_pokemon</mat-icon>
+          </div>
+          <h2>No Pokémon Found</h2>
+          <p class="empty-desc">
+            @if (isSearchActive()) {
+              No results matching "{{ searchQuery() }}". Try a different search term or clear the
+              filter.
+            } @else {
+              Your Pokémon database is currently empty. Trigger the background ingestion job to load
+              Generation I Pokémon!
+            }
+          </p>
+          <div class="empty-actions">
+            @if (isSearchActive()) {
+              <button mat-flat-button color="primary" (click)="clearSearch()">
+                <mat-icon>arrow_back</mat-icon>
+                Show All Pokémon
+              </button>
+            } @else {
+              <button
+                mat-flat-button
+                color="primary"
+                class="hero-sync-btn"
+                (click)="openScheduleDialog()"
+              >
+                <mat-icon>sync</mat-icon>
+                Schedule Generation I Ingestion
+              </button>
+            }
+          </div>
+        </div>
+      </section>
+    }
+  </main>
+</div>

@@ -1,0 +1,27 @@
+# Spring
+spring:
+  application:
+    name: spring3
+  main:
+    web-application-type: servlet
+  threads:
+    virtual:
+      enabled: true
+# Server
+server:
+  http2:
+    enabled: true
+  compression:
+    enabled: true
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "info, health"
+  info:
+    build:
+      enabled: true
+    git:
+      enabled: true
+      mode: full

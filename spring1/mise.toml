@@ -1,0 +1,51 @@
+env = {
+    PG_PORT = 5022,
+    PG_DB = "mydatabase",
+    PG_USER = "myuser",
+    PG_PW = "mypassword",
+    RUSTFS_ACCESS_KEY = "rustfsadmin",
+    RUSTFS_SECRET_KEY = "rustfsadmin123"
+}
+
+[tasks.rustfs]
+description = "Start local RustFS container"
+run = """
+podman rm -f rustfs-server 2>/dev/null || true
+podman run -d --name rustfs-server \
+  -p 9000:9000 \
+  -p 9001:9001 \
+  -e RUSTFS_ACCESS_KEY=${RUSTFS_ACCESS_KEY} \
+  -e RUSTFS_SECRET_KEY=${RUSTFS_SECRET_KEY} \
+  rustfs/rustfs:latest
+"""
+
+[tasks.postgres]
+description = "Start local Postgres container"
+run = """
+podman rm -f postgres-db 2>/dev/null || true
+podman run -d --name postgres-db \
+  -p ${PG_PORT}:5432 \
+  -e POSTGRES_DB=${PG_DB} \
+  -e POSTGRES_USER=${PG_USER} \
+  -e POSTGRES_PASSWORD=${PG_PW} \
+  docker.io/library/postgres:18-alpine >/dev/null
+"""
+
+[tasks.container]
+depends = ["rustfs", "postgres"]
+description = "Run Spring1 container with Postgres"
+run = """
+podman rm -f spring1-container 2>/dev/null || true
+podman run -d --name spring1-container \
+  -p 8080:8080 \
+  -p 8000:8000 \
+  -e SPRING_DATASOURCE_URL=jdbc:postgresql://host.containers.internal:${PG_PORT}/${PG_DB} \
+  -e SPRING_DATASOURCE_USERNAME=${PG_USER} \
+  -e SPRING_DATASOURCE_PASSWORD=${PG_PW} \
+  -e APP_INTEGRATION_RUSTFS_URL=http://host.containers.internal:9000 \
+  -e APP_INTEGRATION_RUSTFS_BUCKET=pokemon \
+  -e APP_INTEGRATION_RUSTFS_USERNAME=${RUSTFS_ACCESS_KEY} \
+  -e APP_INTEGRATION_RUSTFS_PASSWORD=${RUSTFS_SECRET_KEY} \
+  -e SPRING_PROFILES_ACTIVE=prod \
+  docker.io/library/spring1:1.0.0
+"""

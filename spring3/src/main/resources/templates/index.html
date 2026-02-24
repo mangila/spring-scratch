@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:hx-sse="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">Title</title>
+    <link rel="stylesheet" th:href="@{/css/output.css}">
+    <script defer th:src="@{/js/main.js}"></script>
+</head>
+
+<body>
+
+<button id="connect" class="btn btn-primary btn-xl">Connect</button>
+
+<div hx-sse:connect="/api/v1/sse/subscribe"
+     hx-trigger="click from:#connect">
+</div>
+
+<div hx-get="/api/v1/sse/metadata" hx-trigger="heartbeat from:body" hx-swap="innerHTML">
+
+</div>
+
+<footer>
+    <div>Footer content</div>
+</footer>
+
+</body>
+</html>

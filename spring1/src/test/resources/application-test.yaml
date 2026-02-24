@@ -1,0 +1,29 @@
+# App
+app:
+  integration:
+    pokemon-api:
+      url: "http://localhost"
+      sprites-url: "http://localhost"
+    rust-fs:
+      url: "http://localhost"
+      bucket: "pokemon"
+      username: "rustfsadmin"
+      password: "rustfsadmin123"
+# Spring
+spring:
+  flyway:
+    clean-disabled: false
+# JobRunr
+jobrunr:
+  dashboard:
+    enabled: false
+  background-job-server:
+    enabled: false
+  job-scheduler:
+    enabled: false
+# SpringDoc
+springdoc:
+  swagger-ui:
+    enabled: false
+  api-docs:
+    enabled: false
