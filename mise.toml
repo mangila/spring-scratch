@@ -1,9 +1,4 @@
-[env]
-HELLO = "hello"
-
 [tools]
-terraform = '1.14.5'
 java = "graalvm-community-25.0.2"
-
-[tasks.build]
-run = "terraform -v && java --version"
+maven = "3.9.12"
+python="3.14.3"

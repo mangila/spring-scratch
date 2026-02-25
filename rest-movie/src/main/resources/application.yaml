@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: rest-movie
+  threads:
+    virtual:
+      enabled: true
+  docker:
+    compose:
+      file: ./rest-movie/compose.yaml
+vaadin:
+  launch-browser: true
