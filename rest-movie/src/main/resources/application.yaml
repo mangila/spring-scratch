@@ -7,5 +7,10 @@ spring:
   docker:
     compose:
       file: ./rest-movie/compose.yaml
+  datasource:
+    hikari:
+      auto-commit: false
+  jpa:
+    open-in-view: false
 vaadin:
   launch-browser: true
