@@ -1,33 +1,11 @@
-create table actor
-(
-    id varchar(255) not null,
-    primary key (id)
-);
-
-create table actor_movie
-(
-    actor_id varchar(255) not null,
-    movies   varchar(255)
-);
-
-create table movie
-(
-    id varchar(255) not null,
-    primary key (id)
-);
-
-create table movie_actor
-(
-    actors   varchar(255),
-    movie_id varchar(255) not null
-);
-
-alter table if exists actor_movie
-    add constraint FKpjjfl93tcc6ix1ugr0bn3so7h
-    foreign key (actor_id)
-    references actor;
-
-alter table if exists movie_actor
-    add constraint FKhedvt8u16luotgyoel4fqy7t1
-    foreign key (movie_id)
-    references movie;
+create table actor (version integer, created_at timestamp(6) with time zone, updated_at timestamp(6) with time zone, bio varchar(255), id varchar(255) not null, name varchar(255), picture bytea, primary key (id));
+create table actor_movie (actor_id varchar(255) not null, movies varchar(255));
+create table director (version integer, created_at timestamp(6) with time zone, updated_at timestamp(6) with time zone, bio varchar(255), id varchar(255) not null, name varchar(255), picture bytea, primary key (id));
+create table director_movie (director_id varchar(255) not null, movies varchar(255));
+create table movie (budget numeric(38,2), release_date date, version integer, created_at timestamp(6) with time zone, updated_at timestamp(6) with time zone, genre varchar(255), id varchar(255) not null, name varchar(255), primary key (id));
+create table movie_actor (actors varchar(255), movie_id varchar(255) not null);
+create table movie_director (directors varchar(255), movie_id varchar(255) not null);
+alter table if exists actor_movie add constraint FKpjjfl93tcc6ix1ugr0bn3so7h foreign key (actor_id) references actor;
+alter table if exists director_movie add constraint FKpet8a0x81rr9vphofpus2pxe9 foreign key (director_id) references director;
+alter table if exists movie_actor add constraint FKhedvt8u16luotgyoel4fqy7t1 foreign key (movie_id) references movie;
+alter table if exists movie_director add constraint FKbay4b2v2db4yfaww2oocpld9m foreign key (movie_id) references movie;
