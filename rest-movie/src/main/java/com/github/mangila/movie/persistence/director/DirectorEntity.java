@@ -16,98 +16,99 @@ import java.util.Set;
 @EntityListeners(AuditingEntityListener.class)
 public class DirectorEntity {
 
-    @Id
-    private String id;
+	@Id
+	private String id;
 
-    private String name;
+	private String name;
 
-    @Convert(converter = UriConverter.class)
-    private URI picture;
+	@Convert(converter = UriConverter.class)
+	private URI picture;
 
-    private String bio;
+	private String bio;
 
-    @ElementCollection
-    @CollectionTable(name = "director_movie")
-    private Set<String> movies = new HashSet<>();
+	@ElementCollection
+	@CollectionTable(name = "director_movie")
+	private Set<String> movies = new HashSet<>();
 
-    @Version
-    private Integer version;
+	@Version
+	private Integer version;
 
-    @CreatedDate
-    @Column(updatable = false)
-    private Instant createdAt;
+	@CreatedDate
+	@Column(updatable = false)
+	private Instant createdAt;
 
-    @LastModifiedDate
-    private Instant updatedAt;
+	@LastModifiedDate
+	private Instant updatedAt;
 
-    public DirectorEntity(String id, String name, URI uri, String bio) {
-        this.id = id;
-        this.name = name;
-        this.picture = uri;
-        this.bio = bio;
-    }
+	public DirectorEntity(String id, String name, URI uri, String bio) {
+		this.id = id;
+		this.name = name;
+		this.picture = uri;
+		this.bio = bio;
+	}
 
-    public String getId() {
-        return id;
-    }
+	public String getId() {
+		return id;
+	}
 
-    public void setId(String id) {
-        this.id = id;
-    }
+	public void setId(String id) {
+		this.id = id;
+	}
 
-    public String getName() {
-        return name;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    public URI getPicture() {
-        return picture;
-    }
+	public URI getPicture() {
+		return picture;
+	}
 
-    public void setPicture(URI picture) {
-        this.picture = picture;
-    }
+	public void setPicture(URI picture) {
+		this.picture = picture;
+	}
 
-    public String getBio() {
-        return bio;
-    }
+	public String getBio() {
+		return bio;
+	}
 
-    public void setBio(String bio) {
-        this.bio = bio;
-    }
+	public void setBio(String bio) {
+		this.bio = bio;
+	}
 
-    public Set<String> getMovies() {
-        return movies;
-    }
+	public Set<String> getMovies() {
+		return movies;
+	}
 
-    public void setMovies(Set<String> movies) {
-        this.movies = movies;
-    }
+	public void setMovies(Set<String> movies) {
+		this.movies = movies;
+	}
 
-    public Integer getVersion() {
-        return version;
-    }
+	public Integer getVersion() {
+		return version;
+	}
 
-    public void setVersion(Integer version) {
-        this.version = version;
-    }
+	public void setVersion(Integer version) {
+		this.version = version;
+	}
 
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
+	public Instant getCreatedAt() {
+		return createdAt;
+	}
 
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
+	public void setCreatedAt(Instant createdAt) {
+		this.createdAt = createdAt;
+	}
 
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
+	public Instant getUpdatedAt() {
+		return updatedAt;
+	}
 
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
-    }
+	public void setUpdatedAt(Instant updatedAt) {
+		this.updatedAt = updatedAt;
+	}
+
 }

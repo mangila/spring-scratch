@@ -9,11 +9,12 @@ import java.net.URI;
 @Component
 public class ActorMapper {
 
-    public ActorEntity toEntity(CSVRecord record) {
-        var id = record.get("id");
-        var name = record.get("name");
-        var picture = record.get("picture");
-        var bio = record.get("bio");
-        return new ActorEntity(id, name, URI.create(picture), bio);
-    }
+	public ActorEntity toEntity(CSVRecord record) {
+		var id = record.get("id");
+		var name = record.get("name");
+		var picture = record.get("picture");
+		var bio = record.get("bio");
+		return new ActorEntity(id, name, URI.create(picture), bio);
+	}
+
 }

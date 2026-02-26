@@ -6,10 +6,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @Configuration
-@EnableJpaRepositories(
-        value = "com.github.mangila.movie.persistence",
-        repositoryBaseClass = BaseJpaRepositoryImpl.class
-)
+@EnableJpaRepositories(value = "com.github.mangila.movie.persistence",
+		repositoryBaseClass = BaseJpaRepositoryImpl.class)
 @EnableJpaAuditing
 public class JpaConfig {
+
 }

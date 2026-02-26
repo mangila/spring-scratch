@@ -6,9 +6,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class ActorJdbcRepository {
 
-    private final JdbcClient jdbcClient;
+	private final JdbcClient jdbcClient;
 
-    public ActorJdbcRepository(JdbcClient jdbcClient) {
-        this.jdbcClient = jdbcClient;
-    }
+	public ActorJdbcRepository(JdbcClient jdbcClient) {
+		this.jdbcClient = jdbcClient;
+	}
+
 }

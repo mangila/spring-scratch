@@ -44,6 +44,17 @@ jobrunr:
 # Vaadin
 vaadin:
   launch-browser: true
+# Springdoc
+springdoc:
+  swagger-ui:
+    enabled: false
+  show-actuator: false
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health"
 # Logging
 logging:
   level:

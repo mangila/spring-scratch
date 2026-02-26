@@ -6,7 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class RestMovieApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(RestMovieApplication.class, args);
-    }
+	public static void main(String[] args) {
+		SpringApplication.run(RestMovieApplication.class, args);
+	}
+
 }

@@ -30,25 +30,28 @@ public class DataBootstrap implements ApplicationRunner {
     private static final Logger log = LoggerFactory.getLogger(DataBootstrap.class);
 
     private final ClassPathResource actorResource;
+
     private final ClassPathResource directorResource;
+
     private final ClassPathResource movieResource;
+
     private final ActorMapper actorMapper;
+
     private final DirectorMapper directorMapper;
+
     private final MovieMapper movieMapper;
+
     private final ActorJpaRepository actorJpaRepository;
+
     private final DirectorJpaRepository directorJpaRepository;
+
     private final MovieJpaRepository movieJpaRepository;
 
-    public DataBootstrap(
-            @Value("data/actors.csv") ClassPathResource actorResource,
-            @Value("data/directors.csv") ClassPathResource directorResource,
-            @Value("data/movies.csv") ClassPathResource movieResource,
-            ActorMapper actorMapper,
-            DirectorMapper directorMapper,
-            MovieMapper movieMapper,
-            ActorJpaRepository actorJpaRepository,
-            DirectorJpaRepository directorJpaRepository,
-            MovieJpaRepository movieJpaRepository) {
+    public DataBootstrap(@Value("data/actors.csv") ClassPathResource actorResource,
+                         @Value("data/directors.csv") ClassPathResource directorResource,
+                         @Value("data/movies.csv") ClassPathResource movieResource, ActorMapper actorMapper,
+                         DirectorMapper directorMapper, MovieMapper movieMapper, ActorJpaRepository actorJpaRepository,
+                         DirectorJpaRepository directorJpaRepository, MovieJpaRepository movieJpaRepository) {
         this.actorResource = actorResource;
         this.directorResource = directorResource;
         this.movieResource = movieResource;
@@ -62,15 +65,11 @@ public class DataBootstrap implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader()
-                .setSkipHeaderRecord(true)
-                .get();
+        CSVFormat csvFormat = CSVFormat.DEFAULT.builder().setHeader().setSkipHeaderRecord(true).get();
         final List<ActorEntity> actorEntities;
         final List<DirectorEntity> directorEntities;
         final List<MovieEntity> movieEntities;
-        try (var reader = getReader(actorResource.getInputStream());
-             CSVParser csvParser = csvFormat.parse(reader)) {
+        try (var reader = getReader(actorResource.getInputStream()); CSVParser csvParser = csvFormat.parse(reader)) {
             actorEntities = csvParser.stream()
                     .peek(record -> log.info("{}", record))
                     .map(actorMapper::toEntity)
@@ -78,8 +77,7 @@ public class DataBootstrap implements ApplicationRunner {
                     .toList();
         }
 
-        try (var reader = getReader(directorResource.getInputStream());
-             CSVParser csvParser = csvFormat.parse(reader)) {
+        try (var reader = getReader(directorResource.getInputStream()); CSVParser csvParser = csvFormat.parse(reader)) {
             directorEntities = csvParser.stream()
                     .peek(record -> log.info("{}", record))
                     .map(directorMapper::toEntity)
@@ -87,8 +85,7 @@ public class DataBootstrap implements ApplicationRunner {
                     .toList();
         }
 
-        try (var reader = getReader(movieResource.getInputStream());
-             CSVParser csvParser = csvFormat.parse(reader)) {
+        try (var reader = getReader(movieResource.getInputStream()); CSVParser csvParser = csvFormat.parse(reader)) {
             movieEntities = csvParser.stream()
                     .peek(record -> log.info("{}", record))
                     .map(movieMapper::toEntity)
@@ -96,18 +93,20 @@ public class DataBootstrap implements ApplicationRunner {
                     .toList();
         }
 
-        for (var actorEntity : actorEntities) {
-            var rn = ThreadLocalRandom.current().nextInt(0, movieEntities.size());
-            var movieEntity = movieEntities.get(rn);
-            movieEntity.getActors().add(actorEntity.getId());
-            actorEntity.getMovies().add(movieEntity.getId());
+        for (var actor : actorEntities) {
+            for (int i = 0; i < ThreadLocalRandom.current().nextInt(0, movieEntities.size()); i++) {
+                var rn = ThreadLocalRandom.current().nextInt(0, movieEntities.size());
+                var movie = movieEntities.get(rn);
+                movie.getActors().add(actor.getId());
+                actor.getMovies().add(movie.getId());
+            }
         }
 
-        for (var directorEntity : directorEntities) {
-            var rn = ThreadLocalRandom.current().nextInt(0, movieEntities.size());
-            var movieEntity = movieEntities.get(rn);
-            movieEntity.getDirectors().add(directorEntity.getId());
-            directorEntity.getMovies().add(movieEntity.getId());
+        for (int i = 0; i < movieEntities.size(); i++) {
+            var director = directorEntities.get(i);
+            var movie = movieEntities.get(i);
+            movie.getDirectors().add(director.getId());
+            director.getMovies().add(movie.getId());
         }
 
         actorJpaRepository.persistAll(actorEntities);
@@ -118,4 +117,5 @@ public class DataBootstrap implements ApplicationRunner {
     public BufferedReader getReader(InputStream inputStream) {
         return new BufferedReader(new InputStreamReader(inputStream));
     }
+
 }
