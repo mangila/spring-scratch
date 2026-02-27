@@ -46,6 +46,7 @@ public class MovieEntity {
 	private Instant updatedAt;
 
 	public MovieEntity() {
+		// do nothing, for JPA
 	}
 
 	public MovieEntity(String id, String name, String genre, BigDecimal budget, LocalDate releaseDate) {

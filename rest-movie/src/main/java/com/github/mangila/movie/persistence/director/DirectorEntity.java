@@ -40,6 +40,10 @@ public class DirectorEntity {
 	@LastModifiedDate
 	private Instant updatedAt;
 
+	public DirectorEntity() {
+		// do nothing, for JPA
+	}
+
 	public DirectorEntity(String id, String name, URI uri, String bio) {
 		this.id = id;
 		this.name = name;
