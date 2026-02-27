@@ -7,6 +7,7 @@ spring:
   docker:
     compose:
       file: ./rest-movie/compose.yaml
+      enabled: false
   datasource:
     url: jdbc:postgresql://localhost:5432/movie
     username: postgres
@@ -43,7 +44,7 @@ jobrunr:
     enabled: true
 # Vaadin
 vaadin:
-  launch-browser: true
+  launch-browser: false
 # Springdoc
 springdoc:
   swagger-ui:

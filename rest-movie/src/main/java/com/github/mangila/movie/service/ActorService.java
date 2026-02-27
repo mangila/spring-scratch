@@ -3,6 +3,7 @@ package com.github.mangila.movie.service;
 import com.github.mangila.movie.persistence.actor.ActorJpaRepository;
 import com.github.mangila.movie.persistence.actor.ActorProjection;
 import com.github.mangila.movie.shared.ActorMapper;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,8 +20,8 @@ public class ActorService {
         this.actorMapper = actorMapper;
     }
 
-    public List<ActorProjection> findAllProjections() {
-        return jpaRepository.findAllBy(ActorProjection.class);
+    public List<ActorProjection> findAllProjections(Pageable pageable) {
+        return jpaRepository.findAllBy(pageable, ActorProjection.class);
     }
 
 }

@@ -2,6 +2,7 @@ package com.github.mangila.movie.web.api;
 
 import com.github.mangila.movie.persistence.actor.ActorProjection;
 import com.github.mangila.movie.service.ActorService;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,8 +20,8 @@ public class ActorController {
     }
 
     @GetMapping
-    public List<ActorProjection> findAllProjections() {
-        return actorService.findAllProjections();
+    public List<ActorProjection> findAllProjections(Pageable pageable) {
+        return actorService.findAllProjections(pageable);
     }
 
 }
