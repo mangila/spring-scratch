@@ -9,6 +9,9 @@ spring:
       ddl-auto: create-drop
   flyway:
     enabled: false
+# Vaadin
+vaadin:
+  launch-browser: true
 # Springdoc
 springdoc:
   swagger-ui:
