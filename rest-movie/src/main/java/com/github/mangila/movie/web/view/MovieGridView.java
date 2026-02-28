@@ -8,9 +8,9 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
 @Route("")
-public class MovieView extends VerticalLayout {
+public class MovieGridView extends VerticalLayout {
 
-    public MovieView(MovieService movieService) {
+    public MovieGridView(MovieService movieService) {
         Grid<MovieProjection> grid = new Grid<>(MovieProjection.class);
         grid.setColumns("id", "name", "genre", "releaseDate", "budget");
         grid.setItems(movieService.findAllProjections());

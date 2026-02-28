@@ -8,9 +8,9 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
 @Route("actor")
-public class ActorView extends VerticalLayout {
+public class ActorGridView extends VerticalLayout {
 
-    public ActorView(ActorService actorService) {
+    public ActorGridView(ActorService actorService) {
         Grid<ActorProjection> grid = new Grid<>(ActorProjection.class);
         grid.setColumns("id", "name", "picture", "bio");
         grid.setItemsPageable(actorService::findAllProjections);

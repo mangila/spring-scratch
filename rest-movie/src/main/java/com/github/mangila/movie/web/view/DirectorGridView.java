@@ -8,9 +8,9 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
 @Route("director")
-public class DirectorView extends VerticalLayout {
+public class DirectorGridView extends VerticalLayout {
 
-    public DirectorView(DirectorService directorService) {
+    public DirectorGridView(DirectorService directorService) {
         Grid<DirectorProjection> grid = new Grid<>(DirectorProjection.class);
         grid.setColumns("id", "name", "picture", "bio");
         grid.setItems(directorService.findAllProjections());

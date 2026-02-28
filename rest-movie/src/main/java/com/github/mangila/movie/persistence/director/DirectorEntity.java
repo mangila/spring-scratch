@@ -1,7 +1,9 @@
 package com.github.mangila.movie.persistence.director;
 
 import com.github.mangila.movie.persistence.converter.UriConverter;
+import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Type;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -26,8 +28,8 @@ public class DirectorEntity {
 
 	private String bio;
 
-	@ElementCollection
-	@CollectionTable(name = "director_movie")
+	@Type(JsonType.class)
+	@Column(columnDefinition = "jsonb")
 	private Set<String> movies = new HashSet<>();
 
 	@Version

@@ -1,6 +1,8 @@
 package com.github.mangila.movie.persistence.movie;
 
+import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Type;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -27,12 +29,12 @@ public class MovieEntity {
 
 	private LocalDate releaseDate;
 
-	@ElementCollection
-	@CollectionTable(name = "movie_director")
+	@Type(JsonType.class)
+	@Column(columnDefinition = "jsonb")
 	private Set<String> directors = new HashSet<>();
 
-	@ElementCollection
-	@CollectionTable(name = "movie_actor")
+	@Type(JsonType.class)
+	@Column(columnDefinition = "jsonb")
 	private Set<String> actors = new HashSet<>();
 
 	@Version
