@@ -1,4 +1,4 @@
-package com.github.mangila.movie.persistence.movie;
+package com.github.mangila.movie.persistence.movie.projection;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

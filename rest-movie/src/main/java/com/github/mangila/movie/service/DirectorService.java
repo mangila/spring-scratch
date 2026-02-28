@@ -1,7 +1,7 @@
 package com.github.mangila.movie.service;
 
 import com.github.mangila.movie.persistence.director.DirectorJpaRepository;
-import com.github.mangila.movie.persistence.director.DirectorProjection;
+import com.github.mangila.movie.persistence.director.projection.DirectorProjection;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

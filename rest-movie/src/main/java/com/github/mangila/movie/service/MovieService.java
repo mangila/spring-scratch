@@ -2,7 +2,7 @@ package com.github.mangila.movie.service;
 
 import com.github.mangila.movie.persistence.movie.MovieJdbcRepository;
 import com.github.mangila.movie.persistence.movie.MovieJpaRepository;
-import com.github.mangila.movie.persistence.movie.MovieProjection;
+import com.github.mangila.movie.persistence.movie.projection.MovieProjection;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

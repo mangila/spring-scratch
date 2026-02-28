@@ -1,6 +1,6 @@
 package com.github.mangila.movie.web.api;
 
-import com.github.mangila.movie.persistence.actor.ActorProjection;
+import com.github.mangila.movie.persistence.actor.projection.ActorProjection;
 import com.github.mangila.movie.service.ActorService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;

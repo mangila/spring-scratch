@@ -1,6 +1,6 @@
 package com.github.mangila.movie.web.api;
 
-import com.github.mangila.movie.persistence.movie.MovieProjection;
+import com.github.mangila.movie.persistence.movie.projection.MovieProjection;
 import com.github.mangila.movie.service.MovieService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

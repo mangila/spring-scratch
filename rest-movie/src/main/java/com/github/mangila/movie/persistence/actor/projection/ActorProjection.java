@@ -1,4 +1,4 @@
-package com.github.mangila.movie.persistence.actor;
+package com.github.mangila.movie.persistence.actor.projection;
 
 import java.net.URI;
 

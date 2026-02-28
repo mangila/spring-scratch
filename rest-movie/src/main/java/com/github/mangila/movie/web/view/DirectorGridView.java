@@ -1,6 +1,6 @@
 package com.github.mangila.movie.web.view;
 
-import com.github.mangila.movie.persistence.director.DirectorProjection;
+import com.github.mangila.movie.persistence.director.projection.DirectorProjection;
 import com.github.mangila.movie.service.DirectorService;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H1;
