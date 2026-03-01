@@ -29,103 +29,114 @@ import java.util.concurrent.ThreadLocalRandom;
 @Profile("dev")
 public class DataBootstrap implements ApplicationRunner {
 
-    private static final Logger log = LoggerFactory.getLogger(DataBootstrap.class);
+	private static final Logger log = LoggerFactory.getLogger(DataBootstrap.class);
 
-    private final ClassPathResource actorResource;
+	private final ClassPathResource actorResource;
 
-    private final ClassPathResource directorResource;
+	private final ClassPathResource directorResource;
 
-    private final ClassPathResource movieResource;
+	private final ClassPathResource movieResource;
 
-    private final ActorMapper actorMapper;
+	private final ActorMapper actorMapper;
 
-    private final DirectorMapper directorMapper;
+	private final DirectorMapper directorMapper;
 
-    private final MovieMapper movieMapper;
+	private final MovieMapper movieMapper;
 
-    private final ActorJpaRepository actorJpaRepository;
+	private final ActorJpaRepository actorJpaRepository;
 
-    private final DirectorJpaRepository directorJpaRepository;
+	private final DirectorJpaRepository directorJpaRepository;
 
-    private final MovieJpaRepository movieJpaRepository;
+	private final MovieJpaRepository movieJpaRepository;
 
-    private final TransactionTemplate transactionTemplate;
+	private final TransactionTemplate transactionTemplate;
 
-    public DataBootstrap(@Value("data/actors.csv") ClassPathResource actorResource,
-                         @Value("data/directors.csv") ClassPathResource directorResource,
-                         @Value("data/movies.csv") ClassPathResource movieResource, ActorMapper actorMapper,
-                         DirectorMapper directorMapper, MovieMapper movieMapper, ActorJpaRepository actorJpaRepository,
-                         DirectorJpaRepository directorJpaRepository, MovieJpaRepository movieJpaRepository, TransactionTemplate transactionTemplate) {
-        this.actorResource = actorResource;
-        this.directorResource = directorResource;
-        this.movieResource = movieResource;
-        this.actorMapper = actorMapper;
-        this.directorMapper = directorMapper;
-        this.movieMapper = movieMapper;
-        this.actorJpaRepository = actorJpaRepository;
-        this.directorJpaRepository = directorJpaRepository;
-        this.movieJpaRepository = movieJpaRepository;
-        this.transactionTemplate = transactionTemplate;
-    }
+	public DataBootstrap(@Value("data/actors.csv") ClassPathResource actorResource,
+			@Value("data/directors.csv") ClassPathResource directorResource,
+			@Value("data/movies.csv") ClassPathResource movieResource, ActorMapper actorMapper,
+			DirectorMapper directorMapper, MovieMapper movieMapper, ActorJpaRepository actorJpaRepository,
+			DirectorJpaRepository directorJpaRepository, MovieJpaRepository movieJpaRepository,
+			TransactionTemplate transactionTemplate) {
+		this.actorResource = actorResource;
+		this.directorResource = directorResource;
+		this.movieResource = movieResource;
+		this.actorMapper = actorMapper;
+		this.directorMapper = directorMapper;
+		this.movieMapper = movieMapper;
+		this.actorJpaRepository = actorJpaRepository;
+		this.directorJpaRepository = directorJpaRepository;
+		this.movieJpaRepository = movieJpaRepository;
+		this.transactionTemplate = transactionTemplate;
+	}
 
-    @Override
-    public void run(ApplicationArguments args) throws Exception {
-        seedData();
-    }
+	@Override
+	public void run(ApplicationArguments args) throws Exception {
+		CSVFormat csvFormat = CSVFormat.DEFAULT.builder().setHeader().setSkipHeaderRecord(true).get();
+		final List<ActorEntity> actorEntities = readActors(csvFormat);
+		final List<DirectorEntity> directorEntities = readDirectors(csvFormat);
+		final List<MovieEntity> movieEntities = readMovies(csvFormat);
 
-    public void seedData() throws IOException {
-        CSVFormat csvFormat = CSVFormat.DEFAULT.builder().setHeader().setSkipHeaderRecord(true).get();
-        final List<ActorEntity> actorEntities;
-        final List<DirectorEntity> directorEntities;
-        final List<MovieEntity> movieEntities;
-        try (var reader = getReader(actorResource.getInputStream()); CSVParser csvParser = csvFormat.parse(reader)) {
-            actorEntities = csvParser.stream()
-                    .peek(record -> log.info("{}", record))
-                    .map(actorMapper::toEntity)
-                    .peek(actorEntity -> log.info("{}", actorEntity))
-                    .toList();
-        }
+		for (var actor : actorEntities) {
+			for (int i = 0; i < ThreadLocalRandom.current().nextInt(0, movieEntities.size()); i++) {
+				var rn = ThreadLocalRandom.current().nextInt(0, movieEntities.size());
+				var movie = movieEntities.get(rn);
+				movie.getActors().add(actor.getId());
+				actor.getMovies().add(movie.getId());
+			}
+		}
 
-        try (var reader = getReader(directorResource.getInputStream()); CSVParser csvParser = csvFormat.parse(reader)) {
-            directorEntities = csvParser.stream()
-                    .peek(record -> log.info("{}", record))
-                    .map(directorMapper::toEntity)
-                    .peek(directorEntity -> log.info("{}", directorEntity))
-                    .toList();
-        }
+		for (int i = 0; i < movieEntities.size(); i++) {
+			var director = directorEntities.get(i);
+			var movie = movieEntities.get(i);
+			movie.getDirectors().add(director.getId());
+			director.getMovies().add(movie.getId());
+		}
 
-        try (var reader = getReader(movieResource.getInputStream()); CSVParser csvParser = csvFormat.parse(reader)) {
-            movieEntities = csvParser.stream()
-                    .peek(record -> log.info("{}", record))
-                    .map(movieMapper::toEntity)
-                    .peek(movieEntity -> log.info("{}", movieEntity))
-                    .toList();
-        }
+		transactionTemplate.executeWithoutResult(_ -> {
+			actorJpaRepository.persistAll(actorEntities);
+			directorJpaRepository.persistAll(directorEntities);
+			movieJpaRepository.persistAll(movieEntities);
+		});
+	}
 
-        for (var actor : actorEntities) {
-            for (int i = 0; i < ThreadLocalRandom.current().nextInt(0, movieEntities.size()); i++) {
-                var rn = ThreadLocalRandom.current().nextInt(0, movieEntities.size());
-                var movie = movieEntities.get(rn);
-                movie.getActors().add(actor.getId());
-                actor.getMovies().add(movie.getId());
-            }
-        }
+	private List<ActorEntity> readActors(CSVFormat csvFormat) throws IOException {
+		final List<ActorEntity> actorEntities;
+		try (var reader = getReader(actorResource.getInputStream()); CSVParser csvParser = csvFormat.parse(reader)) {
+			actorEntities = csvParser.stream()
+				.peek(record -> log.info("{}", record))
+				.map(actorMapper::toEntity)
+				.peek(actorEntity -> log.info("{}", actorEntity))
+				.toList();
+		}
+		return actorEntities;
+	}
 
-        for (int i = 0; i < movieEntities.size(); i++) {
-            var director = directorEntities.get(i);
-            var movie = movieEntities.get(i);
-            movie.getDirectors().add(director.getId());
-            director.getMovies().add(movie.getId());
-        }
+	private List<DirectorEntity> readDirectors(CSVFormat csvFormat) throws IOException {
+		final List<DirectorEntity> directorEntities;
+		try (var reader = getReader(directorResource.getInputStream()); CSVParser csvParser = csvFormat.parse(reader)) {
+			directorEntities = csvParser.stream()
+				.peek(record -> log.info("{}", record))
+				.map(directorMapper::toEntity)
+				.peek(directorEntity -> log.info("{}", directorEntity))
+				.toList();
+		}
+		return directorEntities;
+	}
 
-        transactionTemplate.executeWithoutResult(_ -> {
-            actorJpaRepository.persistAll(actorEntities);
-            directorJpaRepository.persistAll(directorEntities);
-            movieJpaRepository.persistAll(movieEntities);
-        });
-    }
+	private List<MovieEntity> readMovies(CSVFormat csvFormat) throws IOException {
+		final List<MovieEntity> movieEntities;
+		try (var reader = getReader(movieResource.getInputStream()); CSVParser csvParser = csvFormat.parse(reader)) {
+			movieEntities = csvParser.stream()
+				.peek(record -> log.info("{}", record))
+				.map(movieMapper::toEntity)
+				.peek(movieEntity -> log.info("{}", movieEntity))
+				.toList();
+		}
+		return movieEntities;
+	}
 
-    private BufferedReader getReader(InputStream inputStream) {
-        return new BufferedReader(new InputStreamReader(inputStream));
-    }
+	private BufferedReader getReader(InputStream inputStream) {
+		return new BufferedReader(new InputStreamReader(inputStream));
+	}
+
 }

@@ -11,17 +11,17 @@ import java.util.List;
 @Service
 public class ActorService {
 
-    private final ActorJpaRepository jpaRepository;
+	private final ActorJpaRepository jpaRepository;
 
-    private final ActorMapper actorMapper;
+	private final ActorMapper actorMapper;
 
-    public ActorService(ActorJpaRepository jpaRepository, ActorMapper actorMapper) {
-        this.jpaRepository = jpaRepository;
-        this.actorMapper = actorMapper;
-    }
+	public ActorService(ActorJpaRepository jpaRepository, ActorMapper actorMapper) {
+		this.jpaRepository = jpaRepository;
+		this.actorMapper = actorMapper;
+	}
 
-    public List<ActorProjection> findAllProjections(Pageable pageable) {
-        return jpaRepository.findAllBy(pageable, ActorProjection.class);
-    }
+	public List<ActorProjection> findAllProjections(Pageable pageable) {
+		return jpaRepository.findAllBy(pageable, ActorProjection.class);
+	}
 
 }

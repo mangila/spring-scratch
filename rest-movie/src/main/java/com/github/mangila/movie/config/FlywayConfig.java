@@ -10,15 +10,16 @@ import org.springframework.context.annotation.Profile;
 @Configuration
 public class FlywayConfig {
 
-    private static final Logger log = LoggerFactory.getLogger(FlywayConfig.class);
+	private static final Logger log = LoggerFactory.getLogger(FlywayConfig.class);
 
-    @Bean
-    @Profile("dev")
-    FlywayMigrationStrategy flywayMigrationStrategy() {
-        log.info("Flushing postgres");
-        return flyway -> {
-            flyway.clean();
-            flyway.migrate();
-        };
-    }
+	@Bean
+	@Profile("dev")
+	FlywayMigrationStrategy flywayMigrationStrategy() {
+		log.info("Flushing postgres");
+		return flyway -> {
+			flyway.clean();
+			flyway.migrate();
+		};
+	}
+
 }

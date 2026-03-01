@@ -10,10 +10,11 @@ import com.vaadin.flow.router.Route;
 @Route("director")
 public class DirectorGridView extends VerticalLayout {
 
-    public DirectorGridView(DirectorService directorService) {
-        Grid<DirectorProjection> grid = new Grid<>(DirectorProjection.class);
-        grid.setColumns("id", "name", "picture", "bio");
-        grid.setItems(directorService.findAllProjections());
-        add(new H1("Director Management"), grid);
-    }
+	public DirectorGridView(DirectorService directorService) {
+		Grid<DirectorProjection> grid = new Grid<>(DirectorProjection.class);
+		grid.setColumns("id", "name", "picture", "bio");
+		grid.setItems(directorService.findAllProjections());
+		add(new H1("Director Management"), grid);
+	}
+
 }

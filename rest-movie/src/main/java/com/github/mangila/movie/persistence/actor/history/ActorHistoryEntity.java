@@ -13,71 +13,72 @@ import java.time.Instant;
 @Immutable
 public class ActorHistoryEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private int id;
 
-    private String aggregateId;
+	private String aggregateId;
 
-    private Integer version;
+	private Integer version;
 
-    private String operation;
+	private String operation;
 
-    @Type(JsonType.class)
-    @Column(columnDefinition = "jsonb")
-    private ObjectNode payload;
+	@Type(JsonType.class)
+	@Column(columnDefinition = "jsonb")
+	private ObjectNode payload;
 
-    private Instant createdAt;
+	private Instant createdAt;
 
-    public ActorHistoryEntity() {
-        // do nothing, for JPA
-    }
+	public ActorHistoryEntity() {
+		// do nothing, for JPA
+	}
 
-    public int getId() {
-        return id;
-    }
+	public int getId() {
+		return id;
+	}
 
-    public void setId(int id) {
-        this.id = id;
-    }
+	public void setId(int id) {
+		this.id = id;
+	}
 
-    public String getAggregateId() {
-        return aggregateId;
-    }
+	public String getAggregateId() {
+		return aggregateId;
+	}
 
-    public void setAggregateId(String id) {
-        this.aggregateId = id;
-    }
+	public void setAggregateId(String id) {
+		this.aggregateId = id;
+	}
 
-    public Integer getVersion() {
-        return version;
-    }
+	public Integer getVersion() {
+		return version;
+	}
 
-    public void setVersion(Integer version) {
-        this.version = version;
-    }
+	public void setVersion(Integer version) {
+		this.version = version;
+	}
 
-    public String getOperation() {
-        return operation;
-    }
+	public String getOperation() {
+		return operation;
+	}
 
-    public void setOperation(String operation) {
-        this.operation = operation;
-    }
+	public void setOperation(String operation) {
+		this.operation = operation;
+	}
 
-    public ObjectNode getPayload() {
-        return payload;
-    }
+	public ObjectNode getPayload() {
+		return payload;
+	}
 
-    public void setPayload(ObjectNode payload) {
-        this.payload = payload;
-    }
+	public void setPayload(ObjectNode payload) {
+		this.payload = payload;
+	}
 
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
+	public Instant getCreatedAt() {
+		return createdAt;
+	}
 
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
+	public void setCreatedAt(Instant createdAt) {
+		this.createdAt = createdAt;
+	}
+
 }

@@ -10,16 +10,17 @@ import java.util.List;
 @Service
 public class MovieService {
 
-    private final MovieJpaRepository movieJpaRepository;
-    private final MovieJdbcRepository movieJdbcRepository;
+	private final MovieJpaRepository movieJpaRepository;
 
-    public MovieService(MovieJpaRepository movieJpaRepository,
-                        MovieJdbcRepository movieJdbcRepository) {
-        this.movieJpaRepository = movieJpaRepository;
-        this.movieJdbcRepository = movieJdbcRepository;
-    }
+	private final MovieJdbcRepository movieJdbcRepository;
 
-    public List<MovieProjection> findAllProjections() {
-        return movieJpaRepository.findAllBy(MovieProjection.class);
-    }
+	public MovieService(MovieJpaRepository movieJpaRepository, MovieJdbcRepository movieJdbcRepository) {
+		this.movieJpaRepository = movieJpaRepository;
+		this.movieJdbcRepository = movieJdbcRepository;
+	}
+
+	public List<MovieProjection> findAllProjections() {
+		return movieJpaRepository.findAllBy(MovieProjection.class);
+	}
+
 }

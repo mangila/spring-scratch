@@ -10,10 +10,11 @@ import com.vaadin.flow.router.Route;
 @Route("")
 public class MovieGridView extends VerticalLayout {
 
-    public MovieGridView(MovieService movieService) {
-        Grid<MovieProjection> grid = new Grid<>(MovieProjection.class);
-        grid.setColumns("id", "name", "genre", "releaseDate", "budget");
-        grid.setItems(movieService.findAllProjections());
-        add(new H1("Movie Management"), grid);
-    }
+	public MovieGridView(MovieService movieService) {
+		Grid<MovieProjection> grid = new Grid<>(MovieProjection.class);
+		grid.setColumns("id", "name", "genre", "releaseDate", "budget");
+		grid.setItems(movieService.findAllProjections());
+		add(new H1("Movie Management"), grid);
+	}
+
 }

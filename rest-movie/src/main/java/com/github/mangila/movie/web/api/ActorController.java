@@ -13,15 +13,15 @@ import java.util.List;
 @RequestMapping("/api/v1/actors")
 public class ActorController {
 
-    private final ActorService actorService;
+	private final ActorService actorService;
 
-    public ActorController(ActorService actorService) {
-        this.actorService = actorService;
-    }
+	public ActorController(ActorService actorService) {
+		this.actorService = actorService;
+	}
 
-    @GetMapping
-    public List<ActorProjection> findAllProjections(Pageable pageable) {
-        return actorService.findAllProjections(pageable);
-    }
+	@GetMapping
+	public List<ActorProjection> findAllProjections(Pageable pageable) {
+		return actorService.findAllProjections(pageable);
+	}
 
 }

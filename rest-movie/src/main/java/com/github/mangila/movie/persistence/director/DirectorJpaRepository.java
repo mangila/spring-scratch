@@ -8,6 +8,6 @@ import java.util.List;
 @Repository
 public interface DirectorJpaRepository extends BaseJpaRepository<DirectorEntity, String> {
 
-    <T> List<T> findAllBy(Class<T> type);
+	<T> List<T> findAllBy(Class<T> type);
 
 }

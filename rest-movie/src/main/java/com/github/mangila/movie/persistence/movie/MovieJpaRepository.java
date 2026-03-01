@@ -8,5 +8,6 @@ import java.util.List;
 @Repository
 public interface MovieJpaRepository extends BaseJpaRepository<MovieEntity, String> {
 
-    <T> List<T> findAllBy(Class<T> type);
+	<T> List<T> findAllBy(Class<T> type);
+
 }

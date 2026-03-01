@@ -12,14 +12,15 @@ import java.util.List;
 @RequestMapping("/api/v1/movies")
 public class MovieController {
 
-    private final MovieService movieService;
+	private final MovieService movieService;
 
-    public MovieController(MovieService movieService) {
-        this.movieService = movieService;
-    }
+	public MovieController(MovieService movieService) {
+		this.movieService = movieService;
+	}
 
-    @GetMapping
-    public List<MovieProjection> findAllProjections() {
-        return movieService.findAllProjections();
-    }
+	@GetMapping
+	public List<MovieProjection> findAllProjections() {
+		return movieService.findAllProjections();
+	}
+
 }

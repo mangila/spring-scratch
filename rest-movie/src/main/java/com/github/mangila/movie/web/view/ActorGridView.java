@@ -10,12 +10,12 @@ import com.vaadin.flow.router.Route;
 @Route("actor")
 public class ActorGridView extends VerticalLayout {
 
-    public ActorGridView(ActorService actorService) {
-        Grid<ActorProjection> grid = new Grid<>(ActorProjection.class);
-        grid.setColumns("id", "name", "picture", "bio");
-        grid.setItemsPageable(actorService::findAllProjections);
-        grid.setPageSize(20);
-        add(new H1("Actor Management"), grid);
-    }
+	public ActorGridView(ActorService actorService) {
+		Grid<ActorProjection> grid = new Grid<>(ActorProjection.class);
+		grid.setColumns("id", "name", "picture", "bio");
+		grid.setItemsPageable(actorService::findAllProjections);
+		grid.setPageSize(20);
+		add(new H1("Actor Management"), grid);
+	}
 
 }
