@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.Type;
 
 import java.net.URI;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -18,15 +19,18 @@ public class DirectorEntity extends AuditBaseEntity {
     @Id
     private UUID id;
 
-    @Column(columnDefinition = "text")
+    @Column(columnDefinition = "text", nullable = false)
     private String name;
 
     @Convert(converter = UriConverter.class)
-    @Column(columnDefinition = "text")
+    @Column(columnDefinition = "text", nullable = false)
     private URI picture;
 
-    @Column(columnDefinition = "text")
-    private String bio;
+    @Column(columnDefinition = "text", nullable = false)
+    private String biography;
+
+    @Column(name = "date_of_birth", nullable = false)
+    private LocalDate dateOfBirth;
 
     @Type(JsonType.class)
     @Column(columnDefinition = "jsonb")
@@ -36,11 +40,12 @@ public class DirectorEntity extends AuditBaseEntity {
         // do nothing, for JPA
     }
 
-    public DirectorEntity(UUID id, String name, URI uri, String bio) {
+    public DirectorEntity(UUID id, String name, URI uri, String biography, LocalDate dateOfBirth) {
         this.id = id;
         this.name = name;
         this.picture = uri;
-        this.bio = bio;
+        this.biography = biography;
+        this.dateOfBirth = dateOfBirth;
     }
 
     public UUID getId() {
@@ -67,12 +72,20 @@ public class DirectorEntity extends AuditBaseEntity {
         this.picture = picture;
     }
 
-    public String getBio() {
-        return bio;
+    public String getBiography() {
+        return biography;
     }
 
-    public void setBio(String bio) {
-        this.bio = bio;
+    public void setBiography(String bio) {
+        this.biography = bio;
+    }
+
+    public LocalDate getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public void setDateOfBirth(LocalDate dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
     }
 
     public Set<UUID> getMovies() {

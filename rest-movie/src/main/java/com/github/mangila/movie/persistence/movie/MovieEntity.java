@@ -30,6 +30,7 @@ public class MovieEntity extends AuditBaseEntity {
 
     private BigDecimal budget;
 
+    @Column(name = "release_date")
     private LocalDate releaseDate;
 
     @Type(JsonType.class)

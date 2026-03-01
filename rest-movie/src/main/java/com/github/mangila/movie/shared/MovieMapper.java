@@ -13,10 +13,12 @@ import java.util.stream.Collectors;
 @Component
 public class MovieMapper {
 
+    private static final Pattern GENRES_SPLIT_PATTERN = Pattern.compile("\\|");
+
     public MovieEntity toEntity(CSVRecord record) {
         var id = record.get("id");
         var title = record.get("title");
-        var genres = Pattern.compile("\\|")
+        var genres = GENRES_SPLIT_PATTERN
                 .splitAsStream(record.get("genres"))
                 .collect(Collectors.toSet());
         var budget = record.get("budget");

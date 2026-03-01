@@ -7,12 +7,11 @@ import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
-@Route("")
+@Route("movie")
 public class MovieGridView extends VerticalLayout {
 
 	public MovieGridView(MovieService movieService) {
 		Grid<MovieProjection> grid = new Grid<>(MovieProjection.class);
-		grid.setColumns("id", "title", "genres", "releaseDate", "budget");
 		grid.setItems(movieService.findAllProjections());
 		add(new H1("Movie Management"), grid);
 	}

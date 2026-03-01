@@ -23,7 +23,7 @@ public class DirectorGridView extends VerticalLayout {
         grid.addColumn(DirectorProjection::name)
                 .setHeader("Date of Birth")
                 .setSortable(true);
-        grid.addColumn(DirectorProjection::bio)
+        grid.addColumn(DirectorProjection::biography)
                 .setHeader("Bio");
 
 
