@@ -1,0 +1,34 @@
+# Spring
+spring:
+  docker:
+    compose:
+      enabled: true
+  jpa:
+    show-sql: true
+    properties:
+      javax.persistence.schema-generation.scripts.action: create
+      javax.persistence.schema-generation.scripts.create-target: rest-movie/src/main/resources/db/generated_jpa.sql
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+    clean-disabled: false
+# Vaadin
+vaadin:
+  launch-browser: true
+# Springdoc
+springdoc:
+  swagger-ui:
+    enabled: true
+  show-actuator: true
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+# Logging
+logging:
+  level:
+    org.hibernate.session.metrics: DEBUG
+    com.zaxxer.hikari: DEBUG
