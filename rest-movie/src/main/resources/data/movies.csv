@@ -1,4 +1,4 @@
-id,name,genre,budget,release_date
+id,title,genres,budget,release_date
 f73289af-3379-4967-98f3-fff97065dccb,DysFunktional Family,Comedy|Documentary,18700000,2009-03-27
 036311a6-439c-4f43-b941-a6813bca56a8,Give My Regards to Broad Street,Drama|Musical,42100000,1984-10-12
 12367c83-4731-47fd-9217-89986e10a93a,Head in the Clouds,Drama|Romance|War,76300000,2004-09-10
