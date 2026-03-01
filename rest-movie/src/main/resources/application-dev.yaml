@@ -6,8 +6,10 @@ spring:
   jpa:
     show-sql: true
     properties:
-      javax.persistence.schema-generation.scripts.action: create
-      javax.persistence.schema-generation.scripts.create-target: rest-movie/src/main/resources/db/generated_jpa.sql
+      hibernate.format_sql: true
+      hibernate.generate_statistics: true
+      jakarta.persistence.schema-generation.scripts.action: create
+      jakarta.persistence.schema-generation.scripts.create-target: rest-movie/src/main/resources/db/generated_jpa.sql
     hibernate:
       ddl-auto: validate
   flyway:
@@ -31,4 +33,5 @@ management:
 logging:
   level:
     org.hibernate.session.metrics: DEBUG
+    org.springframework.orm.jpa.JpaTransactionManager: DEBUG
     com.zaxxer.hikari: DEBUG

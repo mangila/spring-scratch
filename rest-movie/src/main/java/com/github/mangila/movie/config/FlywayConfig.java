@@ -8,12 +8,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 @Configuration
-@Profile("dev")
 public class FlywayConfig {
 
     private static final Logger log = LoggerFactory.getLogger(FlywayConfig.class);
 
     @Bean
+    @Profile("dev")
     FlywayMigrationStrategy flywayMigrationStrategy() {
         log.info("Flushing postgres");
         return flyway -> {
@@ -21,5 +21,4 @@ public class FlywayConfig {
             flyway.migrate();
         };
     }
-
 }

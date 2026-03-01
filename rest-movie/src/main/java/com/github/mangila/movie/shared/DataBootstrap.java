@@ -16,8 +16,10 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
@@ -47,11 +49,13 @@ public class DataBootstrap implements ApplicationRunner {
 
     private final MovieJpaRepository movieJpaRepository;
 
+    private final TransactionTemplate transactionTemplate;
+
     public DataBootstrap(@Value("data/actors.csv") ClassPathResource actorResource,
                          @Value("data/directors.csv") ClassPathResource directorResource,
                          @Value("data/movies.csv") ClassPathResource movieResource, ActorMapper actorMapper,
                          DirectorMapper directorMapper, MovieMapper movieMapper, ActorJpaRepository actorJpaRepository,
-                         DirectorJpaRepository directorJpaRepository, MovieJpaRepository movieJpaRepository) {
+                         DirectorJpaRepository directorJpaRepository, MovieJpaRepository movieJpaRepository, TransactionTemplate transactionTemplate) {
         this.actorResource = actorResource;
         this.directorResource = directorResource;
         this.movieResource = movieResource;
@@ -61,10 +65,15 @@ public class DataBootstrap implements ApplicationRunner {
         this.actorJpaRepository = actorJpaRepository;
         this.directorJpaRepository = directorJpaRepository;
         this.movieJpaRepository = movieJpaRepository;
+        this.transactionTemplate = transactionTemplate;
     }
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
+        seedData();
+    }
+
+    public void seedData() throws IOException {
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder().setHeader().setSkipHeaderRecord(true).get();
         final List<ActorEntity> actorEntities;
         final List<DirectorEntity> directorEntities;
@@ -109,13 +118,14 @@ public class DataBootstrap implements ApplicationRunner {
             director.getMovies().add(movie.getId());
         }
 
-        actorJpaRepository.persistAll(actorEntities);
-        directorJpaRepository.persistAll(directorEntities);
-        movieJpaRepository.persistAll(movieEntities);
+        transactionTemplate.executeWithoutResult(_ -> {
+            actorJpaRepository.persistAll(actorEntities);
+            directorJpaRepository.persistAll(directorEntities);
+            movieJpaRepository.persistAll(movieEntities);
+        });
     }
 
-    public BufferedReader getReader(InputStream inputStream) {
+    private BufferedReader getReader(InputStream inputStream) {
         return new BufferedReader(new InputStreamReader(inputStream));
     }
-
 }

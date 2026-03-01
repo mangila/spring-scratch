@@ -16,10 +16,8 @@ spring:
       pool-name: movie-hikiari-pool
       maximum-pool-size: 10
       auto-commit: false
-      connection-init-sql: SELECT 1
       leak-detection-threshold: 3000
   jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
     open-in-view: false
     show-sql: false
     properties:
@@ -32,16 +30,23 @@ spring:
     hibernate:
       ddl-auto: validate
   flyway:
+    enabled: true
     baseline-on-migrate: true
     baseline-version: 1
-    enabled: true
+    table: movie_flyway_schema_history
 # JobRunr
 jobrunr:
   background-job-server:
+    enabled: true
     name: ${spring.application.name}-jobrunr
     thread-type: virtualthreads
   job-scheduler:
     enabled: true
+  database:
+    table-prefix: movie_
+  dashboard:
+    enabled: true
+    port: 8000
 # Vaadin
 vaadin:
   launch-browser: false
