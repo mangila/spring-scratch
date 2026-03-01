@@ -1,5 +1,6 @@
 package com.github.mangila.movie.persistence.movie;
 
+import com.github.mangila.movie.persistence.AuditBaseEntity;
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Type;
@@ -12,14 +13,14 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity(name = "movie")
 @Table(name = "movie")
-@EntityListeners(AuditingEntityListener.class)
-public class MovieEntity {
+public class MovieEntity extends AuditBaseEntity {
 
 	@Id
-	private String id;
+	private UUID id;
 
 	private String name;
 
@@ -31,27 +32,17 @@ public class MovieEntity {
 
 	@Type(JsonType.class)
 	@Column(columnDefinition = "jsonb")
-	private Set<String> directors = new HashSet<>();
+	private Set<UUID> directors = new HashSet<>();
 
 	@Type(JsonType.class)
 	@Column(columnDefinition = "jsonb")
-	private Set<String> actors = new HashSet<>();
-
-	@Version
-	private Integer version;
-
-	@CreatedDate
-	@Column(updatable = false)
-	private Instant createdAt;
-
-	@LastModifiedDate
-	private Instant updatedAt;
+	private Set<UUID> actors = new HashSet<>();
 
 	public MovieEntity() {
 		// do nothing, for JPA
 	}
 
-	public MovieEntity(String id, String name, String genre, BigDecimal budget, LocalDate releaseDate) {
+	public MovieEntity(UUID id, String name, String genre, BigDecimal budget, LocalDate releaseDate) {
 		this.id = id;
 		this.name = name;
 		this.genre = genre;
@@ -59,11 +50,11 @@ public class MovieEntity {
 		this.releaseDate = releaseDate;
 	}
 
-	public String getId() {
+	public UUID getId() {
 		return id;
 	}
 
-	public void setId(String id) {
+	public void setId(UUID id) {
 		this.id = id;
 	}
 
@@ -99,44 +90,20 @@ public class MovieEntity {
 		this.releaseDate = releaseDate;
 	}
 
-	public Set<String> getDirectors() {
+	public Set<UUID> getDirectors() {
 		return directors;
 	}
 
-	public void setDirectors(Set<String> directors) {
+	public void setDirectors(Set<UUID> directors) {
 		this.directors = directors;
 	}
 
-	public Set<String> getActors() {
+	public Set<UUID> getActors() {
 		return actors;
 	}
 
-	public void setActors(Set<String> actors) {
+	public void setActors(Set<UUID> actors) {
 		this.actors = actors;
-	}
-
-	public Integer getVersion() {
-		return version;
-	}
-
-	public void setVersion(Integer version) {
-		this.version = version;
-	}
-
-	public Instant getCreatedAt() {
-		return createdAt;
-	}
-
-	public void setCreatedAt(Instant createdAt) {
-		this.createdAt = createdAt;
-	}
-
-	public Instant getUpdatedAt() {
-		return updatedAt;
-	}
-
-	public void setUpdatedAt(Instant updatedAt) {
-		this.updatedAt = updatedAt;
 	}
 
 }

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Component
 public class MovieMapper {
@@ -16,7 +17,7 @@ public class MovieMapper {
 		var genre = record.get("genre");
 		var budget = record.get("budget");
 		var releaseDate = record.get("release_date");
-		return new MovieEntity(id, name, genre, new BigDecimal(budget), LocalDate.parse(releaseDate));
+		return new MovieEntity(UUID.fromString(id), name, genre, new BigDecimal(budget), LocalDate.parse(releaseDate));
 	}
 
 }

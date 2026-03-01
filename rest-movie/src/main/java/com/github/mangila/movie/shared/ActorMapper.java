@@ -5,6 +5,7 @@ import org.apache.commons.csv.CSVRecord;
 import org.springframework.stereotype.Component;
 
 import java.net.URI;
+import java.util.UUID;
 
 @Component
 public class ActorMapper {
@@ -14,7 +15,7 @@ public class ActorMapper {
 		var name = record.get("name");
 		var picture = record.get("picture");
 		var bio = record.get("bio");
-		return new ActorEntity(id, name, URI.create(picture), bio);
+		return new ActorEntity(UUID.fromString(id), name, URI.create(picture), bio);
 	}
 
 }
