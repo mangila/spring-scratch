@@ -6,12 +6,13 @@ spring:
   jpa:
     show-sql: true
     properties:
-    #javax.persistence.schema-generation.scripts.action: create
-    #javax.persistence.schema-generation.scripts.create-target: rest-movie/src/main/resources/db/migration/V1__initial_schema.sql
+      javax.persistence.schema-generation.scripts.action: create
+      javax.persistence.schema-generation.scripts.create-target: rest-movie/src/main/resources/db/generated_jpa.sql
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: validate
   flyway:
-    enabled: false
+    enabled: true
+    clean-disabled: false
 # Vaadin
 vaadin:
   launch-browser: true
