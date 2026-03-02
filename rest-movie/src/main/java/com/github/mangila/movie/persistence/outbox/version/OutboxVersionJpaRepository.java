@@ -1,11 +1,23 @@
 package com.github.mangila.movie.persistence.outbox.version;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import io.hypersistence.utils.spring.repository.BaseJpaRepository;
+import jakarta.persistence.LockModeType;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface OutboxVersionJpaRepository extends JpaRepository<OutboxVersionEntity, UUID> {
+public interface OutboxVersionJpaRepository extends BaseJpaRepository<OutboxVersionEntity, UUID> {
+
+	@Lock(LockModeType.PESSIMISTIC_WRITE)
+	@Query("""
+			SELECT e from outbox_version e
+			WHERE e.aggregateId = :aggregateId
+			""")
+	Optional<OutboxVersionEntity> findByAggregateIdLocked(@Param("aggregateId") UUID aggregateId);
 
 }

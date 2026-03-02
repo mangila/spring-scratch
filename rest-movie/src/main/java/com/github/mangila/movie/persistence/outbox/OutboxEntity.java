@@ -25,6 +25,7 @@ public class OutboxEntity {
 	@Column(name = "aggregate_id", columnDefinition = "UUID", nullable = false)
 	private UUID aggregateId;
 
+	@Column(name = "version", nullable = false)
 	private Integer version;
 
 	@Enumerated(EnumType.STRING)
@@ -76,6 +77,22 @@ public class OutboxEntity {
 
 	public void setStatus(Status status) {
 		this.status = status;
+	}
+
+	public Instant getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(Instant createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	public Instant getUpdatedAt() {
+		return updatedAt;
+	}
+
+	public void setUpdatedAt(Instant updatedAt) {
+		this.updatedAt = updatedAt;
 	}
 
 }

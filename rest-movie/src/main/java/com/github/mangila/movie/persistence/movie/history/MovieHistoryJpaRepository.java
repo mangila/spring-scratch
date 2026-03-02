@@ -1,9 +1,9 @@
 package com.github.mangila.movie.persistence.movie.history;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import io.hypersistence.utils.spring.repository.BaseJpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface MovieHistoryJpaRepository extends JpaRepository<MovieHistoryEntity, Integer> {
+public interface MovieHistoryJpaRepository extends BaseJpaRepository<MovieHistoryEntity, Integer> {
 
 }

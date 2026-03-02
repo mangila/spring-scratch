@@ -11,7 +11,7 @@ BEGIN
     VALUES (gen_history_id, NEW.id, 'PENDING', NEW.version, transaction_timestamp(), transaction_timestamp());
 
     IF (NEW.version = 0) THEN
-        INSERT INTO outbox_version (aggregate_id, latest_version, created_at, updated_at)
+        INSERT INTO outbox_version (aggregate_id, current_version, created_at, updated_at)
         VALUES (NEW.id, NEW.version, transaction_timestamp(), transaction_timestamp());
     END IF;
 
@@ -32,7 +32,7 @@ BEGIN
     VALUES (gen_history_id, NEW.id, 'PENDING', NEW.version, transaction_timestamp(), transaction_timestamp());
 
     IF (NEW.version = 0) THEN
-        INSERT INTO outbox_version (aggregate_id, latest_version, created_at, updated_at)
+        INSERT INTO outbox_version (aggregate_id, current_version, created_at, updated_at)
         VALUES (NEW.id, NEW.version, transaction_timestamp(), transaction_timestamp());
     END IF;
 
@@ -53,7 +53,7 @@ BEGIN
     VALUES (gen_history_id, NEW.id, 'PENDING', NEW.version, transaction_timestamp(), transaction_timestamp());
 
     IF (NEW.version = 0) THEN
-        INSERT INTO outbox_version (aggregate_id, latest_version, created_at, updated_at)
+        INSERT INTO outbox_version (aggregate_id, current_version, created_at, updated_at)
         VALUES (NEW.id, NEW.version, transaction_timestamp(), transaction_timestamp());
     END IF;
 

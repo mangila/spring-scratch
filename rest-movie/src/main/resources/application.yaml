@@ -4,6 +4,9 @@ spring:
   threads:
     virtual:
       enabled: true
+  devtools:
+    restart:
+      enabled: false
   docker:
     compose:
       file: ./rest-movie/compose.yaml

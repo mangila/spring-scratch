@@ -17,8 +17,8 @@ public class OutboxVersionEntity {
 	@Column(name = "aggregate_id", columnDefinition = "UUID", nullable = false)
 	private UUID aggregateId;
 
-	@Column(name = "latest_version", nullable = false)
-	private Integer latestVersion;
+	@Column(name = "current_version", nullable = false)
+	private Integer currentVersion;
 
 	@CreatedDate
 	@Column(name = "created_at", updatable = false, nullable = false)
@@ -36,12 +36,12 @@ public class OutboxVersionEntity {
 		this.aggregateId = aggregateId;
 	}
 
-	public Integer getLatestVersion() {
-		return latestVersion;
+	public Integer getCurrentVersion() {
+		return currentVersion;
 	}
 
-	public void setLatestVersion(Integer latestVersion) {
-		this.latestVersion = latestVersion;
+	public void setCurrentVersion(Integer latestVersion) {
+		this.currentVersion = latestVersion;
 	}
 
 	public Instant getCreatedAt() {
