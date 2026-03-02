@@ -1,4 +1,4 @@
 # spring-scratch
-A Spring Scratch project using various Spring tech
+Different Spring Scratch projects using various Spring tech.
 
-Just me doing Spring stuff.
+Just me doing play around and find out stuffs with Spring tech.
