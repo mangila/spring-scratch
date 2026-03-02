@@ -1,6 +1,6 @@
 package com.github.mangila.movie.persistence.movie.history;
 
-import com.github.mangila.movie.persistence.HistoryBaseEntity;
+import com.github.mangila.movie.persistence.base.HistoryBaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import org.hibernate.annotations.Immutable;

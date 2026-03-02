@@ -1,4 +1,4 @@
-package com.github.mangila.movie.persistence;
+package com.github.mangila.movie.persistence.base;
 
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;

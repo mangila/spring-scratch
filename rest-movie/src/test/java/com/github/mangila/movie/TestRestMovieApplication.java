@@ -5,7 +5,7 @@ import org.springframework.boot.SpringApplication;
 public class TestRestMovieApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.from(RestMovieApplication::main).with(TestcontainersConfiguration.class).run(args);
+		SpringApplication.from(MovieApplication::main).with(TestcontainersConfiguration.class).run(args);
 	}
 
 }

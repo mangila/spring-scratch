@@ -9,9 +9,12 @@ import com.vaadin.flow.theme.lumo.Lumo;
 
 import static com.vaadin.flow.component.page.Viewport.DEFAULT;
 
-@PWA(name = "Movie Vaadin App", shortName = "Movie App")
+@PWA(name = "Movie Spring/Vaadin App", shortName = "Movie App")
 @StyleSheet(Lumo.STYLESHEET)
 @ColorScheme(ColorScheme.Value.DARK)
 @Viewport(DEFAULT)
 public class VaadinAppConfig implements AppShellConfigurator {
+
+	public static final String PAGE_TITLE_PREFIX = "Movie App| ";
+
 }

@@ -1,21 +1,24 @@
-package com.github.mangila.movie.persistence;
+package com.github.mangila.movie.persistence.outbox.version;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.MappedSuperclass;
-import jakarta.persistence.Version;
+import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
+import java.util.UUID;
 
-@MappedSuperclass
+@Entity(name = "outbox_version")
+@Table(name = "outbox_version")
 @EntityListeners(AuditingEntityListener.class)
-public class AuditBaseEntity {
+public class OutboxVersionEntity {
 
-	@Version
-	private Integer version;
+	@Id
+	@Column(name = "aggregate_id", columnDefinition = "UUID", nullable = false)
+	private UUID aggregateId;
+
+	@Column(name = "latest_version", nullable = false)
+	private Integer latestVersion;
 
 	@CreatedDate
 	@Column(name = "created_at", updatable = false, nullable = false)
@@ -25,16 +28,20 @@ public class AuditBaseEntity {
 	@Column(name = "updated_at", updatable = true, nullable = false)
 	private Instant updatedAt;
 
-	public AuditBaseEntity() {
-		// do nothing, for JPA
+	public UUID getAggregateId() {
+		return aggregateId;
 	}
 
-	public Integer getVersion() {
-		return version;
+	public void setAggregateId(UUID aggregateId) {
+		this.aggregateId = aggregateId;
 	}
 
-	public void setVersion(Integer version) {
-		this.version = version;
+	public Integer getLatestVersion() {
+		return latestVersion;
+	}
+
+	public void setLatestVersion(Integer latestVersion) {
+		this.latestVersion = latestVersion;
 	}
 
 	public Instant getCreatedAt() {

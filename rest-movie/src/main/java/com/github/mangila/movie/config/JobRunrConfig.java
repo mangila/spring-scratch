@@ -10,17 +10,20 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class JobRunrConfig {
 
-    @Bean
-    public StorageProvider storageProvider(HikariDataSource dataSource) {
-        HikariConfig config = new HikariConfig();
-        config.setJdbcUrl(dataSource.getJdbcUrl());
-        config.setUsername(dataSource.getUsername());
-        config.setPassword(dataSource.getPassword());
-        config.setPoolName("movie-jobrunr-hikari-pool");
-        config.setAutoCommit(true);
-        config.setMaximumPoolSize(10);
-        config.setLeakDetectionThreshold(3000L);
-        return new PostgresStorageProvider(new HikariDataSource(config));
-    }
+	/**
+	 * Create a separate connection pool for JobRunr
+	 */
+	@Bean
+	public StorageProvider storageProvider(HikariDataSource dataSource) {
+		HikariConfig config = new HikariConfig();
+		config.setJdbcUrl(dataSource.getJdbcUrl());
+		config.setUsername(dataSource.getUsername());
+		config.setPassword(dataSource.getPassword());
+		config.setPoolName("movie-jobrunr-hikari-pool");
+		config.setAutoCommit(true);
+		config.setMaximumPoolSize(10);
+		config.setLeakDetectionThreshold(3000L);
+		return new PostgresStorageProvider(new HikariDataSource(config));
+	}
 
 }

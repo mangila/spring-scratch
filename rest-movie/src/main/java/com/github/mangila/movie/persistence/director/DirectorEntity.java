@@ -1,6 +1,6 @@
 package com.github.mangila.movie.persistence.director;
 
-import com.github.mangila.movie.persistence.AuditBaseEntity;
+import com.github.mangila.movie.persistence.base.AuditBaseEntity;
 import com.github.mangila.movie.persistence.converter.UriConverter;
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
@@ -16,84 +16,84 @@ import java.util.UUID;
 @Table(name = "director")
 public class DirectorEntity extends AuditBaseEntity {
 
-    @Id
-    private UUID id;
+	@Id
+	private UUID id;
 
-    @Column(columnDefinition = "text", nullable = false)
-    private String name;
+	@Column(columnDefinition = "text", nullable = false)
+	private String name;
 
-    @Convert(converter = UriConverter.class)
-    @Column(columnDefinition = "text", nullable = false)
-    private URI picture;
+	@Convert(converter = UriConverter.class)
+	@Column(columnDefinition = "text", nullable = false)
+	private URI picture;
 
-    @Column(columnDefinition = "text", nullable = false)
-    private String biography;
+	@Column(columnDefinition = "text", nullable = false)
+	private String biography;
 
-    @Column(name = "date_of_birth", nullable = false)
-    private LocalDate dateOfBirth;
+	@Column(name = "date_of_birth", nullable = false)
+	private LocalDate dateOfBirth;
 
-    @Type(JsonType.class)
-    @Column(columnDefinition = "jsonb")
-    private Set<UUID> movies = new HashSet<>();
+	@Type(JsonType.class)
+	@Column(columnDefinition = "jsonb")
+	private Set<UUID> movies = new HashSet<>();
 
-    public DirectorEntity() {
-        // do nothing, for JPA
-    }
+	public DirectorEntity() {
+		// do nothing, for JPA
+	}
 
-    public DirectorEntity(UUID id, String name, URI uri, String biography, LocalDate dateOfBirth) {
-        this.id = id;
-        this.name = name;
-        this.picture = uri;
-        this.biography = biography;
-        this.dateOfBirth = dateOfBirth;
-    }
+	public DirectorEntity(UUID id, String name, URI uri, String biography, LocalDate dateOfBirth) {
+		this.id = id;
+		this.name = name;
+		this.picture = uri;
+		this.biography = biography;
+		this.dateOfBirth = dateOfBirth;
+	}
 
-    public UUID getId() {
-        return id;
-    }
+	public UUID getId() {
+		return id;
+	}
 
-    public void setId(UUID id) {
-        this.id = id;
-    }
+	public void setId(UUID id) {
+		this.id = id;
+	}
 
-    public String getName() {
-        return name;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    public URI getPicture() {
-        return picture;
-    }
+	public URI getPicture() {
+		return picture;
+	}
 
-    public void setPicture(URI picture) {
-        this.picture = picture;
-    }
+	public void setPicture(URI picture) {
+		this.picture = picture;
+	}
 
-    public String getBiography() {
-        return biography;
-    }
+	public String getBiography() {
+		return biography;
+	}
 
-    public void setBiography(String bio) {
-        this.biography = bio;
-    }
+	public void setBiography(String bio) {
+		this.biography = bio;
+	}
 
-    public LocalDate getDateOfBirth() {
-        return dateOfBirth;
-    }
+	public LocalDate getDateOfBirth() {
+		return dateOfBirth;
+	}
 
-    public void setDateOfBirth(LocalDate dateOfBirth) {
-        this.dateOfBirth = dateOfBirth;
-    }
+	public void setDateOfBirth(LocalDate dateOfBirth) {
+		this.dateOfBirth = dateOfBirth;
+	}
 
-    public Set<UUID> getMovies() {
-        return movies;
-    }
+	public Set<UUID> getMovies() {
+		return movies;
+	}
 
-    public void setMovies(Set<UUID> movies) {
-        this.movies = movies;
-    }
+	public void setMovies(Set<UUID> movies) {
+		this.movies = movies;
+	}
 
 }
