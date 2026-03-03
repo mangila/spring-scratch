@@ -1,3 +1,10 @@
+# Application
+app:
+  outbox:
+    enabled: false
+    cron: "0 * * * * *"
+    limit: 20
+# Spring
 spring:
   application:
     name: rest-movie
