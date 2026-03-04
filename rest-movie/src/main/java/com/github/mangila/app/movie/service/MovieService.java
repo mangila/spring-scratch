@@ -5,6 +5,7 @@ import com.github.mangila.app.movie.persistance.MovieJpaRepository;
 import com.github.mangila.app.movie.persistance.projection.MovieDetailsProjection;
 import com.github.mangila.app.movie.persistance.projection.MovieProjection;
 import com.github.mangila.app.movie.shared.MovieMapper;
+import com.github.mangila.app.shared.chaos.Chaos;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,10 +33,12 @@ public class MovieService {
         this.movieOutboxService = movieOutboxService;
     }
 
+    @Chaos
     public List<MovieDetailsProjection> findAllProjections() {
         return movieJpaRepository.findAllBy(MovieDetailsProjection.class);
     }
 
+    @Chaos
     public void persistAll(List<MovieProjection> movieProjections) {
         var entities = movieMapper.toEntities(movieProjections);
         movieJpaRepository.persistAll(entities);
