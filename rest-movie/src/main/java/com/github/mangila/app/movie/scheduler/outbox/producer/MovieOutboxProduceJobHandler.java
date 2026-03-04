@@ -46,6 +46,7 @@ public class MovieOutboxProduceJobHandler implements JobRequestHandler<MovieOutb
 			}
 			else {
 				log.warn("version mismatch: {} != {}", version.currentVersion(), outbox.aggregateVersion());
+				// TODO: throw or set status back to pending
 			}
 		});
 	}
