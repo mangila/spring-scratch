@@ -6,18 +6,52 @@ create table director
     biography     TEXT,
     date_of_birth DATE,
     movies        JSONB,
-    version       INTEGER,
+    audit_version INTEGER                     NOT NULL,
     created_at    TIMESTAMP(6) WITH TIME ZONE NOT NULL,
     updated_at    TIMESTAMP(6) WITH TIME ZONE NOT NULL,
+    created_by    TEXT                        NOT NULL,
+    modified_by   TEXT                        NOT NULL,
     primary key (id)
 );
+
 create table director_history
 (
-    id           UUID DEFAULT gen_random_uuid() NOT NULL,
-    aggregate_id UUID                           NOT NULL,
-    version      INTEGER,
-    operation    TEXT                           NOT NULL,
-    payload      JSONB                          NOT NULL,
-    created_at   TIMESTAMP(6) WITH TIME ZONE    NOT NULL,
+    id                UUID DEFAULT gen_random_uuid() NOT NULL,
+    aggregate_id      UUID                           NOT NULL,
+    aggregate_version INTEGER,
+    operation         TEXT                           NOT NULL,
+    payload           JSONB                          NOT NULL,
+    audit_version     INTEGER                        NOT NULL,
+    created_at        TIMESTAMP(6) WITH TIME ZONE    NOT NULL,
+    updated_at        TIMESTAMP(6) WITH TIME ZONE    NOT NULL,
+    created_by        TEXT                           NOT NULL,
+    modified_by       TEXT                           NOT NULL,
     primary key (id)
+);
+
+create table director_outbox
+(
+    id                UUID DEFAULT gen_random_uuid() NOT NULL,
+    history_id        UUID                           NOT NULL,
+    aggregate_id      UUID                           NOT NULL,
+    aggregate_version INTEGER                        NOT NULL,
+    status            varchar(255) check ((status in ('PENDING', 'PROCESSING', 'SUCCESS', 'FAILED'))),
+    audit_version     INTEGER                        NOT NULL,
+    created_at        TIMESTAMP(6) WITH TIME ZONE    NOT NULL,
+    updated_at        TIMESTAMP(6) WITH TIME ZONE    NOT NULL,
+    created_by        TEXT                           NOT NULL,
+    modified_by       TEXT                           NOT NULL,
+    primary key (id)
+);
+
+create table director_outbox_version
+(
+    aggregate_id    UUID                        NOT NULL,
+    current_version INTEGER                     NOT NULL,
+    audit_version   INTEGER                     NOT NULL,
+    created_at      TIMESTAMP(6) WITH TIME ZONE NOT NULL,
+    updated_at      TIMESTAMP(6) WITH TIME ZONE NOT NULL,
+    created_by      TEXT                        NOT NULL,
+    modified_by     TEXT                        NOT NULL,
+    primary key (aggregate_id)
 );

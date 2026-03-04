@@ -1,6 +1,6 @@
 # Rest movie
 
-Spring boot Vaadin application for managing movies, directors and actors.
+Spring boot Vaadin application for managing movie, directors and actors.
 
 The 2026 version of repository – https://github.com/mangila/spring-restful-jpa-flyway
 

@@ -1,9 +1,30 @@
 # Application
 app:
-  outbox:
-    enabled: false
-    cron: "0 * * * * *"
-    limit: 20
+  actor:
+    outbox:
+      enabled: true
+      cron: "0/15 * * * * *"
+      limit: 20
+      destinations:
+        - sqs
+        - http
+  director:
+    outbox:
+      enabled: true
+      cron: "0 * * * * *"
+      limit: 20
+      destinations:
+        - kafka
+  movie:
+    outbox:
+      enabled: true
+      cron: "0 * * * * *"
+      limit: 20
+      destinations:
+        - kafka
+        - rabbitmq
+        - sqs
+        - http
 # Spring
 spring:
   application:
