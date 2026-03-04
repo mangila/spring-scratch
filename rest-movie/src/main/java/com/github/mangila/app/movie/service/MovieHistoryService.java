@@ -10,15 +10,15 @@ import java.util.UUID;
 @Service
 public class MovieHistoryService {
 
-    private final MovieHistoryJpaRepository movieHistoryJpaRepository;
+	private final MovieHistoryJpaRepository movieHistoryJpaRepository;
 
-    public MovieHistoryService(MovieHistoryJpaRepository movieHistoryJpaRepository) {
-        this.movieHistoryJpaRepository = movieHistoryJpaRepository;
-    }
+	public MovieHistoryService(MovieHistoryJpaRepository movieHistoryJpaRepository) {
+		this.movieHistoryJpaRepository = movieHistoryJpaRepository;
+	}
 
-    @Chaos
-    public HistoryPayloadProjection findPayloadById(UUID historyId) {
-        return movieHistoryJpaRepository.findById(historyId, HistoryPayloadProjection.class)
-                .orElseThrow();
-    }
+	@Chaos
+	public HistoryPayloadProjection findPayloadById(UUID historyId) {
+		return movieHistoryJpaRepository.findById(historyId, HistoryPayloadProjection.class).orElseThrow();
+	}
+
 }

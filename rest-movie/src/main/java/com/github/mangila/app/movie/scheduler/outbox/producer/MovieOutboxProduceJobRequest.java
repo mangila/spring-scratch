@@ -5,8 +5,8 @@ import org.jobrunr.jobs.lambdas.JobRequest;
 
 public record MovieOutboxProduceJobRequest(OutboxProjection outbox) implements JobRequest {
 
-    @Override
-    public Class<MovieOutboxProduceJobHandler> getJobRequestHandler() {
-        return MovieOutboxProduceJobHandler.class;
-    }
+	@Override
+	public Class<MovieOutboxProduceJobHandler> getJobRequestHandler() {
+		return MovieOutboxProduceJobHandler.class;
+	}
 }

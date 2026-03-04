@@ -9,5 +9,6 @@ import java.util.UUID;
 @Repository
 public interface MovieHistoryJpaRepository extends BaseJpaRepository<MovieHistoryEntity, Integer> {
 
-    <T> Optional<T> findById(UUID id, Class<T> type);
+	<T> Optional<T> findById(UUID id, Class<T> type);
+
 }

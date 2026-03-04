@@ -27,69 +27,67 @@ import java.util.UUID;
 @Validated
 public class MovieOutboxService {
 
-    private final MovieProperties movieProperties;
+	private final MovieProperties movieProperties;
 
-    private final MovieOutboxJpaRepository movieOutboxJpaRepository;
+	private final MovieOutboxJpaRepository movieOutboxJpaRepository;
 
-    private final MovieOutboxJdbcRepository movieOutboxJdbcRepository;
+	private final MovieOutboxJdbcRepository movieOutboxJdbcRepository;
 
-    private final MovieOutboxVersionJpaRepository movieOutboxVersionJpaRepository;
+	private final MovieOutboxVersionJpaRepository movieOutboxVersionJpaRepository;
 
-    private final MovieOutboxVersionJdbcRepository movieOutboxVersionJdbcRepository;
+	private final MovieOutboxVersionJdbcRepository movieOutboxVersionJdbcRepository;
 
-    private final MovieOutboxDestinationJpaRepository movieOutboxDestinationJpaRepository;
+	private final MovieOutboxDestinationJpaRepository movieOutboxDestinationJpaRepository;
 
-    private final MovieOutboxDestinationJdbcRepository movieOutboxDestinationJdbcRepository;
+	private final MovieOutboxDestinationJdbcRepository movieOutboxDestinationJdbcRepository;
 
-    public MovieOutboxService(MovieProperties movieProperties,
-                              MovieOutboxJpaRepository movieOutboxJpaRepository,
-                              MovieOutboxJdbcRepository movieOutboxJdbcRepository,
-                              MovieOutboxVersionJpaRepository movieOutboxVersionJpaRepository,
-                              MovieOutboxVersionJdbcRepository movieOutboxVersionJdbcRepository,
-                              MovieOutboxDestinationJpaRepository movieOutboxDestinationJpaRepository,
-                              MovieOutboxDestinationJdbcRepository movieOutboxDestinationJdbcRepository) {
-        this.movieProperties = movieProperties;
-        this.movieOutboxJpaRepository = movieOutboxJpaRepository;
-        this.movieOutboxJdbcRepository = movieOutboxJdbcRepository;
-        this.movieOutboxVersionJpaRepository = movieOutboxVersionJpaRepository;
-        this.movieOutboxVersionJdbcRepository = movieOutboxVersionJdbcRepository;
-        this.movieOutboxDestinationJpaRepository = movieOutboxDestinationJpaRepository;
-        this.movieOutboxDestinationJdbcRepository = movieOutboxDestinationJdbcRepository;
-    }
+	public MovieOutboxService(MovieProperties movieProperties, MovieOutboxJpaRepository movieOutboxJpaRepository,
+			MovieOutboxJdbcRepository movieOutboxJdbcRepository,
+			MovieOutboxVersionJpaRepository movieOutboxVersionJpaRepository,
+			MovieOutboxVersionJdbcRepository movieOutboxVersionJdbcRepository,
+			MovieOutboxDestinationJpaRepository movieOutboxDestinationJpaRepository,
+			MovieOutboxDestinationJdbcRepository movieOutboxDestinationJdbcRepository) {
+		this.movieProperties = movieProperties;
+		this.movieOutboxJpaRepository = movieOutboxJpaRepository;
+		this.movieOutboxJdbcRepository = movieOutboxJdbcRepository;
+		this.movieOutboxVersionJpaRepository = movieOutboxVersionJpaRepository;
+		this.movieOutboxVersionJdbcRepository = movieOutboxVersionJdbcRepository;
+		this.movieOutboxDestinationJpaRepository = movieOutboxDestinationJpaRepository;
+		this.movieOutboxDestinationJdbcRepository = movieOutboxDestinationJdbcRepository;
+	}
 
-    @Chaos
-    @Transactional(propagation = Propagation.MANDATORY)
-    public List<OutboxProjection> claimOutboxPending(@Positive int limit) {
-        return movieOutboxJdbcRepository.claimOutboxPending(limit);
-    }
+	@Chaos
+	@Transactional(propagation = Propagation.MANDATORY)
+	public List<OutboxProjection> claimOutboxPending(@Positive int limit) {
+		return movieOutboxJdbcRepository.claimOutboxPending(limit);
+	}
 
-    @Chaos
-    public OutboxProjection findOutboxById(UUID id) {
-        return movieOutboxJpaRepository.findById(id, OutboxProjection.class)
-                .orElseThrow();
-    }
+	@Chaos
+	public OutboxProjection findOutboxById(UUID id) {
+		return movieOutboxJpaRepository.findById(id, OutboxProjection.class).orElseThrow();
+	}
 
-    @Chaos
-    @Transactional(propagation = Propagation.MANDATORY)
-    public List<OutboxDestinationProjection> claimDestinationPending(@Positive int limit) {
-        return movieOutboxDestinationJdbcRepository.claimDestinationPending(limit);
-    }
+	@Chaos
+	@Transactional(propagation = Propagation.MANDATORY)
+	public List<OutboxDestinationProjection> claimDestinationPending(@Positive int limit) {
+		return movieOutboxDestinationJdbcRepository.claimDestinationPending(limit);
+	}
 
-    @Chaos
-    @Transactional(propagation = Propagation.MANDATORY)
-    public OutboxVersionProjection findVersionByIdWithXLock(@NotNull UUID id) {
-        return movieOutboxVersionJpaRepository.findByIdWithXLock(id).orElseThrow();
-    }
+	@Chaos
+	@Transactional(propagation = Propagation.MANDATORY)
+	public OutboxVersionProjection findVersionByIdWithXLock(@NotNull UUID id) {
+		return movieOutboxVersionJpaRepository.findByIdWithXLock(id).orElseThrow();
+	}
 
-    @Chaos
-    @Transactional(propagation = Propagation.MANDATORY)
-    public List<MovieOutboxDestinationEntity> createDestinations(@NotNull UUID id) {
-        var destinations = movieProperties.getOutbox()
-                .getDestinations()
-                .stream()
-                .map(destination -> new MovieOutboxDestinationEntity(id, destination, Status.PENDING))
-                .toList();
-        return movieOutboxDestinationJpaRepository.persistAll(destinations);
-    }
+	@Chaos
+	@Transactional(propagation = Propagation.MANDATORY)
+	public List<MovieOutboxDestinationEntity> createDestinations(@NotNull UUID id) {
+		var destinations = movieProperties.getOutbox()
+			.getDestinations()
+			.stream()
+			.map(destination -> new MovieOutboxDestinationEntity(id, destination, Status.PENDING))
+			.toList();
+		return movieOutboxDestinationJpaRepository.persistAll(destinations);
+	}
 
 }

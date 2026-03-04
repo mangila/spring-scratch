@@ -12,66 +12,66 @@ import java.util.UUID;
 @Immutable
 public class HistoryBaseEntity extends AuditBaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id", columnDefinition = "UUID", updatable = false, nullable = false)
-    private UUID id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.UUID)
+	@Column(name = "id", columnDefinition = "UUID", updatable = false, nullable = false)
+	private UUID id;
 
-    @Column(name = "aggregate_id", columnDefinition = "UUID", nullable = false)
-    private UUID aggregateId;
+	@Column(name = "aggregate_id", columnDefinition = "UUID", nullable = false)
+	private UUID aggregateId;
 
-    @Column(name = "aggregate_version", nullable = false)
-    private Integer aggregateVersion;
+	@Column(name = "aggregate_version", nullable = false)
+	private Integer aggregateVersion;
 
-    @Column(name = "operation", nullable = false)
-    private String operation;
+	@Column(name = "operation", nullable = false)
+	private String operation;
 
-    @Type(JsonType.class)
-    @Column(columnDefinition = "jsonb", nullable = false)
-    private JsonNode payload;
+	@Type(JsonType.class)
+	@Column(columnDefinition = "jsonb", nullable = false)
+	private JsonNode payload;
 
-    public HistoryBaseEntity() {
-        // do nothing, for JPA
-    }
+	public HistoryBaseEntity() {
+		// do nothing, for JPA
+	}
 
-    public UUID getId() {
-        return id;
-    }
+	public UUID getId() {
+		return id;
+	}
 
-    public void setId(UUID id) {
-        this.id = id;
-    }
+	public void setId(UUID id) {
+		this.id = id;
+	}
 
-    public UUID getAggregateId() {
-        return aggregateId;
-    }
+	public UUID getAggregateId() {
+		return aggregateId;
+	}
 
-    public void setAggregateId(UUID aggregateId) {
-        this.aggregateId = aggregateId;
-    }
+	public void setAggregateId(UUID aggregateId) {
+		this.aggregateId = aggregateId;
+	}
 
-    public Integer getAggregateVersion() {
-        return aggregateVersion;
-    }
+	public Integer getAggregateVersion() {
+		return aggregateVersion;
+	}
 
-    public void setAggregateVersion(Integer version) {
-        this.aggregateVersion = version;
-    }
+	public void setAggregateVersion(Integer version) {
+		this.aggregateVersion = version;
+	}
 
-    public String getOperation() {
-        return operation;
-    }
+	public String getOperation() {
+		return operation;
+	}
 
-    public void setOperation(String operation) {
-        this.operation = operation;
-    }
+	public void setOperation(String operation) {
+		this.operation = operation;
+	}
 
-    public JsonNode getPayload() {
-        return payload;
-    }
+	public JsonNode getPayload() {
+		return payload;
+	}
 
-    public void setPayload(JsonNode payload) {
-        this.payload = payload;
-    }
+	public void setPayload(JsonNode payload) {
+		this.payload = payload;
+	}
 
 }

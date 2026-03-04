@@ -10,6 +10,6 @@ import java.util.UUID;
 @Repository
 public interface MovieOutboxJpaRepository extends BaseJpaRepository<MovieOutboxEntity, Integer> {
 
-    <T> Optional<T> findById(UUID id, Class<T> type);
+	<T> Optional<T> findById(UUID id, Class<T> type);
 
 }

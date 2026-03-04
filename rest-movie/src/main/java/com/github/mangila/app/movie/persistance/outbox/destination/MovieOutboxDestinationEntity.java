@@ -12,12 +12,12 @@ import java.util.UUID;
 @Table(name = "movie_outbox_destination")
 public class MovieOutboxDestinationEntity extends OutboxDestinationBaseEntity {
 
-    public MovieOutboxDestinationEntity() {
-        // do nothing, for JPA
-    }
+	public MovieOutboxDestinationEntity() {
+		// do nothing, for JPA
+	}
 
-    public MovieOutboxDestinationEntity(UUID outboxId, Destination destination, Status status) {
-        super(outboxId, destination, status);
-    }
+	public MovieOutboxDestinationEntity(UUID outboxId, Destination destination, Status status) {
+		super(outboxId, destination, status);
+	}
 
 }

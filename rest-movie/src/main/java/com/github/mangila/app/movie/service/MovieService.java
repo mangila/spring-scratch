@@ -13,35 +13,35 @@ import java.util.List;
 @Service
 public class MovieService {
 
-    private final MovieJpaRepository movieJpaRepository;
+	private final MovieJpaRepository movieJpaRepository;
 
-    private final MovieMapper movieMapper;
+	private final MovieMapper movieMapper;
 
-    private final MovieJdbcRepository movieJdbcRepository;
+	private final MovieJdbcRepository movieJdbcRepository;
 
-    private final MovieHistoryService movieHistoryService;
+	private final MovieHistoryService movieHistoryService;
 
-    private final MovieOutboxService movieOutboxService;
+	private final MovieOutboxService movieOutboxService;
 
-    public MovieService(MovieJpaRepository movieJpaRepository, MovieMapper movieMapper,
-                        MovieJdbcRepository movieJdbcRepository, MovieHistoryService movieHistoryService,
-                        MovieOutboxService movieOutboxService) {
-        this.movieJpaRepository = movieJpaRepository;
-        this.movieMapper = movieMapper;
-        this.movieJdbcRepository = movieJdbcRepository;
-        this.movieHistoryService = movieHistoryService;
-        this.movieOutboxService = movieOutboxService;
-    }
+	public MovieService(MovieJpaRepository movieJpaRepository, MovieMapper movieMapper,
+			MovieJdbcRepository movieJdbcRepository, MovieHistoryService movieHistoryService,
+			MovieOutboxService movieOutboxService) {
+		this.movieJpaRepository = movieJpaRepository;
+		this.movieMapper = movieMapper;
+		this.movieJdbcRepository = movieJdbcRepository;
+		this.movieHistoryService = movieHistoryService;
+		this.movieOutboxService = movieOutboxService;
+	}
 
-    @Chaos
-    public List<MovieDetailsProjection> findAllProjections() {
-        return movieJpaRepository.findAllBy(MovieDetailsProjection.class);
-    }
+	@Chaos
+	public List<MovieDetailsProjection> findAllProjections() {
+		return movieJpaRepository.findAllBy(MovieDetailsProjection.class);
+	}
 
-    @Chaos
-    public void persistAll(List<MovieProjection> movieProjections) {
-        var entities = movieMapper.toEntities(movieProjections);
-        movieJpaRepository.persistAll(entities);
-    }
+	@Chaos
+	public void persistAll(List<MovieProjection> movieProjections) {
+		var entities = movieMapper.toEntities(movieProjections);
+		movieJpaRepository.persistAll(entities);
+	}
 
 }

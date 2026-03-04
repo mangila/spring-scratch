@@ -27,8 +27,8 @@ public class MovieOutboxProduceRelayJobHandler implements JobRequestHandler<Movi
 
 	private final MovieScheduler movieScheduler;
 
-	public MovieOutboxProduceRelayJobHandler(TransactionTemplate transactionTemplate, MovieOutboxService movieOutboxService,
-											 MovieScheduler movieScheduler) {
+	public MovieOutboxProduceRelayJobHandler(TransactionTemplate transactionTemplate,
+			MovieOutboxService movieOutboxService, MovieScheduler movieScheduler) {
 		this.transactionTemplate = transactionTemplate;
 		this.movieOutboxService = movieOutboxService;
 		this.movieScheduler = movieScheduler;
@@ -38,12 +38,12 @@ public class MovieOutboxProduceRelayJobHandler implements JobRequestHandler<Movi
 	public void run(MovieOutboxProduceRelayJobRequest jobRequest) throws Exception {
 		final var context = ThreadLocalJobContext.getJobContext();
 		final var limit = jobRequest.limit();
-		var step = context.runStepOnce("claimPending", () -> {
+		ClaimStep claimStep = context.runStepOnce("claimPending", () -> {
 			var l = transactionTemplate.execute(_ -> movieOutboxService.claimOutboxPending(limit));
 			Objects.requireNonNull(l, "claimPending returned null");
 			return new ClaimStep(l);
 		});
-		var outboxProjections = step.outboxProjections();
+		var outboxProjections = claimStep.outboxProjections();
 		log.info("Movie outbox relay size: {}", outboxProjections.size());
 		for (var outbox : outboxProjections) {
 			final var idAsString = outbox.id().toString();
