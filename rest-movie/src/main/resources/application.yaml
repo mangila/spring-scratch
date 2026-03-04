@@ -4,15 +4,15 @@ app:
     enabled: false
   actor:
     outbox:
-      enabled: true
-      cron: "0/15 * * * * *"
+      enabled: false
+      cron: "0/30 * * * * *"
       limit: 20
       destinations:
         - sqs
         - http
   director:
     outbox:
-      enabled: true
+      enabled: false
       cron: "0 * * * * *"
       limit: 20
       destinations:
@@ -20,12 +20,10 @@ app:
   movie:
     outbox:
       enabled: true
-      cron: "0/15 * * * * *"
+      cron: "0/30 * * * * *"
       limit: 20
       destinations:
         - kafka
-        - rabbitmq
-        - sqs
         - http
 # Spring
 spring:
@@ -37,6 +35,9 @@ spring:
   devtools:
     restart:
       enabled: false
+    remote:
+      restart:
+        enabled: false
   docker:
     compose:
       file: ./rest-movie/compose.yaml
@@ -73,6 +74,8 @@ jobrunr:
     enabled: true
     name: ${spring.application.name}-jobrunr
     thread-type: virtualthreads
+    scheduled-jobs-request-size: 100
+    succeeded-jobs-request-size: 100
   job-scheduler:
     enabled: true
   dashboard:

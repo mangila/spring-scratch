@@ -7,6 +7,12 @@ spring:
   docker:
     compose:
       enabled: true
+  devtools:
+    restart:
+      enabled: false
+    remote:
+      restart:
+        enabled: false
   jpa:
     show-sql: true
     properties:

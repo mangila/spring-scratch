@@ -14,6 +14,8 @@ import java.util.List;
 @Validated
 public class MovieProperties {
 
+	private static final List<Destination> SUPPORTED_DESTINATIONS = List.of(Destination.KAFKA, Destination.HTTP);
+
 	private Outbox outbox = new Outbox();
 
 	public Outbox getOutbox() {
@@ -66,6 +68,10 @@ public class MovieProperties {
 		}
 
 		public void setDestinations(List<Destination> destinations) {
+			boolean retained = destinations.retainAll(SUPPORTED_DESTINATIONS);
+			if (retained) {
+				throw new IllegalArgumentException("Only " + SUPPORTED_DESTINATIONS + " are supported");
+			}
 			this.destinations = destinations;
 		}
 
