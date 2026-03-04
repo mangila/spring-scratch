@@ -1,9 +1,7 @@
 # Application
 app:
-  outbox:
+  chaos:
     enabled: true
-    cron: "0 * * * * *"
-    limit: 20
 # Spring
 spring:
   docker:

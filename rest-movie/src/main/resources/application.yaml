@@ -1,5 +1,7 @@
 # Application
 app:
+  chaos:
+    enabled: false
   actor:
     outbox:
       enabled: true

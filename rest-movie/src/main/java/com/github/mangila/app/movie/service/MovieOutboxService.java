@@ -8,6 +8,7 @@ import com.github.mangila.app.movie.persistance.outbox.version.MovieOutboxVersio
 import com.github.mangila.app.movie.persistance.outbox.version.MovieOutboxVersionJpaRepository;
 import com.github.mangila.app.movie.persistance.projection.MovieOutboxProjection;
 import com.github.mangila.app.movie.persistance.projection.MovieOutboxVersionProjection;
+import com.github.mangila.app.shared.chaos.Chaos;
 import jakarta.validation.constraints.Positive;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -53,6 +54,7 @@ public class MovieOutboxService {
                 .orElseThrow();
     }
 
+    @Chaos(probability = 1, message = "CHAOS AAAAAHHHH!!")
     @Transactional(propagation = Propagation.MANDATORY)
     public void createDestinations(UUID id) {
 
