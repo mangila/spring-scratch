@@ -3,6 +3,8 @@ package com.github.mangila.app.shared.persistence.base;
 import com.github.mangila.app.shared.persistence.type.Destination;
 import com.github.mangila.app.shared.persistence.type.Status;
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
 
 import java.util.UUID;
 
@@ -17,10 +19,14 @@ public class OutboxDestinationBaseEntity extends AuditBaseEntity {
     @Column(name = "outbox_id", columnDefinition = "UUID", nullable = false)
     private UUID outboxId;
 
+    @Column(name = "destination", columnDefinition = "destination", nullable = false)
     @Enumerated(EnumType.STRING)
+    @JdbcType(PostgreSQLEnumJdbcType.class)
     private Destination destination;
 
+    @Column(name = "status", columnDefinition = "status", nullable = false)
     @Enumerated(EnumType.STRING)
+    @JdbcType(PostgreSQLEnumJdbcType.class)
     private Status status;
 
     public OutboxDestinationBaseEntity() {

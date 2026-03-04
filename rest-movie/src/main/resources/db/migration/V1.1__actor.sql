@@ -1,11 +1,11 @@
-create table director
+create table actor
 (
     id            UUID                        NOT NULL,
-    name          TEXT,
-    picture       TEXT,
-    biography     TEXT,
-    date_of_birth DATE,
-    movies        JSONB,
+    name          TEXT                        NOT NULL,
+    picture       TEXT                        NOT NULL,
+    biography     TEXT                        NOT NULL,
+    date_of_birth DATE                        NOT NULL,
+    movies        JSONB                       NOT NULL,
     audit_version INTEGER                     NOT NULL,
     created_at    TIMESTAMP(6) WITH TIME ZONE NOT NULL,
     updated_at    TIMESTAMP(6) WITH TIME ZONE NOT NULL,
@@ -14,7 +14,7 @@ create table director
     primary key (id)
 );
 
-create table director_history
+create table actor_history
 (
     id                UUID DEFAULT gen_random_uuid() NOT NULL,
     aggregate_id      UUID                           NOT NULL,
@@ -29,13 +29,13 @@ create table director_history
     primary key (id)
 );
 
-create table director_outbox
+create table actor_outbox
 (
     id                UUID DEFAULT gen_random_uuid() NOT NULL,
     history_id        UUID                           NOT NULL,
     aggregate_id      UUID                           NOT NULL,
     aggregate_version INTEGER                        NOT NULL,
-    status            varchar(255) check ((status in ('PENDING', 'PROCESSING', 'SUCCESS', 'FAILED'))),
+    status            STATUS                         NOT NULL,
     audit_version     INTEGER                        NOT NULL,
     created_at        TIMESTAMP(6) WITH TIME ZONE    NOT NULL,
     updated_at        TIMESTAMP(6) WITH TIME ZONE    NOT NULL,
@@ -44,7 +44,7 @@ create table director_outbox
     primary key (id)
 );
 
-create table director_outbox_version
+create table actor_outbox_version
 (
     aggregate_id    UUID                        NOT NULL,
     current_version INTEGER                     NOT NULL,

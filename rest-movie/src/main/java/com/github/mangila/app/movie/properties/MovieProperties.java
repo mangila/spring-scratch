@@ -1,6 +1,8 @@
 package com.github.mangila.app.movie.properties;
 
 import com.github.mangila.app.shared.persistence.type.Destination;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
 import org.intellij.lang.annotations.Language;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
@@ -26,7 +28,9 @@ public class MovieProperties {
 
         private boolean enabled = false;
         @Language("CronExp")
+        @NotBlank
         private String cron = "0 0/5 * * * ?";
+        @Positive
         private int limit = 20;
         private List<Destination> destinations = new ArrayList<>();
 
