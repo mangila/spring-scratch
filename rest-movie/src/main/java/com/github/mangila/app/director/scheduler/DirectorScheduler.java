@@ -11,38 +11,39 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
-
 @Service
 public class DirectorScheduler {
 
-    private static final Logger log = LoggerFactory.getLogger(DirectorScheduler.class);
+	private static final Logger log = LoggerFactory.getLogger(DirectorScheduler.class);
 
-    private final DirectorProperties directorProperties;
-    private final JobRequestScheduler jobRequestScheduler;
+	private final DirectorProperties directorProperties;
 
-    public DirectorScheduler(DirectorProperties directorProperties, JobRequestScheduler jobRequestScheduler) {
-        this.directorProperties = directorProperties;
-        this.jobRequestScheduler = jobRequestScheduler;
-    }
+	private final JobRequestScheduler jobRequestScheduler;
 
-    @EventListener(ApplicationReadyEvent.class)
-    public void onReady() {
-        final var outbox = directorProperties.getOutbox();
-        if (outbox.isEnabled()) {
-            log.info("Director outbox enabled");
-            var jobRequest = new DirectorOutboxRelayJobRequest(outbox.getLimit());
-            var id = schedule(outbox.getCron(), jobRequest);
-            log.info("Director outbox relay scheduled with id: {}", id);
-        }
-    }
+	public DirectorScheduler(DirectorProperties directorProperties, JobRequestScheduler jobRequestScheduler) {
+		this.directorProperties = directorProperties;
+		this.jobRequestScheduler = jobRequestScheduler;
+	}
 
-    public String schedule(@Language("CronExp") String cron, DirectorOutboxRelayJobRequest request) {
-        var job = RecurringJobBuilder.aRecurringJob()
-                .withCron(cron)
-                .withName("Director outbox relay")
-                .withJobRequest(request)
-                .withLabels("director", "outbox")
-                .withAmountOfRetries(10);
-        return jobRequestScheduler.createRecurrently(job);
-    }
+	@EventListener(ApplicationReadyEvent.class)
+	public void onReady() {
+		final var outbox = directorProperties.getOutbox();
+		if (outbox.isEnabled()) {
+			log.info("Director outbox enabled");
+			var jobRequest = new DirectorOutboxRelayJobRequest(outbox.getLimit());
+			var id = schedule(outbox.getCron(), jobRequest);
+			log.info("Director outbox relay scheduled with id: {}", id);
+		}
+	}
+
+	public String schedule(@Language("CronExp") String cron, DirectorOutboxRelayJobRequest request) {
+		var job = RecurringJobBuilder.aRecurringJob()
+			.withCron(cron)
+			.withName("Director outbox relay")
+			.withJobRequest(request)
+			.withLabels("director", "outbox")
+			.withAmountOfRetries(10);
+		return jobRequestScheduler.createRecurrently(job);
+	}
+
 }

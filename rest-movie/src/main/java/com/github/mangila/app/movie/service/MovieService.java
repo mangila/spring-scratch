@@ -13,15 +13,17 @@ import java.util.List;
 public class MovieService {
 
     private final MovieJpaRepository movieJpaRepository;
+
     private final MovieMapper movieMapper;
+
     private final MovieJdbcRepository movieJdbcRepository;
+
     private final MovieHistoryService movieHistoryService;
+
     private final MovieOutboxService movieOutboxService;
 
-    public MovieService(MovieJpaRepository movieJpaRepository,
-                        MovieMapper movieMapper,
-                        MovieJdbcRepository movieJdbcRepository,
-                        MovieHistoryService movieHistoryService,
+    public MovieService(MovieJpaRepository movieJpaRepository, MovieMapper movieMapper,
+                        MovieJdbcRepository movieJdbcRepository, MovieHistoryService movieHistoryService,
                         MovieOutboxService movieOutboxService) {
         this.movieJpaRepository = movieJpaRepository;
         this.movieMapper = movieMapper;
@@ -38,4 +40,5 @@ public class MovieService {
         var entities = movieMapper.toEntities(movieProjections);
         movieJpaRepository.persistAll(entities);
     }
+
 }

@@ -10,67 +10,67 @@ import java.util.UUID;
 @MappedSuperclass
 public class OutboxBaseEntity extends AuditBaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id", columnDefinition = "UUID", updatable = false, nullable = false)
-    private UUID id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.UUID)
+	@Column(name = "id", columnDefinition = "UUID", updatable = false, nullable = false)
+	private UUID id;
 
-    @Column(name = "history_id", columnDefinition = "UUID", nullable = false)
-    private UUID historyId;
+	@Column(name = "history_id", columnDefinition = "UUID", nullable = false)
+	private UUID historyId;
 
-    @Column(name = "aggregate_id", columnDefinition = "UUID", nullable = false)
-    private UUID aggregateId;
+	@Column(name = "aggregate_id", columnDefinition = "UUID", nullable = false)
+	private UUID aggregateId;
 
-    @Column(name = "aggregate_version", nullable = false)
-    private Integer aggregateVersion;
+	@Column(name = "aggregate_version", nullable = false)
+	private Integer aggregateVersion;
 
-    @Column(name = "status", columnDefinition = "status", nullable = false)
-    @Enumerated(EnumType.STRING)
-    @JdbcType(PostgreSQLEnumJdbcType.class)
-    private Status status;
+	@Column(name = "status", columnDefinition = "status", nullable = false)
+	@Enumerated(EnumType.STRING)
+	@JdbcType(PostgreSQLEnumJdbcType.class)
+	private Status status;
 
-    public OutboxBaseEntity() {
-        // do nothing, for JPA
-    }
+	public OutboxBaseEntity() {
+		// do nothing, for JPA
+	}
 
-    public UUID getId() {
-        return id;
-    }
+	public UUID getId() {
+		return id;
+	}
 
-    public void setId(UUID id) {
-        this.id = id;
-    }
+	public void setId(UUID id) {
+		this.id = id;
+	}
 
-    public UUID getHistoryId() {
-        return historyId;
-    }
+	public UUID getHistoryId() {
+		return historyId;
+	}
 
-    public void setHistoryId(UUID historyId) {
-        this.historyId = historyId;
-    }
+	public void setHistoryId(UUID historyId) {
+		this.historyId = historyId;
+	}
 
-    public UUID getAggregateId() {
-        return aggregateId;
-    }
+	public UUID getAggregateId() {
+		return aggregateId;
+	}
 
-    public void setAggregateId(UUID aggregateId) {
-        this.aggregateId = aggregateId;
-    }
+	public void setAggregateId(UUID aggregateId) {
+		this.aggregateId = aggregateId;
+	}
 
-    public Integer getAggregateVersion() {
-        return aggregateVersion;
-    }
+	public Integer getAggregateVersion() {
+		return aggregateVersion;
+	}
 
-    public void setAggregateVersion(Integer aggregateVersion) {
-        this.aggregateVersion = aggregateVersion;
-    }
+	public void setAggregateVersion(Integer aggregateVersion) {
+		this.aggregateVersion = aggregateVersion;
+	}
 
-    public Status getStatus() {
-        return status;
-    }
+	public Status getStatus() {
+		return status;
+	}
 
-    public void setStatus(Status status) {
-        this.status = status;
-    }
+	public void setStatus(Status status) {
+		this.status = status;
+	}
 
 }

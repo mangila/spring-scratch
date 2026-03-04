@@ -8,8 +8,8 @@ import jakarta.persistence.Table;
 @Table(name = "director_outbox")
 public class DirectorOutboxEntity extends OutboxBaseEntity {
 
-    public DirectorOutboxEntity() {
-        // do nothing, for JPA
-    }
+	public DirectorOutboxEntity() {
+		// do nothing, for JPA
+	}
 
 }

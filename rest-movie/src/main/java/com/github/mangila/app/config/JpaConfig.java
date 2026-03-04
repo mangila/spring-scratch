@@ -11,26 +11,24 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import java.util.Optional;
 
 @Configuration
-@EnableJpaRepositories(value = {
-        "com.github.mangila.app.actor.persistence",
-        "com.github.mangila.app.director.persistance",
-        "com.github.mangila.app.movie.persistance"
-},
-        repositoryBaseClass = BaseJpaRepositoryImpl.class)
+@EnableJpaRepositories(value = { "com.github.mangila.app.actor.persistence",
+		"com.github.mangila.app.director.persistance", "com.github.mangila.app.movie.persistance" },
+		repositoryBaseClass = BaseJpaRepositoryImpl.class)
 @EnableJpaAuditing(auditorAwareRef = "auditSystemProvider")
 public class JpaConfig {
 
-    @Bean("auditSystemProvider")
-    AuditorAware<String> auditSystemProvider() {
-        return new AuditorAwareImpl();
-    }
+	@Bean("auditSystemProvider")
+	AuditorAware<String> auditSystemProvider() {
+		return new AuditorAwareImpl();
+	}
 
-    private static class AuditorAwareImpl implements AuditorAware<String> {
+	private static class AuditorAwareImpl implements AuditorAware<String> {
 
-        @Override
-        public @NonNull Optional<String> getCurrentAuditor() {
-            return Optional.of("system");
-        }
-    }
+		@Override
+		public @NonNull Optional<String> getCurrentAuditor() {
+			return Optional.of("system");
+		}
+
+	}
 
 }

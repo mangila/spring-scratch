@@ -14,34 +14,36 @@ import org.springframework.stereotype.Service;
 @Service
 public class ActorScheduler {
 
-    private static final Logger log = LoggerFactory.getLogger(ActorScheduler.class);
+	private static final Logger log = LoggerFactory.getLogger(ActorScheduler.class);
 
-    private final JobRequestScheduler jobRequestScheduler;
-    private final ActorProperties actorProperties;
+	private final JobRequestScheduler jobRequestScheduler;
 
-    public ActorScheduler(JobRequestScheduler jobRequestScheduler, ActorProperties actorProperties) {
-        this.jobRequestScheduler = jobRequestScheduler;
-        this.actorProperties = actorProperties;
-    }
+	private final ActorProperties actorProperties;
 
-    @EventListener(ApplicationReadyEvent.class)
-    public void onReady() {
-        final var outbox = actorProperties.getOutbox();
-        if (outbox.isEnabled()) {
-            log.info("Actor outbox enabled");
-            var jobRequest = new ActorOutboxRelayJobRequest(outbox.getLimit());
-            var id = schedule(outbox.getCron(), jobRequest);
-            log.info("Actor outbox relay scheduled with id: {}", id);
-        }
-    }
+	public ActorScheduler(JobRequestScheduler jobRequestScheduler, ActorProperties actorProperties) {
+		this.jobRequestScheduler = jobRequestScheduler;
+		this.actorProperties = actorProperties;
+	}
 
-    public String schedule(@Language("CronExp") String cron, ActorOutboxRelayJobRequest request) {
-        var job = RecurringJobBuilder.aRecurringJob()
-                .withCron(cron)
-                .withName("Actor outbox relay")
-                .withJobRequest(request)
-                .withLabels("actor", "outbox")
-                .withAmountOfRetries(10);
-        return jobRequestScheduler.createRecurrently(job);
-    }
+	@EventListener(ApplicationReadyEvent.class)
+	public void onReady() {
+		final var outbox = actorProperties.getOutbox();
+		if (outbox.isEnabled()) {
+			log.info("Actor outbox enabled");
+			var jobRequest = new ActorOutboxRelayJobRequest(outbox.getLimit());
+			var id = schedule(outbox.getCron(), jobRequest);
+			log.info("Actor outbox relay scheduled with id: {}", id);
+		}
+	}
+
+	public String schedule(@Language("CronExp") String cron, ActorOutboxRelayJobRequest request) {
+		var job = RecurringJobBuilder.aRecurringJob()
+			.withCron(cron)
+			.withName("Actor outbox relay")
+			.withJobRequest(request)
+			.withLabels("actor", "outbox")
+			.withAmountOfRetries(10);
+		return jobRequestScheduler.createRecurrently(job);
+	}
+
 }

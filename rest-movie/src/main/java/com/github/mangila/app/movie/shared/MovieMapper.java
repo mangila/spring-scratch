@@ -1,7 +1,9 @@
 package com.github.mangila.app.movie.shared;
 
-import com.github.mangila.app.movie.persistance.projection.MovieProjection;
 import com.github.mangila.app.movie.persistance.MovieEntity;
+import com.github.mangila.app.movie.persistance.outbox.destination.MovieOutboxDestinationEntity;
+import com.github.mangila.app.movie.persistance.projection.MovieProjection;
+import com.github.mangila.app.shared.persistence.type.Destination;
 import org.apache.commons.csv.CSVRecord;
 import org.springframework.stereotype.Component;
 
@@ -24,32 +26,22 @@ public class MovieMapper {
         var genres = GENRES_SPLIT_PATTERN.splitAsStream(record.get("genres")).collect(Collectors.toSet());
         var budget = record.get("budget");
         var releaseDate = record.get("release_date");
-        return new MovieProjection(
-                UUID.fromString(id),
-                title,
-                genres,
-                new BigDecimal(budget),
-                LocalDate.parse(releaseDate),
-                new HashSet<>(),
-                new HashSet<>()
-        );
+        return new MovieProjection(UUID.fromString(id), title, genres, new BigDecimal(budget),
+                LocalDate.parse(releaseDate), new HashSet<>(), new HashSet<>());
+    }
+
+    public List<MovieProjection> toProjections(List<CSVRecord> records) {
+        return records.stream().map(this::toProjection).toList();
     }
 
     public MovieEntity toEntity(MovieProjection movieProjection) {
-        return new MovieEntity(
-                movieProjection.id(),
-                movieProjection.title(),
-                movieProjection.genres(),
-                movieProjection.budget(),
-                movieProjection.releaseDate(),
-                movieProjection.directors(),
-                movieProjection.actors()
-        );
+        return new MovieEntity(movieProjection.id(), movieProjection.title(), movieProjection.genres(),
+                movieProjection.budget(), movieProjection.releaseDate(), movieProjection.directors(),
+                movieProjection.actors());
     }
 
     public List<MovieEntity> toEntities(List<MovieProjection> movieProjections) {
-        return movieProjections.stream()
-                .map(this::toEntity)
-                .toList();
+        return movieProjections.stream().map(this::toEntity).toList();
     }
+
 }

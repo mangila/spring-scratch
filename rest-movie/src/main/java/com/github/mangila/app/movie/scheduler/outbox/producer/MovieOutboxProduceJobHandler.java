@@ -1,5 +1,6 @@
 package com.github.mangila.app.movie.scheduler.outbox.producer;
 
+import com.github.mangila.app.movie.persistance.outbox.destination.MovieOutboxDestinationEntity;
 import com.github.mangila.app.movie.scheduler.MovieScheduler;
 import com.github.mangila.app.movie.service.MovieOutboxService;
 import org.jobrunr.jobs.context.JobRunrDashboardLogger;
@@ -15,14 +16,16 @@ import java.util.Objects;
 @Component
 public class MovieOutboxProduceJobHandler implements JobRequestHandler<MovieOutboxProduceJobRequest> {
 
-    private static final Logger log = new JobRunrDashboardLogger(LoggerFactory.getLogger(MovieOutboxProduceJobHandler.class));
+    private static final Logger log = new JobRunrDashboardLogger(
+            LoggerFactory.getLogger(MovieOutboxProduceJobHandler.class));
 
     private final TransactionTemplate transactionTemplate;
+
     private final MovieOutboxService movieOutboxService;
+
     private final MovieScheduler movieScheduler;
 
-    public MovieOutboxProduceJobHandler(TransactionTemplate transactionTemplate,
-                                        MovieOutboxService movieOutboxService,
+    public MovieOutboxProduceJobHandler(TransactionTemplate transactionTemplate, MovieOutboxService movieOutboxService,
                                         MovieScheduler movieScheduler) {
         this.transactionTemplate = transactionTemplate;
         this.movieOutboxService = movieOutboxService;
@@ -37,10 +40,15 @@ public class MovieOutboxProduceJobHandler implements JobRequestHandler<MovieOutb
             var version = movieOutboxService.findVersionByIdWithXLock(outbox.aggregateId());
             if (Objects.equals(version.currentVersion(), outbox.aggregateVersion())) {
                 log.info("version: {}", version);
-                movieOutboxService.createDestinations(outbox.id());
+                var entities = movieOutboxService.createDestinations(outbox.id());
+                var destinations = entities.stream()
+                        .map(MovieOutboxDestinationEntity::getDestination)
+                        .toList();
+                log.info("created destinations: {} - {}", outbox.id(), destinations);
             } else {
                 log.warn("version mismatch: {} != {}", version.currentVersion(), outbox.aggregateVersion());
             }
         });
     }
+
 }

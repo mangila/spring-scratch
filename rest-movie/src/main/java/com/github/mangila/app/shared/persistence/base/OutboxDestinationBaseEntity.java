@@ -33,6 +33,12 @@ public class OutboxDestinationBaseEntity extends AuditBaseEntity {
         // do nothing, for JPA
     }
 
+    public OutboxDestinationBaseEntity(UUID outboxId, Destination destination, Status status) {
+        this.outboxId = outboxId;
+        this.destination = destination;
+        this.status = status;
+    }
+
     public UUID getId() {
         return id;
     }
@@ -64,4 +70,5 @@ public class OutboxDestinationBaseEntity extends AuditBaseEntity {
     public void setStatus(Status status) {
         this.status = status;
     }
+
 }

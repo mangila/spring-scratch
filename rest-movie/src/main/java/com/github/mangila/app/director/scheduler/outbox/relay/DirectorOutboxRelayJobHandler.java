@@ -6,8 +6,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class DirectorOutboxRelayJobHandler implements JobRequestHandler<DirectorOutboxRelayJobRequest> {
 
-    @Override
-    public void run(DirectorOutboxRelayJobRequest jobRequest) throws Exception {
+	@Override
+	public void run(DirectorOutboxRelayJobRequest jobRequest) throws Exception {
 
-    }
+	}
+
 }

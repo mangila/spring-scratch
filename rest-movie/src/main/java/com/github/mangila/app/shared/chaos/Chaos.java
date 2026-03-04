@@ -9,11 +9,11 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Chaos {
 
-    /**
-     * Probability of failure (0.0 to 1.0).
-     * 0.1 means 10% of calls will fail.
-     */
-    double probability() default 0.1;
+	/**
+	 * Probability of failure (0.0 to 1.0). 0.1 means 10% of calls will fail.
+	 */
+	double probability() default 0.1;
 
-    String message() default "Chaos struck: Simulated Method Call Failure";
+	String message() default "Chaos struck: Simulated Method Call Failure";
+
 }

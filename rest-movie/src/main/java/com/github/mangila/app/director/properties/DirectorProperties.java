@@ -12,54 +12,59 @@ import java.util.List;
 @Validated
 public class DirectorProperties {
 
-    private Outbox outbox = new Outbox();
+	private Outbox outbox = new Outbox();
 
-    public Outbox getOutbox() {
-        return outbox;
-    }
+	public Outbox getOutbox() {
+		return outbox;
+	}
 
-    public void setOutbox(Outbox outbox) {
-        this.outbox = outbox;
-    }
+	public void setOutbox(Outbox outbox) {
+		this.outbox = outbox;
+	}
 
-    public static class Outbox {
+	public static class Outbox {
 
-        private boolean enabled = false;
-        @Language("CronExp")
-        private String cron = "0 0/5 * * * ?";
-        private int limit = 20;
-        private List<Destination> destinations = new ArrayList<>();
+		private boolean enabled = false;
 
-        public int getLimit() {
-            return limit;
-        }
+		@Language("CronExp")
+		private String cron = "0 0/5 * * * ?";
 
-        public void setLimit(int limit) {
-            this.limit = limit;
-        }
+		private int limit = 20;
 
-        public boolean isEnabled() {
-            return enabled;
-        }
+		private List<Destination> destinations = new ArrayList<>();
 
-        public void setEnabled(boolean enabled) {
-            this.enabled = enabled;
-        }
+		public int getLimit() {
+			return limit;
+		}
 
-        public String getCron() {
-            return cron;
-        }
+		public void setLimit(int limit) {
+			this.limit = limit;
+		}
 
-        public void setCron(@Language("CronExp") String cron) {
-            this.cron = cron;
-        }
+		public boolean isEnabled() {
+			return enabled;
+		}
 
-        public List<Destination> getDestinations() {
-            return destinations;
-        }
+		public void setEnabled(boolean enabled) {
+			this.enabled = enabled;
+		}
 
-        public void setDestinations(List<Destination> destinations) {
-            this.destinations = destinations;
-        }
-    }
+		public String getCron() {
+			return cron;
+		}
+
+		public void setCron(@Language("CronExp") String cron) {
+			this.cron = cron;
+		}
+
+		public List<Destination> getDestinations() {
+			return destinations;
+		}
+
+		public void setDestinations(List<Destination> destinations) {
+			this.destinations = destinations;
+		}
+
+	}
+
 }

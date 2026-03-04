@@ -4,8 +4,9 @@ import org.jobrunr.jobs.lambdas.JobRequest;
 
 public class ActorOutboxProduceJobRequest implements JobRequest {
 
-    @Override
-    public Class<ActorOutboxProduceJobHandler> getJobRequestHandler() {
-        return ActorOutboxProduceJobHandler.class;
-    }
+	@Override
+	public Class<ActorOutboxProduceJobHandler> getJobRequestHandler() {
+		return ActorOutboxProduceJobHandler.class;
+	}
+
 }

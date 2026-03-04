@@ -6,8 +6,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class ActorOutboxProduceJobHandler implements JobRequestHandler<ActorOutboxProduceJobRequest> {
 
-    @Override
-    public void run(ActorOutboxProduceJobRequest jobRequest) throws Exception {
+	@Override
+	public void run(ActorOutboxProduceJobRequest jobRequest) throws Exception {
 
-    }
+	}
+
 }

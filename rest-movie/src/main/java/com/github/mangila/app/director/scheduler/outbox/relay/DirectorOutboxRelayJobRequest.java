@@ -4,8 +4,8 @@ import org.jobrunr.jobs.lambdas.JobRequest;
 
 public record DirectorOutboxRelayJobRequest(int limit) implements JobRequest {
 
-    @Override
-    public Class<DirectorOutboxRelayJobHandler> getJobRequestHandler() {
-        return DirectorOutboxRelayJobHandler.class;
-    }
+	@Override
+	public Class<DirectorOutboxRelayJobHandler> getJobRequestHandler() {
+		return DirectorOutboxRelayJobHandler.class;
+	}
 }

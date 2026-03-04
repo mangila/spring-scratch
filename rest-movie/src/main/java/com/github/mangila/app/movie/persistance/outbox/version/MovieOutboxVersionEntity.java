@@ -8,8 +8,8 @@ import jakarta.persistence.Table;
 @Table(name = "movie_outbox_version")
 public class MovieOutboxVersionEntity extends OutboxVersionBaseEntity {
 
-    public MovieOutboxVersionEntity() {
-        // do nothing, for JPA
-    }
+	public MovieOutboxVersionEntity() {
+		// do nothing, for JPA
+	}
 
 }

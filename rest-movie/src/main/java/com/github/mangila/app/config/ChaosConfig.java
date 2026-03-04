@@ -13,16 +13,16 @@ import org.springframework.context.event.EventListener;
 @ConditionalOnProperty(name = "app.chaos.enabled", havingValue = "true")
 public class ChaosConfig {
 
-    private static final Logger log = LoggerFactory.getLogger(ChaosConfig.class);
+	private static final Logger log = LoggerFactory.getLogger(ChaosConfig.class);
 
-    @EventListener(ApplicationReadyEvent.class)
-    public void onReady() {
-        log.info("### CHAOS ENABLED ###");
-    }
+	@EventListener(ApplicationReadyEvent.class)
+	public void onReady() {
+		log.info("### CHAOS ENABLED ###");
+	}
 
-    @Bean
-    ChaosAspect chaosAspect() {
-        return new ChaosAspect();
-    }
+	@Bean
+	ChaosAspect chaosAspect() {
+		return new ChaosAspect();
+	}
 
 }

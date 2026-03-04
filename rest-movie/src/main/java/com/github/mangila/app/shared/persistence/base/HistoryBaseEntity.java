@@ -1,10 +1,10 @@
 package com.github.mangila.app.shared.persistence.base;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.Type;
-import tools.jackson.databind.node.ObjectNode;
 
 import java.util.UUID;
 
@@ -28,7 +28,7 @@ public class HistoryBaseEntity extends AuditBaseEntity {
 
     @Type(JsonType.class)
     @Column(columnDefinition = "jsonb", nullable = false)
-    private ObjectNode payload;
+    private JsonNode payload;
 
     public HistoryBaseEntity() {
         // do nothing, for JPA
@@ -66,11 +66,11 @@ public class HistoryBaseEntity extends AuditBaseEntity {
         this.operation = operation;
     }
 
-    public ObjectNode getPayload() {
+    public JsonNode getPayload() {
         return payload;
     }
 
-    public void setPayload(ObjectNode payload) {
+    public void setPayload(JsonNode payload) {
         this.payload = payload;
     }
 

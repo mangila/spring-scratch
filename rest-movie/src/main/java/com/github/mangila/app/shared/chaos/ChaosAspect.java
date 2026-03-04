@@ -8,12 +8,13 @@ import java.util.Random;
 @Aspect
 public class ChaosAspect {
 
-    private final Random random = new Random();
+	private final Random random = new Random();
 
-    @Before("@annotation(chaos)")
-    public void causeChaos(Chaos chaos) {
-        if (random.nextDouble() < chaos.probability()) {
-            throw new RuntimeException(chaos.message());
-        }
-    }
+	@Before("@annotation(chaos)")
+	public void causeChaos(Chaos chaos) {
+		if (random.nextDouble() < chaos.probability()) {
+			throw new RuntimeException(chaos.message());
+		}
+	}
+
 }
