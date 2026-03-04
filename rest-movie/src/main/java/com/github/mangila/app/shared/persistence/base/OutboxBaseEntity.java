@@ -2,6 +2,8 @@ package com.github.mangila.app.shared.persistence.base;
 
 import com.github.mangila.app.shared.persistence.type.Status;
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
 
 import java.util.UUID;
 
@@ -22,7 +24,9 @@ public class OutboxBaseEntity extends AuditBaseEntity {
     @Column(name = "aggregate_version", nullable = false)
     private Integer aggregateVersion;
 
+    @Column(name = "status", columnDefinition = "status", nullable = false)
     @Enumerated(EnumType.STRING)
+    @JdbcType(PostgreSQLEnumJdbcType.class)
     private Status status;
 
     public OutboxBaseEntity() {

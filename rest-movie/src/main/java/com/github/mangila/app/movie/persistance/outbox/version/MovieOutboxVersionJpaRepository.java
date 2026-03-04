@@ -1,9 +1,23 @@
 package com.github.mangila.app.movie.persistance.outbox.version;
 
+import com.github.mangila.app.movie.persistance.projection.MovieOutboxVersionProjection;
 import io.hypersistence.utils.spring.repository.BaseJpaRepository;
+import jakarta.persistence.LockModeType;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface MovieOutboxVersionJpaRepository extends BaseJpaRepository<MovieOutboxVersionEntity, Integer> {
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+            SELECT v.aggregateId, v.currentVersion FROM movie_outbox_version v
+            WHERE v.aggregateId = :id
+            """)
+    Optional<MovieOutboxVersionProjection> findByIdWithXLock(@Param("id") UUID id);
 }

@@ -6,7 +6,6 @@ import com.github.mangila.app.actor.shared.ActorMapper;
 import com.github.mangila.app.director.persistance.DirectorEntity;
 import com.github.mangila.app.director.persistance.DirectorJpaRepository;
 import com.github.mangila.app.director.shared.DirectorMapper;
-import com.github.mangila.app.movie.persistance.MovieJpaRepository;
 import com.github.mangila.app.movie.persistance.projection.MovieProjection;
 import com.github.mangila.app.movie.service.MovieService;
 import com.github.mangila.app.movie.shared.MovieMapper;
@@ -51,8 +50,6 @@ public class DataBootstrap implements ApplicationRunner {
 
     private final DirectorJpaRepository directorJpaRepository;
 
-    private final MovieJpaRepository movieJpaRepository;
-
     private final TransactionTemplate transactionTemplate;
 
     private final MovieService movieService;
@@ -61,8 +58,9 @@ public class DataBootstrap implements ApplicationRunner {
                          @Value("data/directors.csv") ClassPathResource directorResource,
                          @Value("data/movies.csv") ClassPathResource movieResource, ActorMapper actorMapper,
                          DirectorMapper directorMapper, MovieMapper movieMapper, ActorJpaRepository actorJpaRepository,
-                         DirectorJpaRepository directorJpaRepository, MovieJpaRepository movieJpaRepository,
-                         TransactionTemplate transactionTemplate, MovieService movieService) {
+                         DirectorJpaRepository directorJpaRepository,
+                         TransactionTemplate transactionTemplate,
+                         MovieService movieService) {
         this.actorResource = actorResource;
         this.directorResource = directorResource;
         this.movieResource = movieResource;
@@ -71,7 +69,6 @@ public class DataBootstrap implements ApplicationRunner {
         this.movieMapper = movieMapper;
         this.actorJpaRepository = actorJpaRepository;
         this.directorJpaRepository = directorJpaRepository;
-        this.movieJpaRepository = movieJpaRepository;
         this.transactionTemplate = transactionTemplate;
         this.movieService = movieService;
     }
@@ -84,8 +81,9 @@ public class DataBootstrap implements ApplicationRunner {
         final List<MovieProjection> movieProjectionEntities = readMovies(csvFormat);
 
         for (var actor : actorEntities) {
-            for (int i = 0; i < ThreadLocalRandom.current().nextInt(0, movieProjectionEntities.size()); i++) {
-                var rn = ThreadLocalRandom.current().nextInt(0, movieProjectionEntities.size());
+            var rn = ThreadLocalRandom.current().nextInt(0, movieProjectionEntities.size());
+            for (int i = 0; i < rn; i++) {
+                rn = ThreadLocalRandom.current().nextInt(0, movieProjectionEntities.size());
                 var movie = movieProjectionEntities.get(rn);
                 movie.actors().add(actor.getId());
                 actor.getMovies().add(movie.id());
@@ -135,7 +133,7 @@ public class DataBootstrap implements ApplicationRunner {
         try (var reader = getReader(movieResource.getInputStream()); CSVParser csvParser = csvFormat.parse(reader)) {
             movieProjectionEntities = csvParser.stream()
                     .peek(record -> log.info("{}", record))
-                    .map(movieMapper::toDomain)
+                    .map(movieMapper::toProjection)
                     .peek(movieProjection -> log.info("{}", movieProjection))
                     .toList();
         }

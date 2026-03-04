@@ -18,7 +18,7 @@ public class MovieMapper {
 
     private static final Pattern GENRES_SPLIT_PATTERN = Pattern.compile("\\|");
 
-    public MovieProjection toDomain(CSVRecord record) {
+    public MovieProjection toProjection(CSVRecord record) {
         var id = record.get("id");
         var title = record.get("title");
         var genres = GENRES_SPLIT_PATTERN.splitAsStream(record.get("genres")).collect(Collectors.toSet());

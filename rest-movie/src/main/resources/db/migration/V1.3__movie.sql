@@ -36,7 +36,7 @@ create table movie_outbox
     history_id        UUID                           NOT NULL,
     aggregate_id      UUID                           NOT NULL,
     aggregate_version INTEGER                        NOT NULL,
-    status            varchar(255) check ((status in ('PENDING', 'PROCESSING', 'SUCCESS', 'FAILED'))),
+    status            Status                         NOT NULL,
     audit_version     INTEGER                        NOT NULL,
     created_at        TIMESTAMP(6) WITH TIME ZONE    NOT NULL,
     updated_at        TIMESTAMP(6) WITH TIME ZONE    NOT NULL,
@@ -55,4 +55,18 @@ create table movie_outbox_version
     created_by      TEXT                        NOT NULL,
     modified_by     TEXT                        NOT NULL,
     primary key (aggregate_id)
+);
+
+create table movie_outbox_destination
+(
+    id            UUID                        NOT NULL,
+    outbox_id     UUID                        NOT NULL,
+    destination   DESTINATION                 NOT NULL,
+    status        STATUS                      NOT NULL,
+    audit_version INTEGER                     NOT NULL,
+    created_at    TIMESTAMP(6) WITH TIME ZONE NOT NULL,
+    updated_at    TIMESTAMP(6) WITH TIME ZONE NOT NULL,
+    created_by    TEXT                        NOT NULL,
+    modified_by   TEXT                        NOT NULL,
+    primary key (id)
 );
