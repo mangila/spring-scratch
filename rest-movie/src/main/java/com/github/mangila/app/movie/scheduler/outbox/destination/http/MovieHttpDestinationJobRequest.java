@@ -1,4 +1,4 @@
-package com.github.mangila.app.movie.scheduler.outbox.consumer.destination.http;
+package com.github.mangila.app.movie.scheduler.outbox.destination.http;
 
 import org.jobrunr.jobs.lambdas.JobRequest;
 

@@ -13,35 +13,28 @@ import java.util.List;
 @Service
 public class MovieService {
 
-	private final MovieJpaRepository movieJpaRepository;
+	private final MovieJdbcRepository jdbc;
+
+	private final MovieJpaRepository jpa;
 
 	private final MovieMapper movieMapper;
 
-	private final MovieJdbcRepository movieJdbcRepository;
-
-	private final MovieHistoryService movieHistoryService;
-
-	private final MovieOutboxService movieOutboxService;
-
-	public MovieService(MovieJpaRepository movieJpaRepository, MovieMapper movieMapper,
-			MovieJdbcRepository movieJdbcRepository, MovieHistoryService movieHistoryService,
-			MovieOutboxService movieOutboxService) {
-		this.movieJpaRepository = movieJpaRepository;
+	public MovieService(MovieJdbcRepository movieJdbcRepository, MovieJpaRepository movieJpaRepository,
+			MovieMapper movieMapper) {
+		this.jdbc = movieJdbcRepository;
+		this.jpa = movieJpaRepository;
 		this.movieMapper = movieMapper;
-		this.movieJdbcRepository = movieJdbcRepository;
-		this.movieHistoryService = movieHistoryService;
-		this.movieOutboxService = movieOutboxService;
 	}
 
 	@Chaos
 	public List<MovieDetailsProjection> findAllProjections() {
-		return movieJpaRepository.findAllBy(MovieDetailsProjection.class);
+		return jpa.findAllBy(MovieDetailsProjection.class);
 	}
 
 	@Chaos
 	public void persistAll(List<MovieProjection> movieProjections) {
 		var entities = movieMapper.toEntities(movieProjections);
-		movieJpaRepository.persistAll(entities);
+		jpa.persistAll(entities);
 	}
 
 }

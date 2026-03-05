@@ -54,4 +54,8 @@ public class MovieOutboxDestinationService {
 		jdbc.updateStatus(destinationId, status);
 	}
 
+	public List<OutboxDestinationProjection> findAllByOutboxId(UUID outboxId) {
+		return jpa.findAllByOutboxId(outboxId);
+	}
+
 }

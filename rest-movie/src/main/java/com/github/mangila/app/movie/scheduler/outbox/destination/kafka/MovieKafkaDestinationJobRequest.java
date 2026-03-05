@@ -1,4 +1,4 @@
-package com.github.mangila.app.movie.scheduler.outbox.consumer.destination.kafka;
+package com.github.mangila.app.movie.scheduler.outbox.destination.kafka;
 
 import org.jobrunr.jobs.lambdas.JobRequest;
 

@@ -30,4 +30,7 @@ public class MovieOutboxVersionService {
 		return jpa.findByIdWithXLock(id).orElseThrow();
 	}
 
+	public void updateVersion(UUID uuid, Integer version) {
+		jdbc.updateVersion(uuid, version);
+	}
 }
