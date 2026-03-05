@@ -17,15 +17,14 @@ import java.util.stream.Stream;
 @Repository
 public interface MovieOutboxJpaRepository extends BaseJpaRepository<MovieOutboxEntity, Integer> {
 
-    <T> Optional<T> findById(UUID id, Class<T> type);
+	<T> Optional<T> findById(UUID id, Class<T> type);
 
-    @Modifying(
-            clearAutomatically = true,
-            flushAutomatically = true)
-    @Query("""
-            UPDATE movie_outbox o
-            SET o.status = :status
-            WHERE o.id IN :outboxIds
-            """)
-    void bulkChangeStatus(List<UUID> outboxIds, Status status);
+	@Modifying(clearAutomatically = true, flushAutomatically = true)
+	@Query("""
+			UPDATE movie_outbox o
+			SET o.status = :status
+			WHERE o.id IN :outboxIds
+			""")
+	void bulkChangeStatus(List<UUID> outboxIds, Status status);
+
 }

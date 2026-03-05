@@ -15,48 +15,48 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 @Component
-public class MovieOutboxDestinationMonitorJobHandler implements JobRequestHandler<MovieOutboxDestinationMonitorJobRequest> {
+public class MovieOutboxDestinationMonitorJobHandler
+		implements JobRequestHandler<MovieOutboxDestinationMonitorJobRequest> {
 
+	private static final Logger log = new JobRunrDashboardLogger(
+			LoggerFactory.getLogger(MovieOutboxDestinationMonitorJobHandler.class));
 
-    private static final Logger log = new JobRunrDashboardLogger(
-            LoggerFactory.getLogger(MovieOutboxDestinationMonitorJobHandler.class));
+	private final MovieOutboxService outboxService;
 
-    private final MovieOutboxService outboxService;
-    private final MovieOutboxDestinationService destinationService;
-    private final TransactionTemplate transactionTemplate;
+	private final MovieOutboxDestinationService destinationService;
 
-    public MovieOutboxDestinationMonitorJobHandler(MovieOutboxService movieOutboxService,
-                                                   MovieOutboxDestinationService movieOutboxDestinationService,
-                                                   TransactionTemplate transactionTemplate
-    ) {
-        this.outboxService = movieOutboxService;
-        this.destinationService = movieOutboxDestinationService;
-        this.transactionTemplate = transactionTemplate;
-    }
+	private final TransactionTemplate transactionTemplate;
 
-    @Override
-    public void run(MovieOutboxDestinationMonitorJobRequest jobRequest) throws Exception {
-        var completedOutboxIds = transactionTemplate.execute(_ -> {
-            var completedDestinations = new ArrayList<UUID>(256);
-            try (var stream = outboxService.streamOutboxIds(500)) {
-                stream.forEach(id -> {
-                    var projections = destinationService.findAllByOutboxId(id);
-                    if (CollectionUtils.isNotNullOrEmpty(projections)) {
-                        log.info("Found {} destination projections for outbox id: {}", projections.size(), id);
-                        var ok = projections.stream()
-                                .allMatch(projection -> projection.status() == Status.SUCCESS);
-                        if (ok) {
-                            completedDestinations.add(id);
-                        }
-                    }
-                });
-            }
-            return completedDestinations;
-        });
+	public MovieOutboxDestinationMonitorJobHandler(MovieOutboxService movieOutboxService,
+			MovieOutboxDestinationService movieOutboxDestinationService, TransactionTemplate transactionTemplate) {
+		this.outboxService = movieOutboxService;
+		this.destinationService = movieOutboxDestinationService;
+		this.transactionTemplate = transactionTemplate;
+	}
 
-        transactionTemplate.executeWithoutResult(_ -> {
-            log.info("Marking {} outbox as success", completedOutboxIds.size());
-            outboxService.bulkChangeStatus(completedOutboxIds, Status.SUCCESS);
-        });
-    }
+	@Override
+	public void run(MovieOutboxDestinationMonitorJobRequest jobRequest) throws Exception {
+		var completedOutboxIds = transactionTemplate.execute(_ -> {
+			var completedDestinations = new ArrayList<UUID>(256);
+			try (var stream = outboxService.streamOutboxIds(500)) {
+				stream.forEach(id -> {
+					var projections = destinationService.findAllByOutboxId(id);
+					if (CollectionUtils.isNotNullOrEmpty(projections)) {
+						log.info("Found {} destination projections for outbox id: {}", projections.size(), id);
+						var ok = projections.stream().allMatch(projection -> projection.status() == Status.SUCCESS);
+						if (ok) {
+							completedDestinations.add(id);
+						}
+					}
+				});
+			}
+			return completedDestinations;
+		});
+
+		transactionTemplate.executeWithoutResult(_ -> {
+			log.info("Marking {} outbox as success", completedOutboxIds.size());
+			outboxService.bulkChangeStatus(completedOutboxIds, Status.SUCCESS);
+		});
+	}
+
 }

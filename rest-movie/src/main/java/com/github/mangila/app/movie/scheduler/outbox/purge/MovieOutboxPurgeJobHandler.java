@@ -7,13 +7,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class MovieOutboxPurgeJobHandler implements JobRequestHandler<MovieOutboxPurgeJobRequest> {
 
-    private final MovieOutboxService movieOutboxService;
+	private final MovieOutboxService movieOutboxService;
 
-    public MovieOutboxPurgeJobHandler(MovieOutboxService movieOutboxService) {
-        this.movieOutboxService = movieOutboxService;
-    }
+	public MovieOutboxPurgeJobHandler(MovieOutboxService movieOutboxService) {
+		this.movieOutboxService = movieOutboxService;
+	}
 
-    @Override
-    public void run(MovieOutboxPurgeJobRequest jobRequest) throws Exception {
-    }
+	@Override
+	public void run(MovieOutboxPurgeJobRequest jobRequest) throws Exception {
+	}
+
 }

@@ -10,6 +10,6 @@ import java.util.UUID;
 @Repository
 public interface MovieOutboxDestinationJpaRepository extends BaseJpaRepository<MovieOutboxDestinationEntity, Integer> {
 
-    List<OutboxDestinationProjection> findAllByOutboxId(UUID outboxId);
+	List<OutboxDestinationProjection> findAllByOutboxId(UUID outboxId);
 
 }

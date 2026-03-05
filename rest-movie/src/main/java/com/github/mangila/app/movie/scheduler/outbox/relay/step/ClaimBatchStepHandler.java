@@ -9,19 +9,19 @@ import java.util.Objects;
 @Component
 public class ClaimBatchStepHandler {
 
-    private final TransactionTemplate transactionTemplate;
-    private final MovieOutboxService movieOutboxService;
+	private final TransactionTemplate transactionTemplate;
 
-    public ClaimBatchStepHandler(TransactionTemplate transactionTemplate,
-                                 MovieOutboxService movieOutboxService) {
-        this.transactionTemplate = transactionTemplate;
-        this.movieOutboxService = movieOutboxService;
-    }
+	private final MovieOutboxService movieOutboxService;
 
-    public ClaimBatchStepResult handle(int limit) {
-        var l = transactionTemplate.execute(_ -> movieOutboxService.claimOutboxPending(limit));
-        Objects.requireNonNull(l, "claimOutboxPending returned null");
-        return new ClaimBatchStepResult(l);
-    }
+	public ClaimBatchStepHandler(TransactionTemplate transactionTemplate, MovieOutboxService movieOutboxService) {
+		this.transactionTemplate = transactionTemplate;
+		this.movieOutboxService = movieOutboxService;
+	}
+
+	public ClaimBatchStepResult handle(int limit) {
+		var l = transactionTemplate.execute(_ -> movieOutboxService.claimOutboxPending(limit));
+		Objects.requireNonNull(l, "claimOutboxPending returned null");
+		return new ClaimBatchStepResult(l);
+	}
 
 }

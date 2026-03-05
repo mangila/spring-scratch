@@ -18,24 +18,26 @@ import static com.github.mangila.app.shared.persistence.type.Destination.KAFKA;
 @Component
 public class ScheduleDestinationStepHandler {
 
-    private final Map<Destination, Function<ScheduleDestination, JobId>> destinationMap;
+	private final Map<Destination, Function<ScheduleDestination, JobId>> destinationMap;
 
-    public ScheduleDestinationStepHandler(MovieScheduler movieScheduler) {
-        this.destinationMap = Map.of(
-                HTTP, obj -> movieScheduler.schedule(new MovieHttpDestinationJobRequest(obj.destinationId, obj.payload, obj.destination)),
-                KAFKA, obj -> movieScheduler.schedule(new MovieKafkaDestinationJobRequest(obj.destinationId, obj.payload, obj.destination)));
-    }
+	public ScheduleDestinationStepHandler(MovieScheduler movieScheduler) {
+		this.destinationMap = Map.of(HTTP,
+				obj -> movieScheduler
+					.schedule(new MovieHttpDestinationJobRequest(obj.destinationId, obj.payload, obj.destination)),
+				KAFKA, obj -> movieScheduler
+					.schedule(new MovieKafkaDestinationJobRequest(obj.destinationId, obj.payload, obj.destination)));
+	}
 
-    public JobId handle(UUID destinationId, JsonNode payload, Destination destination) {
-        final var fn = destinationMap.get(destination);
-        if (fn == null) {
-            throw new IllegalStateException("Unknown destination: " + destination);
-        }
-        return fn.apply(new ScheduleDestination(destinationId, payload, destination));
-    }
+	public JobId handle(UUID destinationId, JsonNode payload, Destination destination) {
+		final var fn = destinationMap.get(destination);
+		if (fn == null) {
+			throw new IllegalStateException("Unknown destination: " + destination);
+		}
+		return fn.apply(new ScheduleDestination(destinationId, payload, destination));
+	}
 
+	private record ScheduleDestination(UUID destinationId, JsonNode payload, Destination destination) {
 
-    private record ScheduleDestination(UUID destinationId, JsonNode payload, Destination destination) {
+	}
 
-    }
 }

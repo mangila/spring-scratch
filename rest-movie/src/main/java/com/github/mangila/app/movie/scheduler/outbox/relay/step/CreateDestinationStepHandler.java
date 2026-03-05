@@ -8,15 +8,15 @@ import java.util.UUID;
 @Component
 public class CreateDestinationStepHandler {
 
-    private final MovieOutboxDestinationService destinationService;
+	private final MovieOutboxDestinationService destinationService;
 
-    public CreateDestinationStepHandler(MovieOutboxDestinationService destinationService) {
-        this.destinationService = destinationService;
-    }
+	public CreateDestinationStepHandler(MovieOutboxDestinationService destinationService) {
+		this.destinationService = destinationService;
+	}
 
-    public CreateDestinationStepResult handle(UUID outboxId) {
-        var destinationEntities = destinationService.createDestinations(outboxId);
-        return new CreateDestinationStepResult(destinationEntities);
-    }
+	public CreateDestinationStepResult handle(UUID outboxId) {
+		var destinationEntities = destinationService.createDestinations(outboxId);
+		return new CreateDestinationStepResult(destinationEntities);
+	}
 
 }

@@ -30,7 +30,10 @@ public class MovieOutboxVersionService {
 		return jpa.findByIdWithXLock(id).orElseThrow();
 	}
 
+	@Chaos
+	@Transactional(propagation = Propagation.MANDATORY)
 	public void updateVersion(UUID uuid, Integer version) {
 		jdbc.updateVersion(uuid, version);
 	}
+
 }

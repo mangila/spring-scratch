@@ -17,21 +17,20 @@ import java.util.UUID;
 @Repository
 public interface MovieOutboxVersionJpaRepository extends BaseJpaRepository<MovieOutboxVersionEntity, Integer> {
 
-    @Lock(value = LockModeType.PESSIMISTIC_WRITE)
-    @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "5000")
-    })
-    @Query("""
-            SELECT v.aggregateId, v.currentVersion FROM movie_outbox_version v
-            WHERE v.aggregateId = :id
-            """)
-    Optional<OutboxVersionProjection> findByIdWithXLock(@Param("id") UUID id);
+	@Lock(value = LockModeType.PESSIMISTIC_WRITE)
+	@QueryHints({ @QueryHint(name = "jakarta.persistence.lock.timeout", value = "5000") })
+	@Query("""
+			SELECT v.aggregateId, v.currentVersion FROM movie_outbox_version v
+			WHERE v.aggregateId = :id
+			""")
+	Optional<OutboxVersionProjection> findByIdWithXLock(@Param("id") UUID id);
 
-    @Modifying
-    @Query("""
-            UPDATE movie_outbox_version v
-            SET v.currentVersion = v.currentVersion + 1
-            WHERE v.aggregateId = :id
-            """)
-    int incrementVersionByAggregateId(@Param("id") UUID id);
+	@Modifying
+	@Query("""
+			UPDATE movie_outbox_version v
+			SET v.currentVersion = v.currentVersion + 1
+			WHERE v.aggregateId = :id
+			""")
+	int incrementVersionByAggregateId(@Param("id") UUID id);
 
 }

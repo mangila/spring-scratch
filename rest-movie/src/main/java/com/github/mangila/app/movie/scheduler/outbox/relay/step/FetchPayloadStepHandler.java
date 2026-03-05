@@ -8,15 +8,15 @@ import java.util.UUID;
 @Component
 public class FetchPayloadStepHandler {
 
-    private final MovieHistoryService movieHistoryService;
+	private final MovieHistoryService movieHistoryService;
 
-    public FetchPayloadStepHandler(MovieHistoryService movieHistoryService) {
-        this.movieHistoryService = movieHistoryService;
-    }
+	public FetchPayloadStepHandler(MovieHistoryService movieHistoryService) {
+		this.movieHistoryService = movieHistoryService;
+	}
 
-    public FetchPayloadStepResult handle(UUID historyId) {
-        var payload = movieHistoryService.findPayloadById(historyId);
-        return new FetchPayloadStepResult(payload);
-    }
+	public FetchPayloadStepResult handle(UUID historyId) {
+		var payload = movieHistoryService.findPayloadById(historyId);
+		return new FetchPayloadStepResult(payload);
+	}
 
 }

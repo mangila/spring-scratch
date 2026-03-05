@@ -10,32 +10,34 @@ import java.util.Objects;
 @Component
 public class ClaimVersionStepHandler {
 
-    private final TransactionTemplate transactionTemplate;
-    private final MovieOutboxVersionService movieOutboxVersionService;
+	private final TransactionTemplate transactionTemplate;
 
-    public ClaimVersionStepHandler(TransactionTemplate transactionTemplate,
-                                   MovieOutboxVersionService movieOutboxVersionService) {
-        this.transactionTemplate = transactionTemplate;
-        this.movieOutboxVersionService = movieOutboxVersionService;
-    }
+	private final MovieOutboxVersionService movieOutboxVersionService;
 
-    public boolean handle(OutboxProjection outbox) {
-        final var aggregateId = outbox.aggregateId();
-        final var version = outbox.aggregateVersion();
-        return transactionTemplate.execute(_ -> {
-            final var versionLock = movieOutboxVersionService.findVersionByIdWithXLock(aggregateId);
-            final var currentVersion = versionLock.currentVersion();
-            if (shouldProcess(version, currentVersion)) {
-                movieOutboxVersionService.updateVersion(outbox.aggregateId(), Integer.MAX_VALUE);
-                return true;
-            }
-            return false;
-        });
-    }
+	public ClaimVersionStepHandler(TransactionTemplate transactionTemplate,
+			MovieOutboxVersionService movieOutboxVersionService) {
+		this.transactionTemplate = transactionTemplate;
+		this.movieOutboxVersionService = movieOutboxVersionService;
+	}
 
-    private static boolean shouldProcess(Integer aggregateVersion, Integer currentVersion) {
-        Objects.requireNonNull(aggregateVersion, "aggregateVersion");
-        Objects.requireNonNull(currentVersion, "currentVersion");
-        return Objects.equals(aggregateVersion, currentVersion);
-    }
+	public boolean handle(OutboxProjection outbox) {
+		final var aggregateId = outbox.aggregateId();
+		final var version = outbox.aggregateVersion();
+		return transactionTemplate.execute(_ -> {
+			final var versionLock = movieOutboxVersionService.findVersionByIdWithXLock(aggregateId);
+			final var currentVersion = versionLock.currentVersion();
+			if (shouldProcess(version, currentVersion)) {
+				movieOutboxVersionService.updateVersion(aggregateId, Integer.MAX_VALUE);
+				return true;
+			}
+			return false;
+		});
+	}
+
+	private static boolean shouldProcess(Integer aggregateVersion, Integer currentVersion) {
+		Objects.requireNonNull(aggregateVersion, "aggregateVersion");
+		Objects.requireNonNull(currentVersion, "currentVersion");
+		return Objects.equals(aggregateVersion, currentVersion);
+	}
+
 }

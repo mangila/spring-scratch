@@ -5,5 +5,6 @@ import org.jobrunr.jobs.context.JobContext;
 
 import java.util.List;
 
-public record CreateDestinationStepResult(List<MovieOutboxDestinationEntity> destinationEntities) implements JobContext.StepResult {
+public record CreateDestinationStepResult(
+		List<MovieOutboxDestinationEntity> destinationEntities) implements JobContext.StepResult {
 }
