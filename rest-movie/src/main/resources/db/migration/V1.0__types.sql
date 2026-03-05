@@ -1,4 +1,4 @@
-CREATE TYPE STATUS AS ENUM ('PENDING', 'PROCESSING', 'SUCCESS', 'FAILED');
+CREATE TYPE STATUS AS ENUM ('PENDING', 'CLAIMED', 'PROCESSING', 'SUCCESS', 'FAILED');
 CREATE CAST (varchar as STATUS) with inout as implicit;
 CREATE CAST (STATUS as varchar) with inout as implicit;
 

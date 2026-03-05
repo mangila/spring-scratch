@@ -1,7 +1,7 @@
 # Application
 app:
   chaos:
-    enabled: false
+    enabled: true
 # Spring
 spring:
   docker:

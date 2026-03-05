@@ -4,73 +4,101 @@ import com.github.mangila.app.shared.persistence.type.Status;
 import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcType;
 import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.Instant;
 import java.util.UUID;
 
 @MappedSuperclass
-public class OutboxBaseEntity extends AuditBaseEntity {
+@EntityListeners(AuditingEntityListener.class)
+public class OutboxBaseEntity {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.UUID)
-	@Column(name = "id", columnDefinition = "UUID", updatable = false, nullable = false)
-	private UUID id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", columnDefinition = "UUID", updatable = false, nullable = false)
+    private UUID id;
 
-	@Column(name = "history_id", columnDefinition = "UUID", nullable = false)
-	private UUID historyId;
+    @Column(name = "history_id", columnDefinition = "UUID", nullable = false)
+    private UUID historyId;
 
-	@Column(name = "aggregate_id", columnDefinition = "UUID", nullable = false)
-	private UUID aggregateId;
+    @Column(name = "aggregate_id", columnDefinition = "UUID", nullable = false)
+    private UUID aggregateId;
 
-	@Column(name = "aggregate_version", nullable = false)
-	private Integer aggregateVersion;
+    @Column(name = "aggregate_version", nullable = false)
+    private Integer aggregateVersion;
 
-	@Column(name = "status", columnDefinition = "status", nullable = false)
-	@Enumerated(EnumType.STRING)
-	@JdbcType(PostgreSQLEnumJdbcType.class)
-	private Status status;
+    @Column(name = "status", columnDefinition = "status", nullable = false)
+    @Enumerated(EnumType.STRING)
+    @JdbcType(PostgreSQLEnumJdbcType.class)
+    private Status status;
 
-	public OutboxBaseEntity() {
-		// do nothing, for JPA
-	}
+    @Column(name = "created_at", updatable = false, nullable = false)
+    @CreatedDate
+    private Instant createdAt;
 
-	public UUID getId() {
-		return id;
-	}
+    @Column(name = "updated_at", updatable = true, nullable = false)
+    @LastModifiedDate
+    private Instant updatedAt;
 
-	public void setId(UUID id) {
-		this.id = id;
-	}
+    public OutboxBaseEntity() {
+        // do nothing, for JPA
+    }
 
-	public UUID getHistoryId() {
-		return historyId;
-	}
+    public UUID getId() {
+        return id;
+    }
 
-	public void setHistoryId(UUID historyId) {
-		this.historyId = historyId;
-	}
+    public void setId(UUID id) {
+        this.id = id;
+    }
 
-	public UUID getAggregateId() {
-		return aggregateId;
-	}
+    public UUID getHistoryId() {
+        return historyId;
+    }
 
-	public void setAggregateId(UUID aggregateId) {
-		this.aggregateId = aggregateId;
-	}
+    public void setHistoryId(UUID historyId) {
+        this.historyId = historyId;
+    }
 
-	public Integer getAggregateVersion() {
-		return aggregateVersion;
-	}
+    public UUID getAggregateId() {
+        return aggregateId;
+    }
 
-	public void setAggregateVersion(Integer aggregateVersion) {
-		this.aggregateVersion = aggregateVersion;
-	}
+    public void setAggregateId(UUID aggregateId) {
+        this.aggregateId = aggregateId;
+    }
 
-	public Status getStatus() {
-		return status;
-	}
+    public Integer getAggregateVersion() {
+        return aggregateVersion;
+    }
 
-	public void setStatus(Status status) {
-		this.status = status;
-	}
+    public void setAggregateVersion(Integer aggregateVersion) {
+        this.aggregateVersion = aggregateVersion;
+    }
 
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 }

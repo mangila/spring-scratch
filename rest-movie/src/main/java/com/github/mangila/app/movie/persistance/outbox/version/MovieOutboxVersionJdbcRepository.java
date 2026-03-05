@@ -1,5 +1,6 @@
 package com.github.mangila.app.movie.persistance.outbox.version;
 
+import org.intellij.lang.annotations.Language;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
@@ -8,21 +9,26 @@ import java.util.UUID;
 @Repository
 public class MovieOutboxVersionJdbcRepository {
 
-	private final JdbcClient jdbcClient;
+    private final JdbcClient jdbcClient;
 
-	public MovieOutboxVersionJdbcRepository(JdbcClient jdbcClient) {
-		this.jdbcClient = jdbcClient;
-	}
+    public MovieOutboxVersionJdbcRepository(JdbcClient jdbcClient) {
+        this.jdbcClient = jdbcClient;
+    }
 
-	public void updateVersion(UUID uuid, Integer version) {
-		jdbcClient.sql("""
-				UPDATE movie_outbox_version
-				SET current_version = :version,
-				    updated_at = transaction_timestamp(),
-				    modified_by = 'system',
-				    audit_version = audit_version + 1
-				WHERE aggregate_id = :uuid
-				""").param("uuid", uuid).param("version", version).update();
-	}
-
+    public boolean canProcess(UUID aggregateId, int version) {
+        @Language("PostgreSQL") final String sql = """
+                SELECT EXISTS (
+                    SELECT 1
+                    FROM movie_outbox_version
+                    WHERE aggregate_id = :aggregateId
+                    AND current_version = :version
+                )
+                """;
+        return jdbcClient.sql(sql)
+                .param("aggregateId", aggregateId)
+                .param("version", version)
+                .query()
+                .rowSet()
+                .getBoolean(0);
+    }
 }

@@ -21,11 +21,7 @@ create table actor_history
     aggregate_version INTEGER,
     operation         TEXT                           NOT NULL,
     payload           JSONB                          NOT NULL,
-    audit_version     INTEGER                        NOT NULL,
     created_at        TIMESTAMP(6) WITH TIME ZONE    NOT NULL,
-    updated_at        TIMESTAMP(6) WITH TIME ZONE    NOT NULL,
-    created_by        TEXT                           NOT NULL,
-    modified_by       TEXT                           NOT NULL,
     primary key (id)
 );
 
@@ -36,11 +32,8 @@ create table actor_outbox
     aggregate_id      UUID                           NOT NULL,
     aggregate_version INTEGER                        NOT NULL,
     status            STATUS                         NOT NULL,
-    audit_version     INTEGER                        NOT NULL,
     created_at        TIMESTAMP(6) WITH TIME ZONE    NOT NULL,
     updated_at        TIMESTAMP(6) WITH TIME ZONE    NOT NULL,
-    created_by        TEXT                           NOT NULL,
-    modified_by       TEXT                           NOT NULL,
     primary key (id)
 );
 
@@ -48,10 +41,7 @@ create table actor_outbox_version
 (
     aggregate_id    UUID                        NOT NULL,
     current_version INTEGER                     NOT NULL,
-    audit_version   INTEGER                     NOT NULL,
     created_at      TIMESTAMP(6) WITH TIME ZONE NOT NULL,
     updated_at      TIMESTAMP(6) WITH TIME ZONE NOT NULL,
-    created_by      TEXT                        NOT NULL,
-    modified_by     TEXT                        NOT NULL,
     primary key (aggregate_id)
 );

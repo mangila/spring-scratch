@@ -16,40 +16,40 @@ import tools.jackson.databind.node.ObjectNode;
 @Component
 public class MovieHttpDestinationJobHandler implements JobRequestHandler<MovieHttpDestinationJobRequest> {
 
-	private static final Logger log = new JobRunrDashboardLogger(
-			LoggerFactory.getLogger(MovieHttpDestinationJobHandler.class));
+    private static final Logger log = new JobRunrDashboardLogger(
+            LoggerFactory.getLogger(MovieHttpDestinationJobHandler.class));
 
-	private final TransactionTemplate transactionTemplate;
+    private final TransactionTemplate transactionTemplate;
 
-	private final MovieOutboxDestinationService destinationService;
+    private final MovieOutboxDestinationService destinationService;
 
-	private final RestClient restClient;
+    private final RestClient restClient;
 
-	public MovieHttpDestinationJobHandler(TransactionTemplate transactionTemplate,
-			MovieOutboxDestinationService movieOutboxDestinationService, RestClient.Builder restClient) {
-		this.transactionTemplate = transactionTemplate;
-		this.destinationService = movieOutboxDestinationService;
-		this.restClient = restClient.baseUrl("https://httpbin.org")
-			.requestFactory(new JdkClientHttpRequestFactory())
-			.defaultHeader("Content-Type", "application/json")
-			.defaultHeader("Accept", "application/json")
-			.build();
-	}
+    public MovieHttpDestinationJobHandler(TransactionTemplate transactionTemplate,
+                                          MovieOutboxDestinationService movieOutboxDestinationService, RestClient.Builder restClient) {
+        this.transactionTemplate = transactionTemplate;
+        this.destinationService = movieOutboxDestinationService;
+        this.restClient = restClient.baseUrl("https://httpbin.org")
+                .requestFactory(new JdkClientHttpRequestFactory())
+                .defaultHeader("Content-Type", "application/json")
+                .defaultHeader("Accept", "application/json")
+                .build();
+    }
 
-	@Override
-	public void run(MovieHttpDestinationJobRequest jobRequest) throws Exception {
-		final var context = ThreadLocalJobContext.getJobContext();
-		final var destinationId = jobRequest.destinationId();
-		final var payload = jobRequest.payload();
-		final var destination = jobRequest.destination();
-		context.runStepOnce("destination", () -> {
-			// simulate http destination
-			restClient.post().uri("/post").body(payload).retrieve().body(ObjectNode.class);
-		});
-		transactionTemplate.executeWithoutResult(_ -> {
-			destinationService.updateDestinationStatus(destinationId, Status.SUCCESS);
-		});
-		log.info("Destination {} - {} - success", destinationId, destination);
-	}
+    @Override
+    public void run(MovieHttpDestinationJobRequest jobRequest) throws Exception {
+        final var context = ThreadLocalJobContext.getJobContext();
+        final var destinationId = jobRequest.destinationId();
+        final var payload = jobRequest.payload();
+        final var destination = jobRequest.destination();
+        context.runStepOnce("destination", () -> {
+            // simulate http destination
+            restClient.post().uri("/post").body(payload).retrieve().body(ObjectNode.class);
+        });
+        transactionTemplate.executeWithoutResult(_ -> {
+            var ok = destinationService.updateStatus(destinationId, Status.SUCCESS);
+        });
+        log.info("Destination {} - {} - success", destinationId, destination);
+    }
 
 }

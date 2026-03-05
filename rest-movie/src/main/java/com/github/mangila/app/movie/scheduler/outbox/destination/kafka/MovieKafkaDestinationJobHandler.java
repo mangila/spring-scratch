@@ -37,7 +37,7 @@ public class MovieKafkaDestinationJobHandler implements JobRequestHandler<MovieK
 			Thread.sleep(1000);
 		});
 		transactionTemplate.executeWithoutResult(_ -> {
-			destinationService.updateDestinationStatus(destinationId, Status.SUCCESS);
+			destinationService.updateStatus(destinationId, Status.SUCCESS);
 		});
 		log.info("Destination {} - {} - success", destinationId, destination);
 	}

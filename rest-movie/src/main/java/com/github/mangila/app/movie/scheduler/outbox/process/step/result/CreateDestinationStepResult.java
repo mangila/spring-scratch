@@ -1,4 +1,4 @@
-package com.github.mangila.app.movie.scheduler.outbox.relay.step;
+package com.github.mangila.app.movie.scheduler.outbox.process.step.result;
 
 import com.github.mangila.app.movie.persistance.outbox.destination.MovieOutboxDestinationEntity;
 import org.jobrunr.jobs.context.JobContext;
@@ -6,5 +6,5 @@ import org.jobrunr.jobs.context.JobContext;
 import java.util.List;
 
 public record CreateDestinationStepResult(
-		List<MovieOutboxDestinationEntity> destinationEntities) implements JobContext.StepResult {
+		List<MovieOutboxDestinationEntity> result) implements JobContext.StepResult {
 }

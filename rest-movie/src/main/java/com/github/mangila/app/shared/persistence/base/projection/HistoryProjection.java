@@ -1,9 +1,9 @@
 package com.github.mangila.app.shared.persistence.base.projection;
 
-import tools.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.UUID;
 
 public record HistoryProjection(UUID id, UUID aggregateId, Integer aggregateVersion, String operation,
-		ObjectNode payload) {
+                                JsonNode payload) {
 }

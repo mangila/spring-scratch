@@ -5,41 +5,28 @@ DECLARE
     v_aggregate_version integer := NEW.audit_version;
     v_history_id        uuid;
 BEGIN
-    INSERT INTO actor_history (aggregate_id, aggregate_version, operation,
-                               payload, audit_version, created_at, updated_at, created_by, modified_by)
+    INSERT INTO actor_history (aggregate_id, aggregate_version, operation, payload, created_at)
     VALUES (v_aggregate_id,
             v_aggregate_version,
             tg_op,
             to_jsonb(NEW),
-            0,
-            transaction_timestamp(),
-            transaction_timestamp(),
-            'fn_actor_history',
-            'fn_actor_history')
+            transaction_timestamp())
     RETURNING id INTO v_history_id;
 
-    INSERT INTO actor_outbox (history_id, aggregate_id, aggregate_version,
-                              status, audit_version, created_at, updated_at, created_by, modified_by)
+    INSERT INTO actor_outbox (history_id, aggregate_id, aggregate_version, status, created_at, updated_at)
     VALUES (v_history_id,
             v_aggregate_id,
             v_aggregate_version,
             'PENDING',
-            0,
             transaction_timestamp(),
-            transaction_timestamp(),
-            'fn_actor_history',
-            'fn_actor_history');
+            transaction_timestamp());
 
     IF (v_aggregate_version = 0) THEN
-        INSERT INTO actor_outbox_version (aggregate_id, current_version, audit_version,
-                                          created_at, updated_at, created_by, modified_by)
+        INSERT INTO actor_outbox_version (aggregate_id, current_version, created_at, updated_at)
         VALUES (v_aggregate_id,
                 v_aggregate_version,
-                0,
                 transaction_timestamp(),
-                transaction_timestamp(),
-                'fn_actor_history',
-                'fn_actor_history');
+                transaction_timestamp());
     END IF;
 
     RETURN NEW;
@@ -53,41 +40,28 @@ DECLARE
     v_aggregate_version integer := NEW.audit_version;
     v_history_id        uuid;
 BEGIN
-    INSERT INTO director_history (aggregate_id, aggregate_version, operation,
-                                  payload, audit_version, created_at, updated_at, created_by, modified_by)
+    INSERT INTO director_history (aggregate_id, aggregate_version, operation, payload, created_at)
     VALUES (v_aggregate_id,
             v_aggregate_version,
             tg_op,
             to_jsonb(NEW),
-            0,
-            transaction_timestamp(),
-            transaction_timestamp(),
-            'fn_director_history',
-            'fn_director_history')
+            transaction_timestamp())
     RETURNING id INTO v_history_id;
 
-    INSERT INTO director_outbox (history_id, aggregate_id, aggregate_version,
-                                 status, audit_version, created_at, updated_at, created_by, modified_by)
+    INSERT INTO director_outbox (history_id, aggregate_id, aggregate_version, status, created_at, updated_at)
     VALUES (v_history_id,
             v_aggregate_id,
             v_aggregate_version,
             'PENDING',
-            0,
             transaction_timestamp(),
-            transaction_timestamp(),
-            'fn_director_history',
-            'fn_director_history');
+            transaction_timestamp());
 
     IF (v_aggregate_version = 0) THEN
-        INSERT INTO director_outbox_version (aggregate_id, current_version, audit_version,
-                                             created_at, updated_at, created_by, modified_by)
+        INSERT INTO director_outbox_version (aggregate_id, current_version, created_at, updated_at)
         VALUES (v_aggregate_id,
                 v_aggregate_version,
-                0,
                 transaction_timestamp(),
-                transaction_timestamp(),
-                'fn_director_history',
-                'fn_director_history');
+                transaction_timestamp());
     END IF;
 
     RETURN NEW;
@@ -101,41 +75,28 @@ DECLARE
     v_aggregate_version integer := NEW.audit_version;
     v_history_id        uuid;
 BEGIN
-    INSERT INTO movie_history (aggregate_id, aggregate_version, operation,
-                               payload, audit_version, created_at, updated_at, created_by, modified_by)
+    INSERT INTO movie_history (aggregate_id, aggregate_version, operation, payload, created_at)
     VALUES (v_aggregate_id,
             v_aggregate_version,
             tg_op,
             to_jsonb(NEW),
-            0,
-            transaction_timestamp(),
-            transaction_timestamp(),
-            'fn_movie_history',
-            'fn_movie_history')
+            transaction_timestamp())
     RETURNING id INTO v_history_id;
 
-    INSERT INTO movie_outbox (history_id, aggregate_id, aggregate_version,
-                              status, audit_version, created_at, updated_at, created_by, modified_by)
+    INSERT INTO movie_outbox (history_id, aggregate_id, aggregate_version, status, created_at, updated_at)
     VALUES (v_history_id,
             v_aggregate_id,
             v_aggregate_version,
             'PENDING',
-            0,
             transaction_timestamp(),
-            transaction_timestamp(),
-            'fn_movie_history',
-            'fn_movie_history');
+            transaction_timestamp());
 
     IF (v_aggregate_version = 0) THEN
-        INSERT INTO movie_outbox_version (aggregate_id, current_version, audit_version,
-                                          created_at, updated_at, created_by, modified_by)
+        INSERT INTO movie_outbox_version (aggregate_id, current_version, created_at, updated_at)
         VALUES (v_aggregate_id,
                 v_aggregate_version,
-                0,
                 transaction_timestamp(),
-                transaction_timestamp(),
-                'fn_movie_history',
-                'fn_movie_history');
+                transaction_timestamp());
     END IF;
 
     RETURN NEW;
