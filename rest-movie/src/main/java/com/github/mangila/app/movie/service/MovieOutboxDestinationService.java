@@ -7,12 +7,18 @@ import com.github.mangila.app.movie.properties.MovieProperties;
 import com.github.mangila.app.shared.chaos.Chaos;
 import com.github.mangila.app.shared.persistence.type.Status;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import org.springframework.data.domain.Limit;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @Service
+@Validated
 public class MovieOutboxDestinationService {
 
     private final MovieOutboxDestinationJdbcRepository jdbc;
@@ -40,7 +46,27 @@ public class MovieOutboxDestinationService {
 
     @Chaos
     public boolean updateStatus(UUID destinationId, Status status) {
-        return jpa.updateStatus(destinationId, status);
+        int result = jpa.updateStatus(destinationId, status);
+        return result > 0;
     }
 
+    @Chaos
+    public List<MovieOutboxDestinationEntity> findAllByOutboxIdAndStatus(UUID outboxId, Status status) {
+        return jpa.findAllByOutboxIdAndStatus(outboxId, status, MovieOutboxDestinationEntity.class);
+    }
+
+    @Chaos
+    public List<MovieOutboxDestinationEntity> findAllByStatus(Status status, @Positive int limit) {
+        var sort = Sort.by(Sort.Direction.ASC, "updated_at", "created_at");
+        return jpa.findAllByStatus(status, Limit.of(limit), sort);
+    }
+
+    @Chaos
+    public void deleteAllById(ArrayList<UUID> destinationsIds) {
+        jpa.deleteAllByIdInBatch(destinationsIds);
+    }
+
+    public List<MovieOutboxDestinationEntity> findAllByOutboxId(UUID outboxId) {
+        return jpa.findAllByOutboxId(outboxId);
+    }
 }

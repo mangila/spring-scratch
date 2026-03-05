@@ -3,6 +3,7 @@ package com.github.mangila.app.movie.scheduler;
 import com.github.mangila.app.movie.properties.MovieProperties;
 import com.github.mangila.app.movie.scheduler.outbox.destination.http.MovieHttpDestinationJobRequest;
 import com.github.mangila.app.movie.scheduler.outbox.destination.kafka.MovieKafkaDestinationJobRequest;
+import com.github.mangila.app.movie.scheduler.outbox.monitor.MovieOutboxMonitorJobRequest;
 import com.github.mangila.app.movie.scheduler.outbox.process.MovieOutboxProcessJobRequest;
 import com.github.mangila.app.movie.scheduler.outbox.purge.MovieOutboxPurgeJobRequest;
 import com.github.mangila.app.movie.scheduler.outbox.relay.MovieOutboxRelayJobRequest;
@@ -44,6 +45,9 @@ public class MovieScheduler implements ApplicationRunner {
             var purgeJobRequest = new MovieOutboxPurgeJobRequest(outbox.getLimit());
             id = schedule(outbox.getCron(), purgeJobRequest);
             log.info("Movie outbox purge recurring job scheduled: {}", id);
+            var monitor = new MovieOutboxMonitorJobRequest(outbox.getLimit());
+            id = schedule(outbox.getCron(), monitor);
+            log.info("Movie outbox monitor recurring job scheduled: {}", id);
         }
     }
 
@@ -63,6 +67,16 @@ public class MovieScheduler implements ApplicationRunner {
                 .withName("Movie outbox purge")
                 .withJobRequest(request)
                 .withLabels("movie", "outbox", "purge")
+                .withAmountOfRetries(10);
+        return jobRequestScheduler.createRecurrently(job);
+    }
+
+    private String schedule(String cron, MovieOutboxMonitorJobRequest monitor) {
+        var job = RecurringJobBuilder.aRecurringJob()
+                .withCron(cron)
+                .withName("Movie outbox monitor")
+                .withJobRequest(monitor)
+                .withLabels("movie", "outbox", "monitor")
                 .withAmountOfRetries(10);
         return jobRequestScheduler.createRecurrently(job);
     }

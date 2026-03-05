@@ -25,4 +25,8 @@ public class MovieOutboxVersionService {
         return jdbc.canProcess(aggregateId, version);
     }
 
+    @Chaos
+    public void increment(UUID aggregateId) {
+        jpa.increment(aggregateId);
+    }
 }

@@ -1,4 +1,4 @@
-package com.github.mangila.app.movie.scheduler.outbox.relay.step.result;
+package com.github.mangila.app.movie.scheduler.outbox.shared.result;
 
 import com.github.mangila.app.shared.persistence.base.projection.OutboxProjection;
 import org.jobrunr.jobs.context.JobContext;

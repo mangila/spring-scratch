@@ -18,19 +18,19 @@ public class MovieOutboxJdbcRepository {
         this.jdbcClient = jdbcClient;
     }
 
-    public List<OutboxProjection> claimBatch(@Positive int limit) {
+    public List<OutboxProjection> claimBatch(Status from, Status to, @Positive int limit) {
         @Language("PostgreSQL")
         String sql = """
                 WITH claim_batch AS (
                 	SELECT id
                 	FROM movie_outbox
-                	WHERE status = 'PENDING'
+                	WHERE status = CAST(:from AS status)
                 	ORDER BY created_at
                 	LIMIT :limit
                 	FOR UPDATE SKIP LOCKED
                 )
                 UPDATE movie_outbox
-                SET status = 'CLAIMED',
+                SET status = CAST(:to AS status),
                     updated_at = transaction_timestamp()
                 FROM claim_batch
                 WHERE movie_outbox.id = claim_batch.id
@@ -39,7 +39,12 @@ public class MovieOutboxJdbcRepository {
                           movie_outbox.status
                 """;
 
-        return jdbcClient.sql(sql).param("limit", limit).query(OutboxProjection.class).list();
+        return jdbcClient.sql(sql)
+                .param("to", to.toString())
+                .param("from", from.toString())
+                .param("limit", limit)
+                .query(OutboxProjection.class)
+                .list();
     }
 
     public List<OutboxProjection> findAllByStatusSkipLocked(Status status, int limit) {

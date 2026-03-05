@@ -24,11 +24,11 @@ public class MovieOutboxVersionJdbcRepository {
                     AND current_version = :version
                 )
                 """;
-        return jdbcClient.sql(sql)
+        Object ok = jdbcClient.sql(sql)
                 .param("aggregateId", aggregateId)
                 .param("version", version)
                 .query()
-                .rowSet()
-                .getBoolean(0);
+                .singleValue();
+        return Boolean.TRUE.equals(ok);
     }
 }

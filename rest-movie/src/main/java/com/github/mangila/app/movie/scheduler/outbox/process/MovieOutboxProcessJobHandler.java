@@ -4,7 +4,6 @@ import com.github.mangila.app.movie.scheduler.outbox.process.step.ChangeStatusSt
 import com.github.mangila.app.movie.scheduler.outbox.process.step.CreateDestinationStepHandler;
 import com.github.mangila.app.movie.scheduler.outbox.process.step.FetchPayloadStepHandler;
 import com.github.mangila.app.movie.scheduler.outbox.process.step.ScheduleDestinationStepHandler;
-import com.github.mangila.app.shared.persistence.type.Status;
 import org.jobrunr.jobs.context.JobRunrDashboardLogger;
 import org.jobrunr.jobs.lambdas.JobRequestHandler;
 import org.jobrunr.server.runner.ThreadLocalJobContext;
@@ -12,8 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import static com.github.mangila.app.shared.persistence.type.Status.*;
 import static com.github.mangila.app.shared.persistence.type.Status.CLAIMED;
+import static com.github.mangila.app.shared.persistence.type.Status.PROCESSING;
 
 @Component
 public class MovieOutboxProcessJobHandler implements JobRequestHandler<MovieOutboxProcessJobRequest> {
