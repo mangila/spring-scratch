@@ -1,6 +1,5 @@
 package com.github.mangila.app.movie.scheduler.outbox.shared;
 
-import com.github.mangila.app.movie.scheduler.outbox.shared.result.ClaimBatchStepResult;
 import com.github.mangila.app.movie.service.MovieOutboxService;
 import com.github.mangila.app.shared.persistence.type.Status;
 import org.jobrunr.jobs.context.JobRunrDashboardLogger;
@@ -9,8 +8,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.resilience.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionTemplate;
+import tools.jackson.databind.json.JsonMapper;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 @Component
 public class ClaimBatchStepHandler {
@@ -19,20 +21,23 @@ public class ClaimBatchStepHandler {
             LoggerFactory.getLogger(ClaimBatchStepHandler.class));
 
     private final TransactionTemplate transactionTemplate;
-
+    private final JsonMapper jsonMapper;
     private final MovieOutboxService movieOutboxService;
 
-    public ClaimBatchStepHandler(TransactionTemplate transactionTemplate, MovieOutboxService movieOutboxService) {
+    public ClaimBatchStepHandler(TransactionTemplate transactionTemplate,
+                                 JsonMapper jsonMapper,
+                                 MovieOutboxService movieOutboxService) {
         this.transactionTemplate = transactionTemplate;
+        this.jsonMapper = jsonMapper;
         this.movieOutboxService = movieOutboxService;
     }
 
     @Retryable
-    public ClaimBatchStepResult handle(Status from, Status to, int limit) {
+    public String handle(Status from, Status to, int limit) {
         try {
-            var l = transactionTemplate.execute(_ -> movieOutboxService.claimBatch(from, to, limit));
-            Objects.requireNonNull(l, "claimBatch returned null");
-            return new ClaimBatchStepResult(l);
+            List<UUID> outboxIds = transactionTemplate.execute(_ -> movieOutboxService.claimBatch(from, to, limit));
+            Objects.requireNonNull(outboxIds, "outboxIds returned null");
+            return jsonMapper.writeValueAsString(outboxIds);
         } catch (Exception e) {
             log.error("Error while claiming outbox batch: {}", e.getMessage(), e);
             throw e;

@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
 public class MovieOutboxJdbcRepository {
@@ -18,7 +19,7 @@ public class MovieOutboxJdbcRepository {
         this.jdbcClient = jdbcClient;
     }
 
-    public List<OutboxProjection> claimBatch(Status from, Status to, @Positive int limit) {
+    public List<UUID> claimBatch(Status from, Status to, @Positive int limit) {
         @Language("PostgreSQL")
         String sql = """
                 WITH claim_batch AS (
@@ -34,16 +35,14 @@ public class MovieOutboxJdbcRepository {
                     updated_at = transaction_timestamp()
                 FROM claim_batch
                 WHERE movie_outbox.id = claim_batch.id
-                RETURNING movie_outbox.id, movie_outbox.history_id,
-                          movie_outbox.aggregate_id, movie_outbox.aggregate_version,
-                          movie_outbox.status
+                RETURNING movie_outbox.id
                 """;
 
         return jdbcClient.sql(sql)
                 .param("to", to.toString())
                 .param("from", from.toString())
                 .param("limit", limit)
-                .query(OutboxProjection.class)
+                .query(UUID.class)
                 .list();
     }
 

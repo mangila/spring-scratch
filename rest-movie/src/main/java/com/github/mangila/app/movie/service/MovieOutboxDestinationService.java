@@ -5,6 +5,7 @@ import com.github.mangila.app.movie.persistance.outbox.destination.MovieOutboxDe
 import com.github.mangila.app.movie.persistance.outbox.destination.MovieOutboxDestinationJpaRepository;
 import com.github.mangila.app.movie.properties.MovieProperties;
 import com.github.mangila.app.shared.chaos.Chaos;
+import com.github.mangila.app.shared.persistence.base.projection.OutboxDestinationProjection;
 import com.github.mangila.app.shared.persistence.type.Status;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -51,8 +52,8 @@ public class MovieOutboxDestinationService {
     }
 
     @Chaos
-    public List<MovieOutboxDestinationEntity> findAllByOutboxIdAndStatus(UUID outboxId, Status status) {
-        return jpa.findAllByOutboxIdAndStatus(outboxId, status, MovieOutboxDestinationEntity.class);
+    public List<OutboxDestinationProjection> findAllByOutboxIdAndStatus(UUID outboxId, Status status) {
+        return jpa.findAllByOutboxIdAndStatus(outboxId, status, OutboxDestinationProjection.class);
     }
 
     @Chaos

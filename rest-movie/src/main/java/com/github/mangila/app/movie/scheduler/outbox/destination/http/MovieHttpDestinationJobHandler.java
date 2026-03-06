@@ -1,7 +1,6 @@
 package com.github.mangila.app.movie.scheduler.outbox.destination.http;
 
 import com.github.mangila.app.movie.service.MovieOutboxDestinationService;
-import com.github.mangila.app.shared.persistence.type.Status;
 import org.jobrunr.jobs.context.JobRunrDashboardLogger;
 import org.jobrunr.jobs.lambdas.JobRequestHandler;
 import org.jobrunr.server.runner.ThreadLocalJobContext;
@@ -11,7 +10,6 @@ import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.client.RestClient;
-import tools.jackson.databind.node.ObjectNode;
 
 @Component
 public class MovieHttpDestinationJobHandler implements JobRequestHandler<MovieHttpDestinationJobRequest> {
@@ -39,17 +37,6 @@ public class MovieHttpDestinationJobHandler implements JobRequestHandler<MovieHt
     @Override
     public void run(MovieHttpDestinationJobRequest jobRequest) throws Exception {
         final var context = ThreadLocalJobContext.getJobContext();
-        final var destinationId = jobRequest.destinationId();
-        final var payload = jobRequest.payload();
-        final var destination = jobRequest.destination();
-        context.runStepOnce("destination", () -> {
-            // simulate http destination
-            restClient.post().uri("/post").body(payload).retrieve().body(ObjectNode.class);
-        });
-        transactionTemplate.executeWithoutResult(_ -> {
-            var ok = destinationService.updateStatus(destinationId, Status.SUCCESS);
-        });
-        log.info("Destination {} - {} - success", destinationId, destination);
     }
 
 }

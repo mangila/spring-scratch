@@ -32,7 +32,7 @@ public class MovieOutboxService {
 
     @Chaos
     @Transactional(propagation = Propagation.MANDATORY)
-    public List<OutboxProjection> claimBatch(Status from, Status to, @Positive int limit) {
+    public List<UUID> claimBatch(Status from, Status to, @Positive int limit) {
         return jdbc.claimBatch(from, to, limit);
     }
 
@@ -50,5 +50,10 @@ public class MovieOutboxService {
     @Chaos
     public void deleteAllById(List<UUID> list) {
         jpa.deleteAllByIdInBatch(list);
+    }
+
+    public OutboxProjection findById(UUID outboxId) {
+        return jpa.findById(outboxId, OutboxProjection.class)
+                .orElseThrow();
     }
 }

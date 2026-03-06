@@ -1,10 +1,7 @@
 package com.github.mangila.app.movie.scheduler.outbox.process.step;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.github.mangila.app.movie.scheduler.MovieScheduler;
-import com.github.mangila.app.movie.scheduler.outbox.destination.http.MovieHttpDestinationJobRequest;
-import com.github.mangila.app.movie.scheduler.outbox.destination.kafka.MovieKafkaDestinationJobRequest;
-import com.github.mangila.app.shared.persistence.type.Destination;
+import com.github.mangila.app.movie.scheduler.outbox.destination.MovieOutboxDestinationOrchestratorJobRequest;
 import org.jobrunr.jobs.JobId;
 import org.jobrunr.jobs.context.JobRunrDashboardLogger;
 import org.slf4j.Logger;
@@ -26,18 +23,12 @@ public class ScheduleDestinationStepHandler {
         this.movieScheduler = movieScheduler;
     }
 
-    @Retryable(excludes = IllegalStateException.class)
-    public JobId handle(UUID destinationId, JsonNode payload, Destination destination) {
+    @Retryable
+    public JobId handle(UUID outboxId) {
         try {
-            return switch (destination) {
-                case HTTP ->
-                        movieScheduler.schedule(new MovieHttpDestinationJobRequest(destinationId, payload, destination));
-                case KAFKA ->
-                        movieScheduler.schedule(new MovieKafkaDestinationJobRequest(destinationId, payload, destination));
-                default -> throw new IllegalStateException("Not supported destination: %s".formatted(destination));
-            };
+            return movieScheduler.schedule(new MovieOutboxDestinationOrchestratorJobRequest(outboxId));
         } catch (Exception e) {
-            log.error("Error scheduling destinationId: {} to destination: {} - {}", destinationId, destination, e.getMessage(), e);
+            log.error("Error scheduling outboxId: {} to orchestrator: {} - {}", outboxId, e.getMessage(), e);
             throw e;
         }
     }

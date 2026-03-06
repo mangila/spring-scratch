@@ -10,10 +10,13 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface MovieOutboxJpaRepository extends BaseJpaRepository<MovieOutboxEntity, UUID> {
+
+    <T> Optional<T> findById(UUID outboxId, Class<T> type);
 
     @Modifying
     @Query("""
