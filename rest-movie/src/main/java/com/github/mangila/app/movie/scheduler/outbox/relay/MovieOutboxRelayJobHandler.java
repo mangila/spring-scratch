@@ -1,7 +1,7 @@
 package com.github.mangila.app.movie.scheduler.outbox.relay;
 
 import com.github.mangila.app.movie.properties.MovieProperties;
-import com.github.mangila.app.movie.scheduler.outbox.relay.step.ScheduleOutboxProcessingStepHandler;
+import com.github.mangila.app.movie.scheduler.outbox.relay.step.ScheduleOutboxProcessingStep;
 import com.github.mangila.app.movie.scheduler.outbox.shared.ClaimBatchStepHandler;
 import com.github.mangila.app.shared.persistence.type.Status;
 import org.jobrunr.jobs.context.JobRunrDashboardLogger;
@@ -24,24 +24,30 @@ public class MovieOutboxRelayJobHandler implements JobRequestHandler<MovieOutbox
     private final MovieProperties movieProperties;
     private final JsonMapper jsonMapper;
     private final ClaimBatchStepHandler claimBatchStepHandler;
-    private final ScheduleOutboxProcessingStepHandler scheduleOutboxprocessingStepHandler;
+    private final ScheduleOutboxProcessingStep scheduleOutboxprocessingStep;
 
     public MovieOutboxRelayJobHandler(MovieProperties movieProperties,
                                       JsonMapper jsonMapper,
                                       ClaimBatchStepHandler claimBatchStepHandler,
-                                      ScheduleOutboxProcessingStepHandler scheduleOutboxprocessingStepHandler) {
+                                      ScheduleOutboxProcessingStep scheduleOutboxprocessingStep) {
         this.movieProperties = movieProperties;
         this.jsonMapper = jsonMapper;
         this.claimBatchStepHandler = claimBatchStepHandler;
-        this.scheduleOutboxprocessingStepHandler = scheduleOutboxprocessingStepHandler;
+        this.scheduleOutboxprocessingStep = scheduleOutboxprocessingStep;
     }
 
     @Override
     public void run(MovieOutboxRelayJobRequest jobRequest) throws Exception {
         final var limit = jobRequest.limit();
         final var context = ThreadLocalJobContext.getJobContext();
+
+        /*
+         * Returns a String/JSON representation
+         * JobRunr behaves better with primitive values than custom objects.
+         * When used as a return value from a step
+         */
         String jsonBatch = context.runStepOnce("batch", () -> {
-            log.info("Claiming outbox jsonBatch with limit: {}", limit);
+            log.info("Claiming outbox batch with limit: {}", limit);
             return claimBatchStepHandler.handle(Status.PENDING, Status.CLAIMED, limit);
         });
         UUID[] batch = jsonMapper.readValue(jsonBatch, UUID[].class);
@@ -52,8 +58,8 @@ public class MovieOutboxRelayJobHandler implements JobRequestHandler<MovieOutbox
         log.info("Processing {} outboxes", batch.length);
         for (var outboxId : batch) {
             context.runStepOnce("schedule:" + outboxId, () -> {
-                var jobId = scheduleOutboxprocessingStepHandler.handle(outboxId);
-                log.info("Scheduling outbox for processing: {} - jobId: {}", outboxId, jobId.asUUID());
+                var jobId = scheduleOutboxprocessingStep.execute(outboxId);
+                log.info("Scheduled outbox processing for outbox: {} - jobId - {}", outboxId, jobId);
             });
         }
     }

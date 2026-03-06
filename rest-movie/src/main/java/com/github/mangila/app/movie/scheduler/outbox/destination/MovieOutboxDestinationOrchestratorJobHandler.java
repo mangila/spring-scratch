@@ -41,9 +41,8 @@ public class MovieOutboxDestinationOrchestratorJobHandler implements JobRequestH
         for (var outboxDestination : destinations) {
             final var destination = outboxDestination.destination();
             context.runStepOnce(destination.toString(), () -> {
-                log.info("Scheduling destination: {} - {}", outboxDestination.id(), destination);
                 var jobId = scheduleDestinationStep.execute(outboxDestination);
-                log.info("Scheduled destination: {} - {} - {}", outboxDestination.id(), destination, jobId);
+                log.info("outbox id: {} scheduled destination id: {} send to: {} jobId: {}", outboxId, outboxDestination.id(), destination, jobId);
             });
         }
     }

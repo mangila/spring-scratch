@@ -12,19 +12,19 @@ import java.util.List;
 import java.util.UUID;
 
 @Component
-public class CreateDestinationStepHandler {
+public class CreateDestinationStep {
 
     private static final Logger log = new JobRunrDashboardLogger(
-            LoggerFactory.getLogger(CreateDestinationStepHandler.class));
+            LoggerFactory.getLogger(CreateDestinationStep.class));
 
     private final MovieOutboxDestinationService destinationService;
 
-    public CreateDestinationStepHandler(MovieOutboxDestinationService destinationService) {
+    public CreateDestinationStep(MovieOutboxDestinationService destinationService) {
         this.destinationService = destinationService;
     }
 
     @Retryable
-    public List<UUID> handle(UUID outboxId) {
+    public List<UUID> execute(UUID outboxId) {
         try {
             var destinationEntities = destinationService.createDestinations(outboxId);
             return destinationEntities.stream()

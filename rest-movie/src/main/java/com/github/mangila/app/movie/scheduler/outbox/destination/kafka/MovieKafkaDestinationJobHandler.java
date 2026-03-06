@@ -1,6 +1,7 @@
 package com.github.mangila.app.movie.scheduler.outbox.destination.kafka;
 
 import com.github.mangila.app.movie.service.MovieOutboxDestinationService;
+import com.github.mangila.app.shared.persistence.type.Status;
 import org.jobrunr.jobs.context.JobRunrDashboardLogger;
 import org.jobrunr.jobs.lambdas.JobRequestHandler;
 import org.jobrunr.server.runner.ThreadLocalJobContext;
@@ -28,6 +29,12 @@ public class MovieKafkaDestinationJobHandler implements JobRequestHandler<MovieK
     @Override
     public void run(MovieKafkaDestinationJobRequest jobRequest) throws Exception {
         final var context = ThreadLocalJobContext.getJobContext();
+        final var destinationId = jobRequest.destinationId();
+        final var destination = jobRequest.destination();
+        log.info("Sending movie to destination: {}", destinationId);
+        transactionTemplate.executeWithoutResult(_ -> {
+            destinationService.updateStatus(destinationId, Status.SUCCESS);
+        });
     }
 
 }
