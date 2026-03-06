@@ -28,7 +28,7 @@ public class ScheduleDestinationOrchestratorStep {
             var jobId = movieScheduler.schedule(new MovieOutboxDestinationOrchestratorJobRequest(outboxId));
             return jobId.asUUID();
         } catch (Exception e) {
-            log.error("Error scheduling outboxId: {} to orchestrator: {} - {}", outboxId, e.getMessage(), e);
+            log.error("Error scheduling outboxId: {} to orchestrator: {}", outboxId, e.getMessage(), e);
             throw e;
         }
     }

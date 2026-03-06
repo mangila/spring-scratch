@@ -19,6 +19,22 @@ app:
         - kafka
   movie:
     outbox:
+      #      purge:
+      #        enabled: false
+      #        cron: "0/30 * * * * *"
+      #        limit: 20
+      #      recover:
+      #        enabled: false
+      #        cron: "0/30 * * * * *"
+      #        limit: 20
+      #      monitor:
+      #        enabled: false
+      #        cron: "0/30 * * * * *"
+      #        limit: 20
+      #      relay:
+      #        enabled: false
+      #        cron: "0/30 * * * * *"
+      #        limit: 20
       enabled: true
       cron: "0/30 * * * * *"
       limit: 20

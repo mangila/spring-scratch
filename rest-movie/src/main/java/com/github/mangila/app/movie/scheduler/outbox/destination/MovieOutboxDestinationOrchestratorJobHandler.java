@@ -69,7 +69,11 @@ public class MovieOutboxDestinationOrchestratorJobHandler implements JobRequestH
         }
 
         if (CollectionUtils.isNotNullOrEmpty(errors)) {
-            throw new IllegalStateException("Failed to schedule destinations: %s".formatted(errors));
+            var errorString = String.join(",", errors.stream()
+                    .map(UUID::toString)
+                    .toList());
+            context.saveMetadata("errors", errorString);
+            throw new IllegalStateException("Failed to schedule destinations: %s".formatted(errorString));
         }
     }
 

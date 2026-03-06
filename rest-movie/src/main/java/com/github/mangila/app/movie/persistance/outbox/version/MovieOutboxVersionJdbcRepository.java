@@ -21,7 +21,7 @@ public class MovieOutboxVersionJdbcRepository {
                     SELECT 1
                     FROM movie_outbox_version
                     WHERE aggregate_id = :aggregateId
-                    AND current_version = :version
+                        AND current_version = :version
                 )
                 """;
         Object ok = jdbcClient.sql(sql)

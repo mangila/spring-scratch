@@ -1,6 +1,7 @@
 package com.github.mangila.app.movie.scheduler.outbox.relay;
 
 import com.github.mangila.app.movie.scheduler.outbox.relay.step.ScheduleOutboxProcessingStep;
+import com.github.mangila.app.movie.scheduler.outbox.shared.ChangeOutboxStatusStep;
 import com.github.mangila.app.movie.scheduler.outbox.shared.ClaimOutboxBatchStepHandler;
 import com.github.mangila.app.shared.persistence.type.Status;
 import org.jobrunr.jobs.context.JobRunrDashboardLogger;
@@ -24,13 +25,16 @@ public class MovieOutboxRelayJobHandler implements JobRequestHandler<MovieOutbox
     private final JsonMapper jsonMapper;
     private final ClaimOutboxBatchStepHandler claimOutboxBatchStepHandler;
     private final ScheduleOutboxProcessingStep scheduleOutboxprocessingStep;
+    private final ChangeOutboxStatusStep changeOutboxStatusStep;
 
     public MovieOutboxRelayJobHandler(JsonMapper jsonMapper,
                                       ClaimOutboxBatchStepHandler claimOutboxBatchStepHandler,
-                                      ScheduleOutboxProcessingStep scheduleOutboxprocessingStep) {
+                                      ScheduleOutboxProcessingStep scheduleOutboxprocessingStep,
+                                      ChangeOutboxStatusStep changeOutboxStatusStep) {
         this.jsonMapper = jsonMapper;
         this.claimOutboxBatchStepHandler = claimOutboxBatchStepHandler;
         this.scheduleOutboxprocessingStep = scheduleOutboxprocessingStep;
+        this.changeOutboxStatusStep = changeOutboxStatusStep;
     }
 
     @Override
@@ -58,17 +62,31 @@ public class MovieOutboxRelayJobHandler implements JobRequestHandler<MovieOutbox
         final var errors = new ArrayList<UUID>(batch.length);
         for (var outboxId : batch) {
             try {
-                context.runStepOnce("schedule:" + outboxId, () -> {
+                context.runStepOnce("schedule:%s".formatted(outboxId), () -> {
                     var jobId = scheduleOutboxprocessingStep.execute(outboxId);
                     log.info("Scheduled outbox processing for outbox: {} - jobId - {}", outboxId, jobId);
+                });
+                context.runStepOnce("status:%s".formatted(outboxId), () -> {
+                    final var fromStatus = Status.CLAIMED;
+                    final var toStatus = Status.SCHEDULED;
+                    final boolean execute = changeOutboxStatusStep.execute(outboxId, fromStatus, toStatus);
+                    if (!execute) {
+                        throw new IllegalStateException("Outbox: %s failed to change status from %s to %s".formatted(outboxId, fromStatus, toStatus));
+                    }
+                    log.info("Changed status of outbox: {} from {} to {}", outboxId, fromStatus, toStatus);
                 });
             } catch (Exception e) {
                 errors.add(outboxId);
                 log.error("Error processing outbox: {} - {}", outboxId, e.getMessage(), e);
             }
         }
+
         if (CollectionUtils.isNotNullOrEmpty(errors)) {
-            throw new IllegalStateException("Failed to process outboxes: %s".formatted(errors));
+            var errorString = String.join(",", errors.stream()
+                    .map(UUID::toString)
+                    .toList());
+            context.saveMetadata("errors", errorString);
+            throw new IllegalStateException("Failed to process outboxes: %s".formatted(errorString));
         }
     }
 

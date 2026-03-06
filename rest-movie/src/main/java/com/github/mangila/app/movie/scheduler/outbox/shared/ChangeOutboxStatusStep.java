@@ -1,4 +1,4 @@
-package com.github.mangila.app.movie.scheduler.outbox.process.step;
+package com.github.mangila.app.movie.scheduler.outbox.shared;
 
 import com.github.mangila.app.movie.service.MovieOutboxService;
 import com.github.mangila.app.shared.persistence.type.Status;
@@ -12,24 +12,24 @@ import org.springframework.transaction.support.TransactionTemplate;
 import java.util.UUID;
 
 @Component
-public class ChangeStatusStep {
+public class ChangeOutboxStatusStep {
 
     private static final Logger log = new JobRunrDashboardLogger(
-            LoggerFactory.getLogger(ChangeStatusStep.class));
+            LoggerFactory.getLogger(ChangeOutboxStatusStep.class));
 
     private final TransactionTemplate transactionTemplate;
     private final MovieOutboxService movieOutboxService;
 
-    public ChangeStatusStep(TransactionTemplate transactionTemplate,
-                            MovieOutboxService movieOutboxService) {
+    public ChangeOutboxStatusStep(TransactionTemplate transactionTemplate,
+                                  MovieOutboxService movieOutboxService) {
         this.transactionTemplate = transactionTemplate;
         this.movieOutboxService = movieOutboxService;
     }
 
     @Retryable
-    public boolean execute(UUID outboxId, Status to, Status from) {
+    public boolean execute(UUID outboxId, Status from, Status to) {
         try {
-            return transactionTemplate.execute(_ -> movieOutboxService.changeStatus(outboxId, to, from));
+            return transactionTemplate.execute(_ -> movieOutboxService.changeStatus(outboxId, from, to));
         } catch (Exception e) {
             log.error("Error while changing status for outbox: {} - {}", outboxId, e.getMessage(), e);
             throw e;

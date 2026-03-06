@@ -1,10 +1,12 @@
 package com.github.mangila.app.movie.scheduler;
 
 import com.github.mangila.app.movie.properties.MovieProperties;
+import com.github.mangila.app.movie.scheduler.outbox.monitor.MovieOutboxMonitorJobRequest;
 import com.github.mangila.app.movie.scheduler.outbox.destination.MovieOutboxDestinationOrchestratorJobRequest;
 import com.github.mangila.app.movie.scheduler.outbox.destination.http.MovieHttpDestinationJobRequest;
 import com.github.mangila.app.movie.scheduler.outbox.destination.kafka.MovieKafkaDestinationJobRequest;
 import com.github.mangila.app.movie.scheduler.outbox.process.MovieOutboxProcessJobRequest;
+import com.github.mangila.app.movie.scheduler.outbox.purge.MovieOutboxPurgeJobRequest;
 import com.github.mangila.app.movie.scheduler.outbox.relay.MovieOutboxRelayJobRequest;
 import com.github.mangila.app.shared.chaos.Chaos;
 import org.intellij.lang.annotations.Language;
@@ -41,6 +43,12 @@ public class MovieScheduler implements ApplicationRunner {
             var relayJobRequest = new MovieOutboxRelayJobRequest(outbox.getLimit());
             var id = schedule(outbox.getCron(), relayJobRequest);
             log.info("Movie outbox produce relay recurring job scheduled: {}", id);
+            var monitorRequest = new MovieOutboxMonitorJobRequest(outbox.getLimit());
+            id = schedule(outbox.getCron(), monitorRequest);
+            log.info("Movie outbox destination monitor recurring job scheduled: {}", id);
+            var purgeRequest = new MovieOutboxPurgeJobRequest(outbox.getLimit());
+            id = schedule(outbox.getCron(), purgeRequest);
+            log.info("Movie outbox purge recurring job scheduled: {}", id);
         }
     }
 
@@ -50,6 +58,26 @@ public class MovieScheduler implements ApplicationRunner {
                 .withName("Movie outbox relay")
                 .withJobRequest(request)
                 .withLabels("movie", "outbox", "relay")
+                .withAmountOfRetries(10);
+        return jobRequestScheduler.createRecurrently(job);
+    }
+
+    public String schedule(@Language("CronExp") String cron, MovieOutboxMonitorJobRequest request) {
+        var job = RecurringJobBuilder.aRecurringJob()
+                .withCron(cron)
+                .withName("Movie outbox monitor")
+                .withJobRequest(request)
+                .withLabels("movie", "outbox", "monitor")
+                .withAmountOfRetries(10);
+        return jobRequestScheduler.createRecurrently(job);
+    }
+
+    public String schedule(@Language("CronExp") String cron, MovieOutboxPurgeJobRequest request) {
+        var job = RecurringJobBuilder.aRecurringJob()
+                .withCron(cron)
+                .withName("Movie outbox purge")
+                .withJobRequest(request)
+                .withLabels("movie", "outbox", "purge")
                 .withAmountOfRetries(10);
         return jobRequestScheduler.createRecurrently(job);
     }

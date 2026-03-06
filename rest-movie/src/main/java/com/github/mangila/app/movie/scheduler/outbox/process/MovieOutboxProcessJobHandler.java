@@ -1,8 +1,8 @@
 package com.github.mangila.app.movie.scheduler.outbox.process;
 
-import com.github.mangila.app.movie.scheduler.outbox.process.step.ChangeStatusStep;
 import com.github.mangila.app.movie.scheduler.outbox.process.step.CreateDestinationStep;
 import com.github.mangila.app.movie.scheduler.outbox.process.step.ScheduleDestinationOrchestratorStep;
+import com.github.mangila.app.movie.scheduler.outbox.shared.ChangeOutboxStatusStep;
 import com.github.mangila.app.movie.service.MovieOutboxService;
 import com.github.mangila.app.movie.service.MovieOutboxVersionService;
 import com.github.mangila.app.shared.persistence.type.Status;
@@ -12,7 +12,6 @@ import org.jobrunr.server.runner.ThreadLocalJobContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import tools.jackson.databind.json.JsonMapper;
 
 @Component
 public class MovieOutboxProcessJobHandler implements JobRequestHandler<MovieOutboxProcessJobRequest> {
@@ -20,21 +19,20 @@ public class MovieOutboxProcessJobHandler implements JobRequestHandler<MovieOutb
     private static final Logger log = new JobRunrDashboardLogger(
             LoggerFactory.getLogger(MovieOutboxProcessJobHandler.class));
 
-    private final JsonMapper jsonMapper;
     private final MovieOutboxService movieOutboxService;
     private final MovieOutboxVersionService movieOutboxVersionService;
-    private final ChangeStatusStep changeStatusStep;
+    private final ChangeOutboxStatusStep changeOutboxStatusStep;
     private final CreateDestinationStep createDestinationStep;
     private final ScheduleDestinationOrchestratorStep scheduleDestinationOrchestratorStep;
 
-    public MovieOutboxProcessJobHandler(JsonMapper jsonMapper,
-                                        MovieOutboxService movieOutboxService, MovieOutboxVersionService movieOutboxVersionService, ChangeStatusStep changeStatusStep,
+    public MovieOutboxProcessJobHandler(MovieOutboxService movieOutboxService,
+                                        MovieOutboxVersionService movieOutboxVersionService,
+                                        ChangeOutboxStatusStep changeOutboxStatusStep,
                                         CreateDestinationStep createDestinationStep,
                                         ScheduleDestinationOrchestratorStep scheduleDestinationOrchestratorStep) {
-        this.jsonMapper = jsonMapper;
         this.movieOutboxService = movieOutboxService;
         this.movieOutboxVersionService = movieOutboxVersionService;
-        this.changeStatusStep = changeStatusStep;
+        this.changeOutboxStatusStep = changeOutboxStatusStep;
         this.createDestinationStep = createDestinationStep;
         this.scheduleDestinationOrchestratorStep = scheduleDestinationOrchestratorStep;
     }
@@ -52,19 +50,16 @@ public class MovieOutboxProcessJobHandler implements JobRequestHandler<MovieOutb
             throw new IllegalStateException("Version mismatch %s: %s - %s".formatted(outboxId, outbox.aggregateVersion(), outbox.aggregateId()));
         }
 
-        final var fromStatus = Status.CLAIMED;
+        final var fromStatus = Status.SCHEDULED;
         final var toStatus = Status.PROCESSING;
 
-        final boolean ok = context.runStepOnce("status", () -> {
-            final boolean execute = changeStatusStep.execute(outboxId, fromStatus, toStatus);
+        context.runStepOnce("status", () -> {
+            final boolean execute = changeOutboxStatusStep.execute(outboxId, fromStatus, toStatus);
+            if (!execute) {
+                throw new IllegalStateException("Outbox: %s failed to change status from %s to %s".formatted(outboxId, fromStatus, toStatus));
+            }
             log.info("Changed status of outbox: {} from {} to {}", outboxId, fromStatus, toStatus);
-            return execute;
         });
-
-        if (!ok) {
-            log.info("Outbox: {} failed to change status from {} to {} - status was {}", outboxId, fromStatus, toStatus, outbox.status());
-            return;
-        }
 
         context.runStepOnce("destination", () -> {
             var destinationIds = createDestinationStep.execute(outboxId);

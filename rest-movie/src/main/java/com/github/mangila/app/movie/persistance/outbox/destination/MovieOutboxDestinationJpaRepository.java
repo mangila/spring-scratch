@@ -28,5 +28,5 @@ public interface MovieOutboxDestinationJpaRepository extends BaseJpaRepository<M
 
     List<MovieOutboxDestinationEntity> findAllByStatus(Status status, Limit limit, Sort sort);
 
-    List<MovieOutboxDestinationEntity> findAllByOutboxId(UUID outboxId);
+    <T> List<T> findAllByOutboxId(UUID outboxId, Class<T> type);
 }
