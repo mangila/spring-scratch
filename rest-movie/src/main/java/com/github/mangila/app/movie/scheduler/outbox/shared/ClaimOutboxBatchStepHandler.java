@@ -15,18 +15,18 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Component
-public class ClaimBatchStepHandler {
+public class ClaimOutboxBatchStepHandler {
 
     private static final Logger log = new JobRunrDashboardLogger(
-            LoggerFactory.getLogger(ClaimBatchStepHandler.class));
+            LoggerFactory.getLogger(ClaimOutboxBatchStepHandler.class));
 
     private final TransactionTemplate transactionTemplate;
     private final JsonMapper jsonMapper;
     private final MovieOutboxService movieOutboxService;
 
-    public ClaimBatchStepHandler(TransactionTemplate transactionTemplate,
-                                 JsonMapper jsonMapper,
-                                 MovieOutboxService movieOutboxService) {
+    public ClaimOutboxBatchStepHandler(TransactionTemplate transactionTemplate,
+                                       JsonMapper jsonMapper,
+                                       MovieOutboxService movieOutboxService) {
         this.transactionTemplate = transactionTemplate;
         this.jsonMapper = jsonMapper;
         this.movieOutboxService = movieOutboxService;

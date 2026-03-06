@@ -5,7 +5,7 @@ import com.github.mangila.app.movie.scheduler.outbox.process.step.CreateDestinat
 import com.github.mangila.app.movie.scheduler.outbox.process.step.ScheduleDestinationOrchestratorStep;
 import com.github.mangila.app.movie.service.MovieOutboxService;
 import com.github.mangila.app.movie.service.MovieOutboxVersionService;
-import com.github.mangila.app.shared.persistence.base.projection.OutboxProjection;
+import com.github.mangila.app.shared.persistence.type.Status;
 import org.jobrunr.jobs.context.JobRunrDashboardLogger;
 import org.jobrunr.jobs.lambdas.JobRequestHandler;
 import org.jobrunr.server.runner.ThreadLocalJobContext;
@@ -13,9 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.json.JsonMapper;
-
-import static com.github.mangila.app.shared.persistence.type.Status.CLAIMED;
-import static com.github.mangila.app.shared.persistence.type.Status.PROCESSING;
 
 @Component
 public class MovieOutboxProcessJobHandler implements JobRequestHandler<MovieOutboxProcessJobRequest> {
@@ -47,27 +44,25 @@ public class MovieOutboxProcessJobHandler implements JobRequestHandler<MovieOutb
         final var context = ThreadLocalJobContext.getJobContext();
         final var outboxId = jobRequest.outboxId();
 
-        String outboxJson = context.runStepOnce("outbox", () -> {
-            var outbox = movieOutboxService.findById(outboxId);
-            log.info("Fetched outbox: {}", outboxId);
-            return jsonMapper.writeValueAsString(outbox);
-        });
-
-        var outbox = jsonMapper.readValue(outboxJson, OutboxProjection.class);
+        final var outbox = movieOutboxService.findById(outboxId);
+        log.info("Fetched outbox: {}", outboxId);
 
         final boolean canProcess = movieOutboxVersionService.canProcess(outbox.aggregateId(), outbox.aggregateVersion());
         if (!canProcess) {
             throw new IllegalStateException("Version mismatch %s: %s - %s".formatted(outboxId, outbox.aggregateVersion(), outbox.aggregateId()));
         }
 
-        boolean ok = context.runStepOnce("status", () -> {
-            final boolean execute = changeStatusStep.execute(outboxId, CLAIMED, PROCESSING);
-            log.info("Changed status of outbox: {} from {} to {}", outboxId, CLAIMED, PROCESSING);
+        final var fromStatus = Status.CLAIMED;
+        final var toStatus = Status.PROCESSING;
+
+        final boolean ok = context.runStepOnce("status", () -> {
+            final boolean execute = changeStatusStep.execute(outboxId, fromStatus, toStatus);
+            log.info("Changed status of outbox: {} from {} to {}", outboxId, fromStatus, toStatus);
             return execute;
         });
 
         if (!ok) {
-            log.info("Outbox: {} failed to change status from {} to {}", outboxId, CLAIMED, PROCESSING);
+            log.info("Outbox: {} failed to change status from {} to {} - status was {}", outboxId, fromStatus, toStatus, outbox.status());
             return;
         }
 
@@ -75,7 +70,6 @@ public class MovieOutboxProcessJobHandler implements JobRequestHandler<MovieOutb
             var destinationIds = createDestinationStep.execute(outboxId);
             log.info("Created destinations for outbox: {} - {}", outboxId, destinationIds);
         });
-
 
         context.runStepOnce("schedule", () -> {
             var jobId = scheduleDestinationOrchestratorStep.execute(outboxId);

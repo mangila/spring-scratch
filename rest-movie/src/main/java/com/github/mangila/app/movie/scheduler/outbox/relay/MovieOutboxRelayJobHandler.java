@@ -1,8 +1,7 @@
 package com.github.mangila.app.movie.scheduler.outbox.relay;
 
-import com.github.mangila.app.movie.properties.MovieProperties;
 import com.github.mangila.app.movie.scheduler.outbox.relay.step.ScheduleOutboxProcessingStep;
-import com.github.mangila.app.movie.scheduler.outbox.shared.ClaimBatchStepHandler;
+import com.github.mangila.app.movie.scheduler.outbox.shared.ClaimOutboxBatchStepHandler;
 import com.github.mangila.app.shared.persistence.type.Status;
 import org.jobrunr.jobs.context.JobRunrDashboardLogger;
 import org.jobrunr.jobs.lambdas.JobRequestHandler;
@@ -22,18 +21,15 @@ public class MovieOutboxRelayJobHandler implements JobRequestHandler<MovieOutbox
     private static final Logger log = new JobRunrDashboardLogger(
             LoggerFactory.getLogger(MovieOutboxRelayJobHandler.class));
 
-    private final MovieProperties movieProperties;
     private final JsonMapper jsonMapper;
-    private final ClaimBatchStepHandler claimBatchStepHandler;
+    private final ClaimOutboxBatchStepHandler claimOutboxBatchStepHandler;
     private final ScheduleOutboxProcessingStep scheduleOutboxprocessingStep;
 
-    public MovieOutboxRelayJobHandler(MovieProperties movieProperties,
-                                      JsonMapper jsonMapper,
-                                      ClaimBatchStepHandler claimBatchStepHandler,
+    public MovieOutboxRelayJobHandler(JsonMapper jsonMapper,
+                                      ClaimOutboxBatchStepHandler claimOutboxBatchStepHandler,
                                       ScheduleOutboxProcessingStep scheduleOutboxprocessingStep) {
-        this.movieProperties = movieProperties;
         this.jsonMapper = jsonMapper;
-        this.claimBatchStepHandler = claimBatchStepHandler;
+        this.claimOutboxBatchStepHandler = claimOutboxBatchStepHandler;
         this.scheduleOutboxprocessingStep = scheduleOutboxprocessingStep;
     }
 
@@ -44,20 +40,22 @@ public class MovieOutboxRelayJobHandler implements JobRequestHandler<MovieOutbox
 
         /*
          * Returns a String/JSON representation
-         * JobRunr behaves better with primitive values than custom objects.
-         * When used as a return value from a step
+         * JobRunr behaves better with primitive values than custom objects in the metadata object
          */
-        String jsonBatch = context.runStepOnce("batch", () -> {
+        final String jsonBatch = context.runStepOnce("batch", () -> {
             log.info("Claiming outbox batch with limit: {}", limit);
-            return claimBatchStepHandler.handle(Status.PENDING, Status.CLAIMED, limit);
+            return claimOutboxBatchStepHandler.handle(Status.PENDING, Status.CLAIMED, limit);
         });
-        UUID[] batch = jsonMapper.readValue(jsonBatch, UUID[].class);
+
+        final UUID[] batch = jsonMapper.readValue(jsonBatch, UUID[].class);
+
         if (CollectionUtils.isNullOrEmpty(batch)) {
             log.info("No outboxes to process");
             return;
         }
+
         log.info("Processing {} outboxes", batch.length);
-        var errors = new ArrayList<UUID>();
+        final var errors = new ArrayList<UUID>(batch.length);
         for (var outboxId : batch) {
             try {
                 context.runStepOnce("schedule:" + outboxId, () -> {

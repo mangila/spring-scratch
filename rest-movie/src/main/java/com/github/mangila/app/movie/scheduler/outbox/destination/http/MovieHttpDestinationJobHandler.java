@@ -40,9 +40,16 @@ public class MovieHttpDestinationJobHandler implements JobRequestHandler<MovieHt
         final var context = ThreadLocalJobContext.getJobContext();
         final var destinationId = jobRequest.destinationId();
         final var destination = jobRequest.destination();
+        transactionTemplate.executeWithoutResult(_ -> {
+            final var fromStatus = Status.CLAIMED;
+            final var toStatus = Status.PROCESSING;
+            destinationService.updateStatus(destinationId, fromStatus, toStatus);
+        });
         log.info("Sending movie to destination: {}", destinationId);
         transactionTemplate.executeWithoutResult(_ -> {
-            destinationService.updateStatus(destinationId, Status.SUCCESS);
+            final var fromStatus = Status.PROCESSING;
+            final var toStatus = Status.SUCCESS;
+            destinationService.updateStatus(destinationId, fromStatus, toStatus);
         });
     }
 

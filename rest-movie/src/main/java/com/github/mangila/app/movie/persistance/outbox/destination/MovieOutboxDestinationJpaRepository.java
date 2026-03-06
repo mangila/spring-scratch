@@ -6,7 +6,6 @@ import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -20,11 +19,12 @@ public interface MovieOutboxDestinationJpaRepository extends BaseJpaRepository<M
     @Modifying
     @Query("""
             UPDATE movie_outbox_destination d
-            SET d.status = :status,
-            	d.updatedAt = CURRENT_TIMESTAMP
-            WHERE d.id = :destinationId
+            SET d.status = :to,
+                d.updatedAt = CURRENT_TIMESTAMP
+            WHERE d.id = :outboxId
+            AND d.status = :from
             """)
-    int updateStatus(@Param("destinationId") UUID destinationId, @Param("status") Status status);
+    int changeStatus(UUID outboxId, Status from, Status to);
 
     List<MovieOutboxDestinationEntity> findAllByStatus(Status status, Limit limit, Sort sort);
 

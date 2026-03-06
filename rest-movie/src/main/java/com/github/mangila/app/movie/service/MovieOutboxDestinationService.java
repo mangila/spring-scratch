@@ -6,6 +6,7 @@ import com.github.mangila.app.movie.persistance.outbox.destination.MovieOutboxDe
 import com.github.mangila.app.movie.properties.MovieProperties;
 import com.github.mangila.app.shared.chaos.Chaos;
 import com.github.mangila.app.shared.persistence.base.projection.OutboxDestinationProjection;
+import com.github.mangila.app.shared.persistence.base.projection.OutboxProjection;
 import com.github.mangila.app.shared.persistence.type.Status;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -46,8 +47,8 @@ public class MovieOutboxDestinationService {
     }
 
     @Chaos
-    public boolean updateStatus(UUID destinationId, Status status) {
-        int result = jpa.updateStatus(destinationId, status);
+    public boolean updateStatus(UUID destinationId, Status from, Status to) {
+        int result = jpa.changeStatus(destinationId, from, to);
         return result > 0;
     }
 
@@ -69,5 +70,10 @@ public class MovieOutboxDestinationService {
 
     public List<MovieOutboxDestinationEntity> findAllByOutboxId(UUID outboxId) {
         return jpa.findAllByOutboxId(outboxId);
+    }
+
+    @Chaos
+    public List<OutboxDestinationProjection> claimBatch(UUID outboxId, Status from, Status to) {
+        return jdbc.claimBatch(outboxId, from, to);
     }
 }
