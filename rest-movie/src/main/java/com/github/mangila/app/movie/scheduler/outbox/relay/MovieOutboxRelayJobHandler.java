@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.json.JsonMapper;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 @Component
@@ -56,11 +57,20 @@ public class MovieOutboxRelayJobHandler implements JobRequestHandler<MovieOutbox
             return;
         }
         log.info("Processing {} outboxes", batch.length);
+        var errors = new ArrayList<UUID>();
         for (var outboxId : batch) {
-            context.runStepOnce("schedule:" + outboxId, () -> {
-                var jobId = scheduleOutboxprocessingStep.execute(outboxId);
-                log.info("Scheduled outbox processing for outbox: {} - jobId - {}", outboxId, jobId);
-            });
+            try {
+                context.runStepOnce("schedule:" + outboxId, () -> {
+                    var jobId = scheduleOutboxprocessingStep.execute(outboxId);
+                    log.info("Scheduled outbox processing for outbox: {} - jobId - {}", outboxId, jobId);
+                });
+            } catch (Exception e) {
+                errors.add(outboxId);
+                log.error("Error processing outbox: {} - {}", outboxId, e.getMessage(), e);
+            }
+        }
+        if (CollectionUtils.isNotNullOrEmpty(errors)) {
+            throw new IllegalStateException("Failed to process outboxes: %s".formatted(errors));
         }
     }
 

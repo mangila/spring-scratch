@@ -11,6 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.UUID;
+
 @Component
 public class MovieOutboxDestinationOrchestratorJobHandler implements JobRequestHandler<MovieOutboxDestinationOrchestratorJobRequest> {
 
@@ -38,12 +41,23 @@ public class MovieOutboxDestinationOrchestratorJobHandler implements JobRequestH
             return;
         }
 
+        var errors = new ArrayList<UUID>();
         for (var outboxDestination : destinations) {
+            final var destinationId = outboxDestination.id();
             final var destination = outboxDestination.destination();
-            context.runStepOnce(destination.toString(), () -> {
-                var jobId = scheduleDestinationStep.execute(outboxDestination);
-                log.info("outbox id: {} scheduled destination id: {} send to: {} jobId: {}", outboxId, outboxDestination.id(), destination, jobId);
-            });
+            try {
+                context.runStepOnce(destination.toString(), () -> {
+                    var jobId = scheduleDestinationStep.execute(outboxDestination);
+                    log.info("outbox id: {} scheduled destination id: {} send to: {} jobId: {}", outboxId, destinationId, destination, jobId);
+                });
+            } catch (Exception e) {
+                log.error("Error scheduling destination id: {} - {}", destinationId, e.getMessage(), e);
+                errors.add(destinationId);
+            }
+        }
+
+        if (CollectionUtils.isNotNullOrEmpty(errors)) {
+            throw new IllegalStateException("Failed to schedule destinations: %s".formatted(errors));
         }
     }
 
