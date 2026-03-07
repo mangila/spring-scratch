@@ -26,6 +26,8 @@ Use cases for multi destinations outbox can be:
 The tricky part is to ensure that messages are delivered in the correct order.
 Sometimes it's better to design without a hard dependency on the order of messages.
 
+JobRunr is used for outbox processing and delivery.
+
 ### Alternatives
 
 #### One Message broker to rule them all
@@ -43,3 +45,12 @@ And different middleware services can be used for different destinations.
 Expose REST endpoint for replay history of messages and let clients juggle with their own offset.
 
 Clients can replay messages in the correct order and send them to the correct destinations.
+
+Then clients need to poll the system for new messages.
+
+#### Postgres LISTEN/NOTIFY
+
+Attach pg_notify to the database and use LISTEN/NOTIFY to receive new messages for a consuming system.
+
+High chance of missed messages, but the system is simpler.
+
