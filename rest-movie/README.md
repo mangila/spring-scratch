@@ -33,7 +33,7 @@ The outbox can be offloaded to a separate process to improve performance and sca
 
 #### One Message broker to rule them all
 
-This can also be implemented with a single message broker and use middleware instead of route messages to the correct
+This can also be implemented with one/cluster message broker and use middleware instead of route messages to the correct
 destinations.
 
 `
