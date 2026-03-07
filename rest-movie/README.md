@@ -35,10 +35,12 @@ JobRunr is used for outbox processing and delivery.
 This can also be implemented with a single message broker and use middleware instead of route messages to the correct
 destinations.
 
-`(outbox) system -> message broker -> (inbox) middleware -> destinations`
+`
+(outbox) system -> message broker -> (inbox) middleware -> destinations
+`
 
-But then the middleware needs the inbox pattern, and the inbox middleware can have specific network rules and such.
-And different middleware services can be used for different destinations.
+The middleware needs the inbox pattern, and the inbox middleware services can have specific network rules and such,
+instead of having the outbox system juggle different networks and protocols.
 
 #### Let clients decide
 
