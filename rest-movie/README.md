@@ -26,7 +26,8 @@ Use cases for multi destinations outbox can be:
 The tricky part is to ensure that messages are delivered in the correct order.
 Sometimes it's better to design without a hard dependency on the order of messages.
 
-JobRunr is used for outbox processing and delivery.
+JobRunr is used for outbox processing and delivery. 
+The outbox can be offloaded to a separate process to improve performance and scalability.
 
 ### Alternatives
 
@@ -39,7 +40,7 @@ destinations.
 (outbox) system -> message broker -> (inbox) middleware -> destinations
 `
 
-The middleware needs the inbox pattern, and the inbox middleware services can have specific network rules and such,
+The middleware needs the transactional inbox pattern, and the inbox middleware services can have specific network rules and such,
 instead of having the outbox system juggle different networks and protocols.
 
 #### Let clients decide
