@@ -49,7 +49,10 @@ Expose REST endpoint for replay history of messages and let clients juggle with 
 
 Clients can replay messages in the correct order and send them to the correct destinations.
 
-Then clients need to poll the system for new messages.
+Then clients need to poll the system for new messages in a scheduled manner.
+
+Or LISTEN/NOTIFY can "trigger" the consuming system to poll the system for new messages, with webhooks or something triggery.
+
 
 #### Postgres LISTEN/NOTIFY
 
@@ -61,3 +64,6 @@ Can be used in conjunction with the outbox where LISTEN/NOTIFY is used as a high
 
 (tough when in a cluster)
 
+#### Print and deliver (recommended)
+
+Print the JSON payload to a piece of paper and deliver it to the correct destination.
