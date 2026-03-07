@@ -56,4 +56,5 @@ Then clients need to poll the system for new messages.
 Attach pg_notify to the database and use LISTEN/NOTIFY to receive new messages for a consuming system.
 
 High chance of missed messages, but the system is simpler.
+Can be used in conjuction with the outbox where LISTEN/NOTIFY is used as an high performance happy path and fallbacks to relay when failing.
 
