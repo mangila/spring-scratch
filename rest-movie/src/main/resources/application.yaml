@@ -19,28 +19,26 @@ app:
         - kafka
   movie:
     outbox:
-      #      purge:
-      #        enabled: false
-      #        cron: "0/30 * * * * *"
-      #        limit: 20
-      #      recover:
-      #        enabled: false
-      #        cron: "0/30 * * * * *"
-      #        limit: 20
-      #      monitor:
-      #        enabled: false
-      #        cron: "0/30 * * * * *"
-      #        limit: 20
-      #      relay:
-      #        enabled: false
-      #        cron: "0/30 * * * * *"
-      #        limit: 20
       enabled: true
-      cron: "0/30 * * * * *"
-      limit: 20
       destinations:
         - kafka
         - http
+      purge:
+        enabled: true
+        cron: "0/30 * * * * *"
+        limit: 20
+      recover:
+        enabled: true
+        cron: "0/30 * * * * *"
+        limit: 20
+      monitor:
+        enabled: true
+        cron: "0/30 * * * * *"
+        limit: 20
+      relay:
+        enabled: true
+        cron: "0/30 * * * * *"
+        limit: 20
 # Spring
 spring:
   application:
@@ -107,3 +105,4 @@ logging:
   level:
     org.hibernate.session.metrics: INFO
     com.zaxxer.hikari: INFO
+    net.javacrumbs.shedlock: DEBUG

@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcType;
 import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -33,6 +34,10 @@ public class OutboxBaseEntity {
     @Enumerated(EnumType.STRING)
     @JdbcType(PostgreSQLEnumJdbcType.class)
     private Status status;
+
+    @Column(name = "modified_by", columnDefinition = "text", updatable = true, nullable = false)
+    @LastModifiedBy
+    private String modifiedBy;
 
     @Column(name = "created_at", updatable = false, nullable = false)
     @CreatedDate
@@ -84,6 +89,14 @@ public class OutboxBaseEntity {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public String getModifiedBy() {
+        return modifiedBy;
+    }
+
+    public void setModifiedBy(String modifiedBy) {
+        this.modifiedBy = modifiedBy;
     }
 
     public Instant getCreatedAt() {

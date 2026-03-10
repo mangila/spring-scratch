@@ -1,9 +1,6 @@
 package com.github.mangila.app.movie.properties;
 
 import com.github.mangila.app.shared.persistence.type.Destination;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Positive;
-import org.intellij.lang.annotations.Language;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
@@ -29,23 +26,11 @@ public class MovieProperties {
     public static class Outbox {
 
         private boolean enabled = false;
-
-        @Language("CronExp")
-        @NotBlank
-        private String cron = "0 0/5 * * * ?";
-
-        @Positive
-        private int limit = 20;
-
         private List<Destination> destinations = new ArrayList<>();
-
-        public int getLimit() {
-            return limit;
-        }
-
-        public void setLimit(int limit) {
-            this.limit = limit;
-        }
+        private MovieOutboxMonitorProperties monitor = new MovieOutboxMonitorProperties();
+        private MovieOutboxRecoverProperties recover = new MovieOutboxRecoverProperties();
+        private MovieOutboxRelayProperties relay = new MovieOutboxRelayProperties();
+        private MovieOutboxPurgeProperties purge = new MovieOutboxPurgeProperties();
 
         public boolean isEnabled() {
             return enabled;
@@ -53,14 +38,6 @@ public class MovieProperties {
 
         public void setEnabled(boolean enabled) {
             this.enabled = enabled;
-        }
-
-        public String getCron() {
-            return cron;
-        }
-
-        public void setCron(@Language("CronExp") String cron) {
-            this.cron = cron;
         }
 
         public List<Destination> getDestinations() {
@@ -75,6 +52,37 @@ public class MovieProperties {
             this.destinations = destinations;
         }
 
+        public MovieOutboxMonitorProperties getMonitor() {
+            return monitor;
+        }
+
+        public void setMonitor(MovieOutboxMonitorProperties monitor) {
+            this.monitor = monitor;
+        }
+
+        public MovieOutboxRecoverProperties getRecover() {
+            return recover;
+        }
+
+        public void setRecover(MovieOutboxRecoverProperties recover) {
+            this.recover = recover;
+        }
+
+        public MovieOutboxRelayProperties getRelay() {
+            return relay;
+        }
+
+        public void setRelay(MovieOutboxRelayProperties relay) {
+            this.relay = relay;
+        }
+
+        public MovieOutboxPurgeProperties getPurge() {
+            return purge;
+        }
+
+        public void setPurge(MovieOutboxPurgeProperties purge) {
+            this.purge = purge;
+        }
     }
 
 }

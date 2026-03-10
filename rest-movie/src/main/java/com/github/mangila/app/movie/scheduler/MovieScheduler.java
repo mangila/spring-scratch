@@ -1,134 +1,69 @@
 package com.github.mangila.app.movie.scheduler;
 
+import com.github.mangila.app.movie.outbox.MovieOutboxScheduler;
 import com.github.mangila.app.movie.properties.MovieProperties;
-import com.github.mangila.app.movie.scheduler.outbox.monitor.MovieOutboxMonitorJobRequest;
-import com.github.mangila.app.movie.scheduler.outbox.destination.MovieOutboxDestinationOrchestratorJobRequest;
-import com.github.mangila.app.movie.scheduler.outbox.destination.http.MovieHttpDestinationJobRequest;
-import com.github.mangila.app.movie.scheduler.outbox.destination.kafka.MovieKafkaDestinationJobRequest;
-import com.github.mangila.app.movie.scheduler.outbox.process.MovieOutboxProcessJobRequest;
-import com.github.mangila.app.movie.scheduler.outbox.purge.MovieOutboxPurgeJobRequest;
-import com.github.mangila.app.movie.scheduler.outbox.relay.MovieOutboxRelayJobRequest;
-import com.github.mangila.app.shared.chaos.Chaos;
-import org.intellij.lang.annotations.Language;
-import org.jobrunr.jobs.JobId;
-import org.jobrunr.scheduling.JobBuilder;
-import org.jobrunr.scheduling.JobRequestScheduler;
-import org.jobrunr.scheduling.RecurringJobBuilder;
+import com.github.mangila.app.movie.scheduler.task.MovieOutboxMonitorTask;
+import com.github.mangila.app.movie.scheduler.task.MovieOutboxPurgeTask;
+import com.github.mangila.app.movie.scheduler.task.MovieOutboxRecoverTask;
+import com.github.mangila.app.movie.scheduler.task.MovieOutboxRelayTask;
+import jakarta.annotation.PostConstruct;
+import net.javacrumbs.shedlock.core.LockingTaskExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
+import org.springframework.scheduling.concurrent.SimpleAsyncTaskScheduler;
+import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
-
 @Service
-public class MovieScheduler implements ApplicationRunner {
+public class MovieScheduler {
 
     private static final Logger log = LoggerFactory.getLogger(MovieScheduler.class);
 
-    private final JobRequestScheduler jobRequestScheduler;
-
+    private final SimpleAsyncTaskScheduler taskScheduler;
+    private final MovieOutboxScheduler movieOutboxScheduler;
+    private final LockingTaskExecutor lockingTaskExecutor;
     private final MovieProperties movieProperties;
 
-    public MovieScheduler(JobRequestScheduler jobRequestScheduler, MovieProperties movieProperties) {
-        this.jobRequestScheduler = jobRequestScheduler;
+    public MovieScheduler(SimpleAsyncTaskScheduler taskScheduler,
+                          MovieProperties movieProperties,
+                          MovieOutboxScheduler movieOutboxScheduler,
+                          LockingTaskExecutor lockingTaskExecutor) {
+        this.taskScheduler = taskScheduler;
         this.movieProperties = movieProperties;
+        this.movieOutboxScheduler = movieOutboxScheduler;
+        this.lockingTaskExecutor = lockingTaskExecutor;
     }
 
-    @Override
-    public void run(ApplicationArguments args) throws Exception {
-        final var outbox = movieProperties.getOutbox();
+    @PostConstruct
+    public void init() {
+        var outbox = movieProperties.getOutbox();
         if (outbox.isEnabled()) {
-            var relayJobRequest = new MovieOutboxRelayJobRequest(outbox.getLimit());
-            var id = schedule(outbox.getCron(), relayJobRequest);
-            log.info("Movie outbox produce relay recurring job scheduled: {}", id);
-            var monitorRequest = new MovieOutboxMonitorJobRequest(outbox.getLimit());
-            id = schedule(outbox.getCron(), monitorRequest);
-            log.info("Movie outbox destination monitor recurring job scheduled: {}", id);
-            var purgeRequest = new MovieOutboxPurgeJobRequest(outbox.getLimit());
-            id = schedule(outbox.getCron(), purgeRequest);
-            log.info("Movie outbox purge recurring job scheduled: {}", id);
+            log.info("Outbox is enabled");
+            if (outbox.getRelay().isEnabled()) {
+                log.info("Outbox relay is enabled");
+                final var props = movieProperties.getOutbox().getRelay();
+                final var task = new MovieOutboxRelayTask(props, movieOutboxScheduler);
+                taskScheduler.schedule(task, new CronTrigger(props.getCron()));
+            }
+            if (outbox.getMonitor().isEnabled()) {
+                log.info("Outbox monitor is enabled");
+                final var props = movieProperties.getOutbox().getMonitor();
+                final var task = new MovieOutboxMonitorTask(props, movieOutboxScheduler);
+                taskScheduler.schedule(task, new CronTrigger(props.getCron()));
+            }
+            if (outbox.getRecover().isEnabled()) {
+                log.info("Outbox recover is enabled");
+                final var props = movieProperties.getOutbox().getRecover();
+                final var task = new MovieOutboxRecoverTask(props, lockingTaskExecutor, movieOutboxScheduler);
+                taskScheduler.schedule(task, new CronTrigger(props.getCron()));
+            }
+            if (outbox.getPurge().isEnabled()) {
+                log.info("Outbox purge is enabled");
+                final var props = movieProperties.getOutbox().getPurge();
+                final var task = new MovieOutboxPurgeTask(props, lockingTaskExecutor, movieOutboxScheduler);
+                taskScheduler.schedule(task, new CronTrigger(props.getCron()));
+            }
         }
     }
 
-    public String schedule(@Language("CronExp") String cron, MovieOutboxRelayJobRequest request) {
-        var job = RecurringJobBuilder.aRecurringJob()
-                .withCron(cron)
-                .withName("Movie outbox relay")
-                .withJobRequest(request)
-                .withLabels("movie", "outbox", "relay")
-                .withAmountOfRetries(10);
-        return jobRequestScheduler.createRecurrently(job);
-    }
-
-    public String schedule(@Language("CronExp") String cron, MovieOutboxMonitorJobRequest request) {
-        var job = RecurringJobBuilder.aRecurringJob()
-                .withCron(cron)
-                .withName("Movie outbox monitor")
-                .withJobRequest(request)
-                .withLabels("movie", "outbox", "monitor")
-                .withAmountOfRetries(10);
-        return jobRequestScheduler.createRecurrently(job);
-    }
-
-    public String schedule(@Language("CronExp") String cron, MovieOutboxPurgeJobRequest request) {
-        var job = RecurringJobBuilder.aRecurringJob()
-                .withCron(cron)
-                .withName("Movie outbox purge")
-                .withJobRequest(request)
-                .withLabels("movie", "outbox", "purge")
-                .withAmountOfRetries(10);
-        return jobRequestScheduler.createRecurrently(job);
-    }
-
-    @Chaos
-    public JobId schedule(MovieHttpDestinationJobRequest request) {
-        final var destinationId = request.destinationId();
-        final var destination = request.destination();
-        var job = JobBuilder.aJob()
-                .scheduleIn(Duration.ofSeconds(1))
-                .withName("Movie %s destination: %s".formatted(destination, destinationId))
-                .withJobRequest(request)
-                .withLabels("movie", "outbox", "destination")
-                .withAmountOfRetries(10);
-        return jobRequestScheduler.create(job);
-    }
-
-    @Chaos
-    public JobId schedule(MovieKafkaDestinationJobRequest request) {
-        final var destinationId = request.destinationId();
-        final var destination = request.destination();
-        var job = JobBuilder.aJob()
-                .scheduleIn(Duration.ofSeconds(1))
-                .withName("Movie %s destination: %s".formatted(destination, destinationId))
-                .withJobRequest(request)
-                .withLabels("movie", "outbox", "destination")
-                .withAmountOfRetries(10);
-        return jobRequestScheduler.create(job);
-    }
-
-    @Chaos
-    public JobId schedule(MovieOutboxProcessJobRequest request) {
-        final var outboxId = request.outboxId();
-        var job = JobBuilder.aJob()
-                .scheduleIn(Duration.ofSeconds(1))
-                .withName("Movie outbox process: %s".formatted(outboxId))
-                .withJobRequest(request)
-                .withLabels("movie", "outbox", "process")
-                .withAmountOfRetries(10);
-        return jobRequestScheduler.create(job);
-    }
-
-    @Chaos
-    public JobId schedule(MovieOutboxDestinationOrchestratorJobRequest request) {
-        final var outboxId = request.outboxId();
-        var job = JobBuilder.aJob()
-                .scheduleIn(Duration.ofSeconds(1))
-                .withName("Movie outbox destination orchestrator: %s".formatted(outboxId))
-                .withJobRequest(request)
-                .withLabels("movie", "outbox", "orchestrator")
-                .withAmountOfRetries(10);
-        return jobRequestScheduler.create(job);
-    }
 }

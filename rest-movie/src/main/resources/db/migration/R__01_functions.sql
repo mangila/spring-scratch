@@ -13,11 +13,13 @@ BEGIN
             transaction_timestamp())
     RETURNING id INTO v_history_id;
 
-    INSERT INTO actor_outbox (history_id, aggregate_id, aggregate_version, status, created_at, updated_at)
+    INSERT INTO actor_outbox (history_id, aggregate_id, aggregate_version,
+                              status, modified_by, created_at, updated_at)
     VALUES (v_history_id,
             v_aggregate_id,
             v_aggregate_version,
             'PENDING',
+            tg_name,
             transaction_timestamp(),
             transaction_timestamp());
 
@@ -48,11 +50,13 @@ BEGIN
             transaction_timestamp())
     RETURNING id INTO v_history_id;
 
-    INSERT INTO director_outbox (history_id, aggregate_id, aggregate_version, status, created_at, updated_at)
+    INSERT INTO director_outbox (history_id, aggregate_id, aggregate_version, status,
+                                 modified_by, created_at, updated_at)
     VALUES (v_history_id,
             v_aggregate_id,
             v_aggregate_version,
             'PENDING',
+            tg_name,
             transaction_timestamp(),
             transaction_timestamp());
 
@@ -83,11 +87,13 @@ BEGIN
             transaction_timestamp())
     RETURNING id INTO v_history_id;
 
-    INSERT INTO movie_outbox (history_id, aggregate_id, aggregate_version, status, created_at, updated_at)
+    INSERT INTO movie_outbox (history_id, aggregate_id, aggregate_version, status,
+                              modified_by, created_at, updated_at)
     VALUES (v_history_id,
             v_aggregate_id,
             v_aggregate_version,
             'PENDING',
+            tg_name,
             transaction_timestamp(),
             transaction_timestamp());
 

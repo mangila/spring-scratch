@@ -4,6 +4,7 @@ import com.github.mangila.app.shared.persistence.base.projection.OutboxProjectio
 import com.github.mangila.app.shared.persistence.type.Status;
 import jakarta.validation.constraints.Positive;
 import org.intellij.lang.annotations.Language;
+import org.jobrunr.server.runner.ThreadLocalJobContext;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
@@ -20,6 +21,7 @@ public class MovieOutboxJdbcRepository {
     }
 
     public List<UUID> claimBatch(Status from, Status to, @Positive int limit) {
+        final var context = ThreadLocalJobContext.getJobContext();
         @Language("PostgreSQL")
         String sql = """
                 WITH claim_batch AS (
@@ -32,7 +34,8 @@ public class MovieOutboxJdbcRepository {
                 )
                 UPDATE movie_outbox
                 SET status = CAST(:to AS status),
-                    updated_at = transaction_timestamp()
+                    updated_at = transaction_timestamp(),
+                    modified_by = :modifiedBy
                 FROM claim_batch
                 WHERE movie_outbox.id = claim_batch.id
                 RETURNING movie_outbox.id
@@ -41,6 +44,7 @@ public class MovieOutboxJdbcRepository {
         return jdbcClient.sql(sql)
                 .param("to", to.toString())
                 .param("from", from.toString())
+                .param("modifiedBy", context.getJobId())
                 .param("limit", limit)
                 .query(UUID.class)
                 .list();

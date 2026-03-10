@@ -13,25 +13,25 @@ import java.util.function.Consumer;
 @Component
 public class VaadinEventPublisher {
 
-	private static final Logger log = LoggerFactory.getLogger(VaadinEventPublisher.class);
+    private static final Logger log = LoggerFactory.getLogger(VaadinEventPublisher.class);
 
-	private final ConcurrentLinkedQueue<Consumer<String>> listeners = new ConcurrentLinkedQueue<>();
+    private final ConcurrentLinkedQueue<Consumer<String>> listeners = new ConcurrentLinkedQueue<>();
 
-	private final SimpleAsyncTaskExecutor executor;
+    private final SimpleAsyncTaskExecutor executor;
 
-	public VaadinEventPublisher(@Qualifier("applicationTaskExecutor") SimpleAsyncTaskExecutor executor) {
-		this.executor = executor;
-	}
+    public VaadinEventPublisher(@Qualifier("simpleAsyncTaskExecutor") SimpleAsyncTaskExecutor executor) {
+        this.executor = executor;
+    }
 
-	public Registration register(Consumer<String> listener) {
-		listeners.add(listener);
-		return () -> listeners.remove(listener);
-	}
+    public Registration register(Consumer<String> listener) {
+        listeners.add(listener);
+        return () -> listeners.remove(listener);
+    }
 
-	public void broadcast(String message) {
-		for (Consumer<String> listener : listeners) {
-			executor.execute(() -> listener.accept(message));
-		}
-	}
+    public void broadcast(String message) {
+        for (Consumer<String> listener : listeners) {
+            executor.execute(() -> listener.accept(message));
+        }
+    }
 
 }
