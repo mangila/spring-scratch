@@ -48,7 +48,7 @@ public class MovieScheduler {
             if (outbox.getMonitor().isEnabled()) {
                 log.info("Outbox monitor is enabled");
                 final var props = movieProperties.getOutbox().getMonitor();
-                final var task = new MovieOutboxMonitorTask(props, movieOutboxScheduler);
+                final var task = new MovieOutboxMonitorTask(props, lockingTaskExecutor, movieOutboxScheduler);
                 taskScheduler.schedule(task, new CronTrigger(props.getCron()));
             }
             if (outbox.getRecover().isEnabled()) {

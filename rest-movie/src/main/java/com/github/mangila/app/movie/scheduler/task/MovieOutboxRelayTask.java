@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 public class MovieOutboxRelayTask implements Runnable {
 
     private static final Logger log = LoggerFactory.getLogger(MovieOutboxRelayTask.class);
+
     private final MovieOutboxRelayProperties properties;
     private final MovieOutboxScheduler movieOutboxScheduler;
 

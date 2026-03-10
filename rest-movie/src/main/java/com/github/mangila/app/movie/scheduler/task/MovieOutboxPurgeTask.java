@@ -15,6 +15,7 @@ import java.time.Instant;
 public class MovieOutboxPurgeTask implements Runnable {
 
     private static final Logger log = LoggerFactory.getLogger(MovieOutboxPurgeTask.class);
+
     private final MovieOutboxPurgeProperties properties;
     private final LockingTaskExecutor lockingTaskExecutor;
     private final MovieOutboxScheduler movieOutboxScheduler;
@@ -41,7 +42,6 @@ public class MovieOutboxPurgeTask implements Runnable {
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }
-        log.info("Purge task completed with limit: {}", limit);
     }
 
     private LockConfiguration getLockConfiguration() {
