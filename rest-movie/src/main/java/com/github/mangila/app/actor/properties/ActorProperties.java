@@ -1,7 +1,6 @@
 package com.github.mangila.app.actor.properties;
 
 import com.github.mangila.app.shared.persistence.type.Destination;
-import org.intellij.lang.annotations.Language;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
@@ -12,59 +11,78 @@ import java.util.List;
 @Validated
 public class ActorProperties {
 
-	private Outbox outbox = new Outbox();
+    public static final List<Destination> SUPPORTED_DESTINATIONS = List.of(Destination.KAFKA, Destination.HTTP);
 
-	public Outbox getOutbox() {
-		return outbox;
-	}
+    private Outbox outbox = new Outbox();
 
-	public void setOutbox(Outbox outbox) {
-		this.outbox = outbox;
-	}
+    public Outbox getOutbox() {
+        return outbox;
+    }
 
-	public static class Outbox {
+    public void setOutbox(Outbox outbox) {
+        this.outbox = outbox;
+    }
 
-		private boolean enabled = false;
+    public static class Outbox {
 
-		@Language("CronExp")
-		private String cron = "0 0/5 * * * ?";
+        private boolean enabled = false;
+        private List<Destination> destinations = new ArrayList<>();
+        private ActorOutboxMonitorProperties monitor = new ActorOutboxMonitorProperties();
+        private ActorOutboxRecoverProperties recover = new ActorOutboxRecoverProperties();
+        private ActorOutboxRelayProperties relay = new ActorOutboxRelayProperties();
+        private ActorOutboxPurgeProperties purge = new ActorOutboxPurgeProperties();
 
-		private int limit = 20;
+        public boolean isEnabled() {
+            return enabled;
+        }
 
-		private List<Destination> destinations = new ArrayList<>();
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
 
-		public int getLimit() {
-			return limit;
-		}
+        public List<Destination> getDestinations() {
+            return destinations;
+        }
 
-		public void setLimit(int limit) {
-			this.limit = limit;
-		}
+        public void setDestinations(List<Destination> destinations) {
+            boolean retained = destinations.retainAll(SUPPORTED_DESTINATIONS);
+            if (retained) {
+                throw new IllegalArgumentException("Only " + SUPPORTED_DESTINATIONS + " are supported");
+            }
+            this.destinations = destinations;
+        }
 
-		public boolean isEnabled() {
-			return enabled;
-		}
+        public ActorOutboxMonitorProperties getMonitor() {
+            return monitor;
+        }
 
-		public void setEnabled(boolean enabled) {
-			this.enabled = enabled;
-		}
+        public void setMonitor(ActorOutboxMonitorProperties monitor) {
+            this.monitor = monitor;
+        }
 
-		public String getCron() {
-			return cron;
-		}
+        public ActorOutboxRecoverProperties getRecover() {
+            return recover;
+        }
 
-		public void setCron(@Language("CronExp") String cron) {
-			this.cron = cron;
-		}
+        public void setRecover(ActorOutboxRecoverProperties recover) {
+            this.recover = recover;
+        }
 
-		public List<Destination> getDestinations() {
-			return destinations;
-		}
+        public ActorOutboxRelayProperties getRelay() {
+            return relay;
+        }
 
-		public void setDestinations(List<Destination> destinations) {
-			this.destinations = destinations;
-		}
+        public void setRelay(ActorOutboxRelayProperties relay) {
+            this.relay = relay;
+        }
 
-	}
+        public ActorOutboxPurgeProperties getPurge() {
+            return purge;
+        }
+
+        public void setPurge(ActorOutboxPurgeProperties purge) {
+            this.purge = purge;
+        }
+    }
 
 }

@@ -12,6 +12,8 @@ import jakarta.validation.constraints.Positive;
 import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.ArrayList;
@@ -36,6 +38,7 @@ public class MovieOutboxDestinationService {
     }
 
     @Chaos
+    @Transactional(propagation = Propagation.MANDATORY)
     public List<MovieOutboxDestinationEntity> createDestinations(@NotNull UUID id) {
         var destinations = movieProperties.getOutbox()
                 .getDestinations()
@@ -46,6 +49,7 @@ public class MovieOutboxDestinationService {
     }
 
     @Chaos
+    @Transactional(propagation = Propagation.MANDATORY)
     public boolean updateStatus(UUID destinationId, Status from, Status to) {
         int result = jpa.changeStatus(destinationId, from, to);
         return result > 0;
@@ -63,6 +67,7 @@ public class MovieOutboxDestinationService {
     }
 
     @Chaos
+    @Transactional(propagation = Propagation.MANDATORY)
     public void deleteAllById(ArrayList<UUID> destinationsIds) {
         jpa.deleteAllByIdInBatch(destinationsIds);
     }
@@ -73,6 +78,7 @@ public class MovieOutboxDestinationService {
     }
 
     @Chaos
+    @Transactional(propagation = Propagation.MANDATORY)
     public List<OutboxDestinationProjection> claimBatch(UUID outboxId, Status from, Status to) {
         return jdbc.claimBatch(outboxId, from, to);
     }

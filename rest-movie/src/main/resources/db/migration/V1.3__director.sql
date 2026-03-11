@@ -46,3 +46,14 @@ create table director_outbox_version
     updated_at      TIMESTAMP(6) WITH TIME ZONE NOT NULL,
     primary key (aggregate_id)
 );
+
+create table director_outbox_destination
+(
+    id          UUID                        NOT NULL,
+    outbox_id   UUID                        NOT NULL,
+    destination DESTINATION                 NOT NULL,
+    status      STATUS                      NOT NULL,
+    created_at  TIMESTAMP(6) WITH TIME ZONE NOT NULL,
+    updated_at  TIMESTAMP(6) WITH TIME ZONE NOT NULL,
+    primary key (id)
+);

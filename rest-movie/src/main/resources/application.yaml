@@ -4,19 +4,48 @@ app:
     enabled: false
   actor:
     outbox:
-      enabled: false
-      cron: "0/30 * * * * *"
-      limit: 20
-      destinations:
-        - sqs
-        - http
-  director:
-    outbox:
-      enabled: false
-      cron: "0 * * * * *"
-      limit: 20
+      enabled: true
       destinations:
         - kafka
+        - http
+      purge:
+        enabled: true
+        cron: "0/30 * * * * *"
+        limit: 20
+      recover:
+        enabled: true
+        cron: "0/30 * * * * *"
+        limit: 20
+      monitor:
+        enabled: true
+        cron: "0/30 * * * * *"
+        limit: 20
+      relay:
+        enabled: true
+        cron: "0/30 * * * * *"
+        limit: 20
+  director:
+    outbox:
+      enabled: true
+      destinations:
+        - kafka
+        - http
+      purge:
+        enabled: true
+        cron: "0/30 * * * * *"
+        limit: 20
+      recover:
+        enabled: true
+        cron: "0/30 * * * * *"
+        limit: 20
+      monitor:
+        enabled: true
+        cron: "0/30 * * * * *"
+        limit: 20
+      relay:
+        enabled: true
+        cron: "0/30 * * * * *"
+        limit: 20
   movie:
     outbox:
       enabled: true

@@ -1,7 +1,7 @@
 package com.github.mangila.app.movie.outbox.destination;
 
-import com.github.mangila.app.movie.outbox.destination.step.ClaimOutboxDestinationStepHandler;
-import com.github.mangila.app.movie.outbox.destination.step.ScheduleDestinationStep;
+import com.github.mangila.app.movie.outbox.destination.step.MovieOutboxDestinationOrchestratorClaimStep;
+import com.github.mangila.app.movie.outbox.destination.step.MovieOutboxDestinationOrchestratorScheduleStep;
 import com.github.mangila.app.shared.persistence.base.projection.OutboxDestinationProjection;
 import com.github.mangila.app.shared.persistence.type.Status;
 import org.jobrunr.jobs.context.JobRunrDashboardLogger;
@@ -23,15 +23,15 @@ public class MovieOutboxDestinationOrchestratorJobHandler implements JobRequestH
             LoggerFactory.getLogger(MovieOutboxDestinationOrchestratorJobHandler.class));
 
     private final JsonMapper jsonMapper;
-    private final ClaimOutboxDestinationStepHandler claimOutboxDestinationStepHandler;
-    private final ScheduleDestinationStep scheduleDestinationStep;
+    private final MovieOutboxDestinationOrchestratorClaimStep movieOutboxDestinationOrchestratorClaimStep;
+    private final MovieOutboxDestinationOrchestratorScheduleStep movieOutboxDestinationOrchestratorScheduleStep;
 
     public MovieOutboxDestinationOrchestratorJobHandler(JsonMapper jsonMapper,
-                                                        ClaimOutboxDestinationStepHandler claimOutboxDestinationStepHandler,
-                                                        ScheduleDestinationStep scheduleDestinationStep) {
+                                                        MovieOutboxDestinationOrchestratorClaimStep movieOutboxDestinationOrchestratorClaimStep,
+                                                        MovieOutboxDestinationOrchestratorScheduleStep movieOutboxDestinationOrchestratorScheduleStep) {
         this.jsonMapper = jsonMapper;
-        this.claimOutboxDestinationStepHandler = claimOutboxDestinationStepHandler;
-        this.scheduleDestinationStep = scheduleDestinationStep;
+        this.movieOutboxDestinationOrchestratorClaimStep = movieOutboxDestinationOrchestratorClaimStep;
+        this.movieOutboxDestinationOrchestratorScheduleStep = movieOutboxDestinationOrchestratorScheduleStep;
     }
 
     @Override
@@ -42,7 +42,7 @@ public class MovieOutboxDestinationOrchestratorJobHandler implements JobRequestH
         String destinationProjections = context.runStepOnce("claim", () -> {
             final var fromStatus = Status.PENDING;
             final var toStatus = Status.CLAIMED;
-            return claimOutboxDestinationStepHandler.execute(outboxId, fromStatus, toStatus);
+            return movieOutboxDestinationOrchestratorClaimStep.execute(outboxId, fromStatus, toStatus);
         });
 
         var destinations = jsonMapper.readValue(destinationProjections, OutboxDestinationProjection[].class);
@@ -58,8 +58,8 @@ public class MovieOutboxDestinationOrchestratorJobHandler implements JobRequestH
             final var destinationId = outboxDestination.id();
             final var destination = outboxDestination.destination();
             try {
-                context.runStepOnce(destination.toString(), () -> {
-                    var jobId = scheduleDestinationStep.execute(outboxDestination);
+                context.runStepOnce("schedule:" + destination.toString(), () -> {
+                    var jobId = movieOutboxDestinationOrchestratorScheduleStep.execute(outboxDestination);
                     log.info("outbox id: {} scheduled destination id: {} send to: {} jobId: {}", outboxId, destinationId, destination, jobId);
                 });
             } catch (Exception e) {

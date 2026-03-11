@@ -4,6 +4,8 @@ import com.github.mangila.app.movie.persistance.outbox.version.MovieOutboxVersio
 import com.github.mangila.app.movie.persistance.outbox.version.MovieOutboxVersionJpaRepository;
 import com.github.mangila.app.shared.chaos.Chaos;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -26,6 +28,7 @@ public class MovieOutboxVersionService {
     }
 
     @Chaos
+    @Transactional(propagation = Propagation.MANDATORY)
     public void increment(UUID aggregateId) {
         jpa.increment(aggregateId);
     }

@@ -42,12 +42,14 @@ public class MovieOutboxService {
     }
 
     @Chaos
+    @Transactional(propagation = Propagation.MANDATORY)
     public boolean changeStatus(UUID outboxId, Status from, Status to) {
         var result = jpa.changeStatus(outboxId, from, to);
         return result > 0;
     }
 
     @Chaos
+    @Transactional(propagation = Propagation.MANDATORY)
     public void deleteAllById(List<UUID> list) {
         jpa.deleteAllByIdInBatch(list);
     }

@@ -1,8 +1,8 @@
 package com.github.mangila.app.movie.outbox.relay;
 
-import com.github.mangila.app.movie.outbox.relay.step.ScheduleOutboxProcessingStep;
-import com.github.mangila.app.movie.outbox.shared.ChangeOutboxStatusStep;
-import com.github.mangila.app.movie.outbox.shared.ClaimOutboxBatchStepHandler;
+import com.github.mangila.app.movie.outbox.relay.step.MovieOutboxRelayClaimStep;
+import com.github.mangila.app.movie.outbox.relay.step.MovieOutboxRelayScheduleStep;
+import com.github.mangila.app.movie.outbox.relay.step.MovieOutboxRelayStatusStep;
 import com.github.mangila.app.shared.persistence.type.Status;
 import org.jobrunr.jobs.context.JobRunrDashboardLogger;
 import org.jobrunr.jobs.lambdas.JobRequestHandler;
@@ -22,20 +22,18 @@ public class MovieOutboxRelayJobHandler implements JobRequestHandler<MovieOutbox
     private static final Logger log = new JobRunrDashboardLogger(
             LoggerFactory.getLogger(MovieOutboxRelayJobHandler.class));
 
+    private final MovieOutboxRelayClaimStep movieOutboxRelayClaimStep;
+    private final MovieOutboxRelayScheduleStep movieOutboxRelayScheduleStep;
+    private final MovieOutboxRelayStatusStep movieOutboxRelayStatusStep;
     private final JsonMapper jsonMapper;
-    private final ClaimOutboxBatchStepHandler claimOutboxBatchStepHandler;
-    private final ScheduleOutboxProcessingStep scheduleOutboxprocessingStep;
-    private final ChangeOutboxStatusStep changeOutboxStatusStep;
 
-    public MovieOutboxRelayJobHandler(JsonMapper jsonMapper,
-                                      ClaimOutboxBatchStepHandler claimOutboxBatchStepHandler,
-                                      ScheduleOutboxProcessingStep scheduleOutboxprocessingStep,
-                                      ChangeOutboxStatusStep changeOutboxStatusStep) {
+    public MovieOutboxRelayJobHandler(MovieOutboxRelayClaimStep movieOutboxRelayClaimStep, MovieOutboxRelayScheduleStep movieOutboxRelayScheduleStep, MovieOutboxRelayStatusStep movieOutboxRelayStatusStep, JsonMapper jsonMapper) {
+        this.movieOutboxRelayClaimStep = movieOutboxRelayClaimStep;
+        this.movieOutboxRelayScheduleStep = movieOutboxRelayScheduleStep;
+        this.movieOutboxRelayStatusStep = movieOutboxRelayStatusStep;
         this.jsonMapper = jsonMapper;
-        this.claimOutboxBatchStepHandler = claimOutboxBatchStepHandler;
-        this.scheduleOutboxprocessingStep = scheduleOutboxprocessingStep;
-        this.changeOutboxStatusStep = changeOutboxStatusStep;
     }
+
 
     @Override
     public void run(MovieOutboxRelayJobRequest jobRequest) throws Exception {
@@ -46,12 +44,14 @@ public class MovieOutboxRelayJobHandler implements JobRequestHandler<MovieOutbox
          * Returns a String/JSON representation
          * JobRunr behaves better with primitive values than custom objects in the metadata object
          */
-        final String jsonBatch = context.runStepOnce("batch", () -> {
-            log.info("Claiming outbox batch with limit: {}", limit);
-            return claimOutboxBatchStepHandler.handle(Status.PENDING, Status.CLAIMED, limit);
+        final String jsonClaimed = context.runStepOnce("claim", () -> {
+            final var fromStatus = Status.PENDING;
+            final var toStatus = Status.CLAIMED;
+            log.info("Claiming outbox batch with limit: {} - {} - {}", limit, fromStatus, toStatus);
+            return movieOutboxRelayClaimStep.execute(fromStatus, toStatus, limit);
         });
 
-        final UUID[] batch = jsonMapper.readValue(jsonBatch, UUID[].class);
+        final UUID[] batch = jsonMapper.readValue(jsonClaimed, UUID[].class);
 
         if (CollectionUtils.isNullOrEmpty(batch)) {
             log.info("No outboxes to process");
@@ -63,13 +63,13 @@ public class MovieOutboxRelayJobHandler implements JobRequestHandler<MovieOutbox
         for (var outboxId : batch) {
             try {
                 context.runStepOnce("schedule:%s".formatted(outboxId), () -> {
-                    var jobId = scheduleOutboxprocessingStep.execute(outboxId);
+                    var jobId = movieOutboxRelayScheduleStep.execute(outboxId);
                     log.info("Scheduled outbox processing for outbox: {} - jobId - {}", outboxId, jobId);
                 });
                 context.runStepOnce("status:%s".formatted(outboxId), () -> {
                     final var fromStatus = Status.CLAIMED;
                     final var toStatus = Status.SCHEDULED;
-                    final boolean execute = changeOutboxStatusStep.execute(outboxId, fromStatus, toStatus);
+                    final boolean execute = movieOutboxRelayStatusStep.execute(outboxId, fromStatus, toStatus);
                     if (!execute) {
                         throw new IllegalStateException("Outbox: %s failed to change status from %s to %s".formatted(outboxId, fromStatus, toStatus));
                     }

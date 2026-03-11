@@ -7,6 +7,8 @@ import com.github.mangila.app.movie.persistance.projection.MovieProjection;
 import com.github.mangila.app.movie.shared.MovieMapper;
 import com.github.mangila.app.shared.chaos.Chaos;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -32,6 +34,7 @@ public class MovieService {
 	}
 
 	@Chaos
+	@Transactional(propagation = Propagation.MANDATORY)
 	public void persistAll(List<MovieProjection> movieProjections) {
 		var entities = movieMapper.toEntities(movieProjections);
 		jpa.persistAll(entities);
