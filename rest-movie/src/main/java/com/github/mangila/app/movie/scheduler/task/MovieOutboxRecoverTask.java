@@ -54,7 +54,7 @@ public class MovieOutboxRecoverTask implements Runnable {
 
     private LockConfiguration getLockConfiguration() {
         final var createdAt = Instant.now();
-        final var lockName = "recover";
+        final var lockName = "movie-recover";
         final var lockAtMostFor = Duration.ofMinutes(3);
         final var lockAtLeastFor = Duration.ofMinutes(3);
         return new LockConfiguration(createdAt,

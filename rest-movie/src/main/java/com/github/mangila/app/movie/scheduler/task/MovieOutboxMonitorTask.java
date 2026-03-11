@@ -45,7 +45,7 @@ public class MovieOutboxMonitorTask implements Runnable {
 
     private LockConfiguration getLockConfiguration() {
         final var createdAt = Instant.now();
-        final var lockName = "monitor";
+        final var lockName = "movie-monitor";
         final var lockAtMostFor = Duration.ofMinutes(3);
         final var lockAtLeastFor = Duration.ofMinutes(3);
         return new LockConfiguration(createdAt,
