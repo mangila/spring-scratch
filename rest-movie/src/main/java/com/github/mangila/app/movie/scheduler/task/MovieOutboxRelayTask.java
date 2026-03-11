@@ -23,7 +23,7 @@ public class MovieOutboxRelayTask implements Runnable {
     public void run() {
         final var limit = properties.getLimit();
         final var request = new MovieOutboxRelayJobRequest(limit);
-        // TODO: check db exist b4 schedule
+        // TODO: check PENDING outbox exist b4 schedule
         final var jobId = movieOutboxScheduler.schedule(request);
         log.info("Scheduled relay job with id: {}", jobId);
     }

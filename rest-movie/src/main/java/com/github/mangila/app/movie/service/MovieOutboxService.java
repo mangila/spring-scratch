@@ -36,12 +36,12 @@ public class MovieOutboxService {
         return jdbc.claimBatch(from, to, limit);
     }
 
+    @Chaos
     public List<OutboxProjection> findAllByStatus(@NotNull Status status, @Positive int limit) {
         return jpa.findAllByStatus(status, Limit.of(limit));
     }
 
     @Chaos
-    @Transactional(propagation = Propagation.MANDATORY)
     public boolean changeStatus(UUID outboxId, Status from, Status to) {
         var result = jpa.changeStatus(outboxId, from, to);
         return result > 0;
@@ -52,6 +52,7 @@ public class MovieOutboxService {
         jpa.deleteAllByIdInBatch(list);
     }
 
+    @Chaos
     public OutboxProjection findById(UUID outboxId) {
         return jpa.findById(outboxId, OutboxProjection.class)
                 .orElseThrow();

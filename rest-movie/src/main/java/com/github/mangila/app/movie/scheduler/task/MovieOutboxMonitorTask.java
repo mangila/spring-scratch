@@ -31,7 +31,7 @@ public class MovieOutboxMonitorTask implements Runnable {
     public void run() {
         final var limit = properties.getLimit();
         final var request = new MovieOutboxMonitorJobRequest(limit);
-        // TODO: check db exist b4 schedule
+        // TODO: check PROCESSING outbox exist b4 schedule
         try {
             lockingTaskExecutor.executeWithLock((Runnable) () -> {
                 LockAssert.assertLocked();

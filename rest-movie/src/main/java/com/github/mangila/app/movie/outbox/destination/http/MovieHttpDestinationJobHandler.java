@@ -7,6 +7,7 @@ import org.jobrunr.jobs.lambdas.JobRequestHandler;
 import org.jobrunr.server.runner.ThreadLocalJobContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -40,16 +41,34 @@ public class MovieHttpDestinationJobHandler implements JobRequestHandler<MovieHt
         final var context = ThreadLocalJobContext.getJobContext();
         final var destinationId = jobRequest.destinationId();
         final var destination = jobRequest.destination();
-        transactionTemplate.executeWithoutResult(_ -> {
+
+        context.runStepOnce("process", () -> {
             final var fromStatus = Status.CLAIMED;
             final var toStatus = Status.PROCESSING;
-            destinationService.updateStatus(destinationId, fromStatus, toStatus);
+            transactionTemplate.executeWithoutResult(_ -> {
+                destinationService.updateStatus(destinationId, fromStatus, toStatus);
+            });
+            log.info("Changed status from: {} to: {}", fromStatus, toStatus);
         });
-        log.info("Sending movie to destination: {}", destinationId);
-        transactionTemplate.executeWithoutResult(_ -> {
+
+        context.runStepOnce("send", () -> {
+            restClient.post()
+                    .uri("/post")
+                    .body("asdf")
+                    .retrieve()
+                    .onStatus(HttpStatusCode::isError, (request, response) -> {
+                        throw new RuntimeException("Failed to send message");
+                    });
+            log.info("Sent message to: {}", destination);
+        });
+
+        context.runStepOnce("success", () -> {
             final var fromStatus = Status.PROCESSING;
             final var toStatus = Status.SUCCESS;
-            destinationService.updateStatus(destinationId, fromStatus, toStatus);
+            transactionTemplate.executeWithoutResult(_ -> {
+                destinationService.updateStatus(destinationId, fromStatus, toStatus);
+            });
+            log.info("Changed status from: {} to: {}", fromStatus, toStatus);
         });
     }
 

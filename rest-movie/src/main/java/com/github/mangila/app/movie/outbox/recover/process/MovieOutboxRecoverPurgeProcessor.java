@@ -1,4 +1,4 @@
-package com.github.mangila.app.movie.outbox.recover;
+package com.github.mangila.app.movie.outbox.recover.process;
 
 import org.jobrunr.jobs.Job;
 import org.jobrunr.jobs.context.JobRunrDashboardLogger;
@@ -8,10 +8,10 @@ import org.springframework.resilience.annotation.Retryable;
 import org.springframework.stereotype.Component;
 
 @Component
-public class MovieOutboxRecoverRelayProcessor {
+public class MovieOutboxRecoverPurgeProcessor {
 
     private static final Logger log = new JobRunrDashboardLogger(
-            LoggerFactory.getLogger(MovieOutboxRecoverRelayProcessor.class));
+            LoggerFactory.getLogger(MovieOutboxRecoverPurgeProcessor.class));
 
     @Retryable
     public void process(Job job) {

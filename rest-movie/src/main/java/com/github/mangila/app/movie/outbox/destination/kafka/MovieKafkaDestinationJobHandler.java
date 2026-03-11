@@ -10,6 +10,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
+
 @Component
 public class MovieKafkaDestinationJobHandler implements JobRequestHandler<MovieKafkaDestinationJobRequest> {
 
@@ -31,16 +34,28 @@ public class MovieKafkaDestinationJobHandler implements JobRequestHandler<MovieK
         final var context = ThreadLocalJobContext.getJobContext();
         final var destinationId = jobRequest.destinationId();
         final var destination = jobRequest.destination();
-        transactionTemplate.executeWithoutResult(_ -> {
+
+        context.runStepOnce("process", () -> {
             final var fromStatus = Status.CLAIMED;
             final var toStatus = Status.PROCESSING;
-            destinationService.updateStatus(destinationId, fromStatus, toStatus);
+            transactionTemplate.executeWithoutResult(_ -> {
+                destinationService.updateStatus(destinationId, fromStatus, toStatus);
+            });
+            log.info("Changed status from: {} to: {}", fromStatus, toStatus);
         });
-        log.info("Sending movie to destination: {}", destinationId);
-        transactionTemplate.executeWithoutResult(_ -> {
+
+        context.runStepOnce("send", () -> {
+            TimeUnit.SECONDS.sleep(ThreadLocalRandom.current().nextInt(1, 5));
+            log.info("Sent message to: {}", destination);
+        });
+
+        context.runStepOnce("success", () -> {
             final var fromStatus = Status.PROCESSING;
             final var toStatus = Status.SUCCESS;
-            destinationService.updateStatus(destinationId, fromStatus, toStatus);
+            transactionTemplate.executeWithoutResult(_ -> {
+                destinationService.updateStatus(destinationId, fromStatus, toStatus);
+            });
+            log.info("Changed status from: {} to: {}", fromStatus, toStatus);
         });
     }
 

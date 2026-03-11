@@ -55,7 +55,7 @@ public class MovieOutboxRelayJobHandler implements JobRequestHandler<MovieOutbox
 
         if (CollectionUtils.isNullOrEmpty(batch)) {
             log.info("No outboxes to process");
-            throw new IllegalStateException("No outboxes to process");
+            return;
         }
 
         log.info("Processing {} outboxes", batch.length);

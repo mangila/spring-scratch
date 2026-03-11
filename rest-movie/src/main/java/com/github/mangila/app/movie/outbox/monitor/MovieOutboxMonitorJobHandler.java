@@ -47,7 +47,8 @@ public class MovieOutboxMonitorJobHandler implements JobRequestHandler<MovieOutb
 
         var errors = new ArrayList<UUID>(outboxes.size());
         for (var outbox : outboxes) {
-            var outboxId = outbox.id();
+            final var outboxId = outbox.id();
+            final var aggregateId = outbox.aggregateId();
             try {
                 var destinationEntities = movieOutboxDestinationService.findAllByOutboxId(outboxId);
                 if (destinationEntities.isEmpty()) {
@@ -65,7 +66,8 @@ public class MovieOutboxMonitorJobHandler implements JobRequestHandler<MovieOutb
                         if (!ok) {
                             throw new IllegalStateException("Outbox: %s failed to change status from %s to %s".formatted(outboxId, fromStatus, toStatus));
                         }
-                        movieOutboxVersionService.increment(outbox.aggregateId());
+                        movieOutboxVersionService.increment(aggregateId);
+                        log.info("Outbox: {} changed status from {} to {} and bumped version on aggregate: {}", outboxId, fromStatus, toStatus, aggregateId);
                     });
                 }
             } catch (Exception e) {

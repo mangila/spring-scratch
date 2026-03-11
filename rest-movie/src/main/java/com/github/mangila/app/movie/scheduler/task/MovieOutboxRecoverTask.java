@@ -6,6 +6,8 @@ import com.github.mangila.app.movie.properties.MovieOutboxRecoverProperties;
 import net.javacrumbs.shedlock.core.LockAssert;
 import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockingTaskExecutor;
+import org.jobrunr.jobs.states.StateName;
+import org.jobrunr.storage.StorageProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,24 +20,30 @@ public class MovieOutboxRecoverTask implements Runnable {
 
     private final MovieOutboxRecoverProperties properties;
     private final LockingTaskExecutor lockingTaskExecutor;
+    private final StorageProvider storageProvider;
     private final MovieOutboxScheduler movieOutboxScheduler;
 
     public MovieOutboxRecoverTask(MovieOutboxRecoverProperties properties,
-                                  LockingTaskExecutor lockingTaskExecutor,
+                                  LockingTaskExecutor lockingTaskExecutor, StorageProvider storageProvider,
                                   MovieOutboxScheduler movieOutboxScheduler) {
         this.properties = properties;
         this.lockingTaskExecutor = lockingTaskExecutor;
+        this.storageProvider = storageProvider;
         this.movieOutboxScheduler = movieOutboxScheduler;
     }
 
     @Override
     public void run() {
-        final var limit = properties.getLimit();
-        final var request = new MovieOutboxRecoverJobRequest(limit);
-        // TODO: check db exist b4 schedule
         try {
             lockingTaskExecutor.executeWithLock((Runnable) () -> {
                 LockAssert.assertLocked();
+                final var limit = properties.getLimit();
+                final var request = new MovieOutboxRecoverJobRequest(limit);
+                long failedJobs = storageProvider.countJobs(StateName.FAILED);
+                if (failedJobs == 0) {
+                    log.info("No failed jobs found");
+                    return;
+                }
                 var jobId = movieOutboxScheduler.schedule(request);
                 log.info("Scheduled recover job with id: {}", jobId);
             }, getLockConfiguration());
