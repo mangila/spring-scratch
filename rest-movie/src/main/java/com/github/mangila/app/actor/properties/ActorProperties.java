@@ -11,78 +11,84 @@ import java.util.List;
 @Validated
 public class ActorProperties {
 
-    public static final List<Destination> SUPPORTED_DESTINATIONS = List.of(Destination.KAFKA, Destination.HTTP);
+	public static final List<Destination> SUPPORTED_DESTINATIONS = List.of(Destination.KAFKA, Destination.HTTP);
 
-    private Outbox outbox = new Outbox();
+	private Outbox outbox = new Outbox();
 
-    public Outbox getOutbox() {
-        return outbox;
-    }
+	public Outbox getOutbox() {
+		return outbox;
+	}
 
-    public void setOutbox(Outbox outbox) {
-        this.outbox = outbox;
-    }
+	public void setOutbox(Outbox outbox) {
+		this.outbox = outbox;
+	}
 
-    public static class Outbox {
+	public static class Outbox {
 
-        private boolean enabled = false;
-        private List<Destination> destinations = new ArrayList<>();
-        private ActorOutboxMonitorProperties monitor = new ActorOutboxMonitorProperties();
-        private ActorOutboxRecoverProperties recover = new ActorOutboxRecoverProperties();
-        private ActorOutboxRelayProperties relay = new ActorOutboxRelayProperties();
-        private ActorOutboxPurgeProperties purge = new ActorOutboxPurgeProperties();
+		private boolean enabled = false;
 
-        public boolean isEnabled() {
-            return enabled;
-        }
+		private List<Destination> destinations = new ArrayList<>();
 
-        public void setEnabled(boolean enabled) {
-            this.enabled = enabled;
-        }
+		private ActorOutboxMonitorProperties monitor = new ActorOutboxMonitorProperties();
 
-        public List<Destination> getDestinations() {
-            return destinations;
-        }
+		private ActorOutboxRecoverProperties recover = new ActorOutboxRecoverProperties();
 
-        public void setDestinations(List<Destination> destinations) {
-            boolean retained = destinations.retainAll(SUPPORTED_DESTINATIONS);
-            if (retained) {
-                throw new IllegalArgumentException("Only " + SUPPORTED_DESTINATIONS + " are supported");
-            }
-            this.destinations = destinations;
-        }
+		private ActorOutboxRelayProperties relay = new ActorOutboxRelayProperties();
 
-        public ActorOutboxMonitorProperties getMonitor() {
-            return monitor;
-        }
+		private ActorOutboxPurgeProperties purge = new ActorOutboxPurgeProperties();
 
-        public void setMonitor(ActorOutboxMonitorProperties monitor) {
-            this.monitor = monitor;
-        }
+		public boolean isEnabled() {
+			return enabled;
+		}
 
-        public ActorOutboxRecoverProperties getRecover() {
-            return recover;
-        }
+		public void setEnabled(boolean enabled) {
+			this.enabled = enabled;
+		}
 
-        public void setRecover(ActorOutboxRecoverProperties recover) {
-            this.recover = recover;
-        }
+		public List<Destination> getDestinations() {
+			return destinations;
+		}
 
-        public ActorOutboxRelayProperties getRelay() {
-            return relay;
-        }
+		public void setDestinations(List<Destination> destinations) {
+			boolean retained = destinations.retainAll(SUPPORTED_DESTINATIONS);
+			if (retained) {
+				throw new IllegalArgumentException("Only " + SUPPORTED_DESTINATIONS + " are supported");
+			}
+			this.destinations = destinations;
+		}
 
-        public void setRelay(ActorOutboxRelayProperties relay) {
-            this.relay = relay;
-        }
+		public ActorOutboxMonitorProperties getMonitor() {
+			return monitor;
+		}
 
-        public ActorOutboxPurgeProperties getPurge() {
-            return purge;
-        }
+		public void setMonitor(ActorOutboxMonitorProperties monitor) {
+			this.monitor = monitor;
+		}
 
-        public void setPurge(ActorOutboxPurgeProperties purge) {
-            this.purge = purge;
-        }
-    }
+		public ActorOutboxRecoverProperties getRecover() {
+			return recover;
+		}
+
+		public void setRecover(ActorOutboxRecoverProperties recover) {
+			this.recover = recover;
+		}
+
+		public ActorOutboxRelayProperties getRelay() {
+			return relay;
+		}
+
+		public void setRelay(ActorOutboxRelayProperties relay) {
+			this.relay = relay;
+		}
+
+		public ActorOutboxPurgeProperties getPurge() {
+			return purge;
+		}
+
+		public void setPurge(ActorOutboxPurgeProperties purge) {
+			this.purge = purge;
+		}
+
+	}
 
 }

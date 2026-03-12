@@ -17,29 +17,33 @@ import java.util.UUID;
 @Component
 public class ActorOutboxRelayClaimStep {
 
-    private static final Logger log = new JobRunrDashboardLogger(
-            LoggerFactory.getLogger(ActorOutboxRelayClaimStep.class));
+	private static final Logger log = new JobRunrDashboardLogger(
+			LoggerFactory.getLogger(ActorOutboxRelayClaimStep.class));
 
-    private final ActorOutboxService actorOutboxService;
-    private final JsonMapper jsonMapper;
-    private final TransactionTemplate transactionTemplate;
+	private final ActorOutboxService actorOutboxService;
 
-    public ActorOutboxRelayClaimStep(ActorOutboxService actorOutboxService, JsonMapper jsonMapper, TransactionTemplate transactionTemplate) {
-        this.actorOutboxService = actorOutboxService;
-        this.jsonMapper = jsonMapper;
-        this.transactionTemplate = transactionTemplate;
-    }
+	private final JsonMapper jsonMapper;
 
-    @Retryable
-    public String execute(Status from, Status to, int limit) {
-        try {
-            List<UUID> outboxIds = transactionTemplate.execute(_ -> actorOutboxService.claimBatch(from, to, limit));
-            Objects.requireNonNull(outboxIds, "outboxIds returned null");
-            return jsonMapper.writeValueAsString(outboxIds);
-        } catch (Exception e) {
-            log.error("Error while claiming outbox batch: {}", e.getMessage(), e);
-            throw e;
-        }
-    }
+	private final TransactionTemplate transactionTemplate;
+
+	public ActorOutboxRelayClaimStep(ActorOutboxService actorOutboxService, JsonMapper jsonMapper,
+			TransactionTemplate transactionTemplate) {
+		this.actorOutboxService = actorOutboxService;
+		this.jsonMapper = jsonMapper;
+		this.transactionTemplate = transactionTemplate;
+	}
+
+	@Retryable
+	public String execute(Status from, Status to, int limit) {
+		try {
+			List<UUID> outboxIds = transactionTemplate.execute(_ -> actorOutboxService.claimBatch(from, to, limit));
+			Objects.requireNonNull(outboxIds, "outboxIds returned null");
+			return jsonMapper.writeValueAsString(outboxIds);
+		}
+		catch (Exception e) {
+			log.error("Error while claiming outbox batch: {}", e.getMessage(), e);
+			throw e;
+		}
+	}
 
 }

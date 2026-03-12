@@ -10,12 +10,13 @@ import java.util.UUID;
 @Repository
 public interface DirectorOutboxVersionJpaRepository extends BaseJpaRepository<DirectorOutboxVersionEntity, UUID> {
 
-    @Modifying
-    @Query("""
-            UPDATE director_outbox_version o
-            SET o.currentVersion = o.currentVersion + 1,
-                o.updatedAt = CURRENT_TIMESTAMP
-            WHERE o.aggregateId = :aggregateId
-            """)
-    void increment(UUID aggregateId);
+	@Modifying
+	@Query("""
+			UPDATE director_outbox_version o
+			SET o.currentVersion = o.currentVersion + 1,
+			    o.updatedAt = CURRENT_TIMESTAMP
+			WHERE o.aggregateId = :aggregateId
+			""")
+	void increment(UUID aggregateId);
+
 }

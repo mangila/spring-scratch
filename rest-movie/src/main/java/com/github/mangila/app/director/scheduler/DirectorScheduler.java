@@ -18,56 +18,59 @@ import org.springframework.stereotype.Service;
 @Service
 public class DirectorScheduler {
 
-    private static final Logger log = LoggerFactory.getLogger(DirectorScheduler.class);
+	private static final Logger log = LoggerFactory.getLogger(DirectorScheduler.class);
 
-    private final SimpleAsyncTaskScheduler taskScheduler;
-    private final StorageProvider storageProvider;
-    private final DirectorOutboxScheduler directorOutboxScheduler;
-    private final LockingTaskExecutor lockingTaskExecutor;
-    private final DirectorProperties directorProperties;
+	private final SimpleAsyncTaskScheduler taskScheduler;
 
-    public DirectorScheduler(SimpleAsyncTaskScheduler taskScheduler,
-                          StorageProvider storageProvider,
-                          DirectorProperties directorProperties,
-                          DirectorOutboxScheduler directorOutboxScheduler,
-                          LockingTaskExecutor lockingTaskExecutor) {
-        this.taskScheduler = taskScheduler;
-        this.storageProvider = storageProvider;
-        this.directorProperties = directorProperties;
-        this.directorOutboxScheduler = directorOutboxScheduler;
-        this.lockingTaskExecutor = lockingTaskExecutor;
-    }
+	private final StorageProvider storageProvider;
 
-    @PostConstruct
-    public void init() {
-        var outbox = directorProperties.getOutbox();
-        if (outbox.isEnabled()) {
-            log.info("Director Outbox is enabled");
-            if (outbox.getRelay().isEnabled()) {
-                log.info("Director Outbox relay is enabled");
-                final var props = directorProperties.getOutbox().getRelay();
-                final var task = new DirectorOutboxRelayTask(props, directorOutboxScheduler);
-                taskScheduler.schedule(task, new CronTrigger(props.getCron()));
-            }
-            if (outbox.getMonitor().isEnabled()) {
-                log.info("Director Outbox monitor is enabled");
-                final var props = directorProperties.getOutbox().getMonitor();
-                final var task = new DirectorOutboxMonitorTask(props, lockingTaskExecutor, directorOutboxScheduler);
-                taskScheduler.schedule(task, new CronTrigger(props.getCron()));
-            }
-            if (outbox.getRecover().isEnabled()) {
-                log.info("Director Outbox recover is enabled");
-                final var props = directorProperties.getOutbox().getRecover();
-                final var task = new DirectorOutboxRecoverTask(props, lockingTaskExecutor, storageProvider, directorOutboxScheduler);
-                taskScheduler.schedule(task, new CronTrigger(props.getCron()));
-            }
-            if (outbox.getPurge().isEnabled()) {
-                log.info("Director Outbox purge is enabled");
-                final var props = directorProperties.getOutbox().getPurge();
-                final var task = new DirectorOutboxPurgeTask(props, directorOutboxScheduler);
-                taskScheduler.schedule(task, new CronTrigger(props.getCron()));
-            }
-        }
-    }
+	private final DirectorOutboxScheduler directorOutboxScheduler;
+
+	private final LockingTaskExecutor lockingTaskExecutor;
+
+	private final DirectorProperties directorProperties;
+
+	public DirectorScheduler(SimpleAsyncTaskScheduler taskScheduler, StorageProvider storageProvider,
+			DirectorProperties directorProperties, DirectorOutboxScheduler directorOutboxScheduler,
+			LockingTaskExecutor lockingTaskExecutor) {
+		this.taskScheduler = taskScheduler;
+		this.storageProvider = storageProvider;
+		this.directorProperties = directorProperties;
+		this.directorOutboxScheduler = directorOutboxScheduler;
+		this.lockingTaskExecutor = lockingTaskExecutor;
+	}
+
+	@PostConstruct
+	public void init() {
+		var outbox = directorProperties.getOutbox();
+		if (outbox.isEnabled()) {
+			log.info("Director Outbox is enabled");
+			if (outbox.getRelay().isEnabled()) {
+				log.info("Director Outbox relay is enabled");
+				final var props = directorProperties.getOutbox().getRelay();
+				final var task = new DirectorOutboxRelayTask(props, directorOutboxScheduler);
+				taskScheduler.schedule(task, new CronTrigger(props.getCron()));
+			}
+			if (outbox.getMonitor().isEnabled()) {
+				log.info("Director Outbox monitor is enabled");
+				final var props = directorProperties.getOutbox().getMonitor();
+				final var task = new DirectorOutboxMonitorTask(props, lockingTaskExecutor, directorOutboxScheduler);
+				taskScheduler.schedule(task, new CronTrigger(props.getCron()));
+			}
+			if (outbox.getRecover().isEnabled()) {
+				log.info("Director Outbox recover is enabled");
+				final var props = directorProperties.getOutbox().getRecover();
+				final var task = new DirectorOutboxRecoverTask(props, lockingTaskExecutor, storageProvider,
+						directorOutboxScheduler);
+				taskScheduler.schedule(task, new CronTrigger(props.getCron()));
+			}
+			if (outbox.getPurge().isEnabled()) {
+				log.info("Director Outbox purge is enabled");
+				final var props = directorProperties.getOutbox().getPurge();
+				final var task = new DirectorOutboxPurgeTask(props, directorOutboxScheduler);
+				taskScheduler.schedule(task, new CronTrigger(props.getCron()));
+			}
+		}
+	}
 
 }

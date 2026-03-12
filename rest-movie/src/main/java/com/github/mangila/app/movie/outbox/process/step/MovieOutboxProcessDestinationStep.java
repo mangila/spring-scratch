@@ -16,30 +16,30 @@ import java.util.UUID;
 @Component
 public class MovieOutboxProcessDestinationStep {
 
-    private static final Logger log = new JobRunrDashboardLogger(
-            LoggerFactory.getLogger(MovieOutboxProcessDestinationStep.class));
+	private static final Logger log = new JobRunrDashboardLogger(
+			LoggerFactory.getLogger(MovieOutboxProcessDestinationStep.class));
 
-    private final TransactionTemplate transactionTemplate;
-    private final MovieOutboxDestinationService destinationService;
+	private final TransactionTemplate transactionTemplate;
 
-    public MovieOutboxProcessDestinationStep(TransactionTemplate transactionTemplate,
-                                             MovieOutboxDestinationService destinationService) {
-        this.transactionTemplate = transactionTemplate;
-        this.destinationService = destinationService;
-    }
+	private final MovieOutboxDestinationService destinationService;
 
-    @Retryable
-    public List<UUID> execute(UUID outboxId) {
-        try {
-            var destinationEntities = transactionTemplate.execute(_ -> destinationService.createDestinations(outboxId));
-            Objects.requireNonNull(destinationEntities, "destinationEntities returned null");
-            return destinationEntities.stream()
-                    .map(OutboxDestinationBaseEntity::getId)
-                    .toList();
-        } catch (Exception e) {
-            log.error("Error while creating destinations for outbox: {} - {}", outboxId, e.getMessage(), e);
-            throw e;
-        }
-    }
+	public MovieOutboxProcessDestinationStep(TransactionTemplate transactionTemplate,
+			MovieOutboxDestinationService destinationService) {
+		this.transactionTemplate = transactionTemplate;
+		this.destinationService = destinationService;
+	}
+
+	@Retryable
+	public List<UUID> execute(UUID outboxId) {
+		try {
+			var destinationEntities = transactionTemplate.execute(_ -> destinationService.createDestinations(outboxId));
+			Objects.requireNonNull(destinationEntities, "destinationEntities returned null");
+			return destinationEntities.stream().map(OutboxDestinationBaseEntity::getId).toList();
+		}
+		catch (Exception e) {
+			log.error("Error while creating destinations for outbox: {} - {}", outboxId, e.getMessage(), e);
+			throw e;
+		}
+	}
 
 }

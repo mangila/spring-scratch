@@ -16,47 +16,47 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class ActorKafkaDestinationJobHandler implements JobRequestHandler<ActorKafkaDestinationJobRequest> {
 
-    private static final Logger log = new JobRunrDashboardLogger(
-            LoggerFactory.getLogger(ActorKafkaDestinationJobHandler.class));
+	private static final Logger log = new JobRunrDashboardLogger(
+			LoggerFactory.getLogger(ActorKafkaDestinationJobHandler.class));
 
-    private final TransactionTemplate transactionTemplate;
+	private final TransactionTemplate transactionTemplate;
 
-    private final ActorOutboxDestinationService destinationService;
+	private final ActorOutboxDestinationService destinationService;
 
-    public ActorKafkaDestinationJobHandler(TransactionTemplate transactionTemplate,
-                                           ActorOutboxDestinationService destinationService) {
-        this.transactionTemplate = transactionTemplate;
-        this.destinationService = destinationService;
-    }
+	public ActorKafkaDestinationJobHandler(TransactionTemplate transactionTemplate,
+			ActorOutboxDestinationService destinationService) {
+		this.transactionTemplate = transactionTemplate;
+		this.destinationService = destinationService;
+	}
 
-    @Override
-    public void run(ActorKafkaDestinationJobRequest jobRequest) throws Exception {
-        final var context = ThreadLocalJobContext.getJobContext();
-        final var destinationId = jobRequest.destinationId();
-        final var destination = jobRequest.destination();
+	@Override
+	public void run(ActorKafkaDestinationJobRequest jobRequest) throws Exception {
+		final var context = ThreadLocalJobContext.getJobContext();
+		final var destinationId = jobRequest.destinationId();
+		final var destination = jobRequest.destination();
 
-        context.runStepOnce("process", () -> {
-            final var fromStatus = Status.CLAIMED;
-            final var toStatus = Status.PROCESSING;
-            transactionTemplate.executeWithoutResult(_ -> {
-                destinationService.updateStatus(destinationId, fromStatus, toStatus);
-            });
-            log.info("Changed status from: {} to: {}", fromStatus, toStatus);
-        });
+		context.runStepOnce("process", () -> {
+			final var fromStatus = Status.CLAIMED;
+			final var toStatus = Status.PROCESSING;
+			transactionTemplate.executeWithoutResult(_ -> {
+				destinationService.updateStatus(destinationId, fromStatus, toStatus);
+			});
+			log.info("Changed status from: {} to: {}", fromStatus, toStatus);
+		});
 
-        context.runStepOnce("send", () -> {
-            TimeUnit.SECONDS.sleep(ThreadLocalRandom.current().nextInt(1, 5));
-            log.info("Sent message to: {}", destination);
-        });
+		context.runStepOnce("send", () -> {
+			TimeUnit.SECONDS.sleep(ThreadLocalRandom.current().nextInt(1, 5));
+			log.info("Sent message to: {}", destination);
+		});
 
-        context.runStepOnce("success", () -> {
-            final var fromStatus = Status.PROCESSING;
-            final var toStatus = Status.SUCCESS;
-            transactionTemplate.executeWithoutResult(_ -> {
-                destinationService.updateStatus(destinationId, fromStatus, toStatus);
-            });
-            log.info("Changed status from: {} to: {}", fromStatus, toStatus);
-        });
-    }
+		context.runStepOnce("success", () -> {
+			final var fromStatus = Status.PROCESSING;
+			final var toStatus = Status.SUCCESS;
+			transactionTemplate.executeWithoutResult(_ -> {
+				destinationService.updateStatus(destinationId, fromStatus, toStatus);
+			});
+			log.info("Changed status from: {} to: {}", fromStatus, toStatus);
+		});
+	}
 
 }

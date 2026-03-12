@@ -8,23 +8,24 @@ import org.slf4j.LoggerFactory;
 
 public class MovieOutboxRelayTask implements Runnable {
 
-    private static final Logger log = LoggerFactory.getLogger(MovieOutboxRelayTask.class);
+	private static final Logger log = LoggerFactory.getLogger(MovieOutboxRelayTask.class);
 
-    private final MovieOutboxRelayProperties properties;
-    private final MovieOutboxScheduler movieOutboxScheduler;
+	private final MovieOutboxRelayProperties properties;
 
-    public MovieOutboxRelayTask(MovieOutboxRelayProperties properties,
-                                MovieOutboxScheduler movieOutboxScheduler) {
-        this.properties = properties;
-        this.movieOutboxScheduler = movieOutboxScheduler;
-    }
+	private final MovieOutboxScheduler movieOutboxScheduler;
 
-    @Override
-    public void run() {
-        final var limit = properties.getLimit();
-        final var request = new MovieOutboxRelayJobRequest(limit);
-        // TODO: check PENDING outbox exist b4 schedule
-        final var jobId = movieOutboxScheduler.schedule(request);
-        log.info("Scheduled relay job with id: {}", jobId);
-    }
+	public MovieOutboxRelayTask(MovieOutboxRelayProperties properties, MovieOutboxScheduler movieOutboxScheduler) {
+		this.properties = properties;
+		this.movieOutboxScheduler = movieOutboxScheduler;
+	}
+
+	@Override
+	public void run() {
+		final var limit = properties.getLimit();
+		final var request = new MovieOutboxRelayJobRequest(limit);
+		// TODO: check PENDING outbox exist b4 schedule
+		final var jobId = movieOutboxScheduler.schedule(request);
+		log.info("Scheduled relay job with id: {}", jobId);
+	}
+
 }

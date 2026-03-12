@@ -18,56 +18,57 @@ import java.util.List;
 @Component
 public class ActorOutboxRecoverJobHandler implements JobRequestHandler<ActorOutboxRecoverJobRequest> {
 
-    private static final Logger log = new JobRunrDashboardLogger(
-            LoggerFactory.getLogger(ActorOutboxRecoverJobHandler.class));
+	private static final Logger log = new JobRunrDashboardLogger(
+			LoggerFactory.getLogger(ActorOutboxRecoverJobHandler.class));
 
-    private final ActorOutboxRecoverRelayProcessor actorOutboxRecoverRelayProcessor;
-    private final ActorOutboxRecoverPurgeProcessor actorOutboxRecoverPurgeProcessor;
-    private final StorageProvider storageProvider;
+	private final ActorOutboxRecoverRelayProcessor actorOutboxRecoverRelayProcessor;
 
-    public ActorOutboxRecoverJobHandler(ActorOutboxRecoverRelayProcessor actorOutboxRecoverRelayProcessor,
-                                        ActorOutboxRecoverPurgeProcessor actorOutboxRecoverPurgeProcessor,
-                                        StorageProvider storageProvider) {
-        this.actorOutboxRecoverRelayProcessor = actorOutboxRecoverRelayProcessor;
-        this.actorOutboxRecoverPurgeProcessor = actorOutboxRecoverPurgeProcessor;
-        this.storageProvider = storageProvider;
-    }
+	private final ActorOutboxRecoverPurgeProcessor actorOutboxRecoverPurgeProcessor;
 
-    @Override
-    public void run(ActorOutboxRecoverJobRequest jobRequest) throws Exception {
-        final var context = ThreadLocalJobContext.getJobContext();
-        final var limit = jobRequest.limit();
+	private final StorageProvider storageProvider;
 
-        var jobs = storageProvider.getJobList(StateName.FAILED, new AmountRequest("", limit));
+	public ActorOutboxRecoverJobHandler(ActorOutboxRecoverRelayProcessor actorOutboxRecoverRelayProcessor,
+			ActorOutboxRecoverPurgeProcessor actorOutboxRecoverPurgeProcessor, StorageProvider storageProvider) {
+		this.actorOutboxRecoverRelayProcessor = actorOutboxRecoverRelayProcessor;
+		this.actorOutboxRecoverPurgeProcessor = actorOutboxRecoverPurgeProcessor;
+		this.storageProvider = storageProvider;
+	}
 
-        for (var job : jobs) {
-            log.info("Job: {}", job.getId());
+	@Override
+	public void run(ActorOutboxRecoverJobRequest jobRequest) throws Exception {
+		final var context = ThreadLocalJobContext.getJobContext();
+		final var limit = jobRequest.limit();
 
-            var labels = job.getLabels();
+		var jobs = storageProvider.getJobList(StateName.FAILED, new AmountRequest("", limit));
 
-            if (CollectionUtils.isNullOrEmpty(labels)) {
-                log.info("No labels found for job");
-                continue;
-            }
+		for (var job : jobs) {
+			log.info("Job: {}", job.getId());
 
-            var isDirectorDomain = matchLabel(labels, "director");
-            var isOutbox = matchLabel(labels, "outbox");
+			var labels = job.getLabels();
 
-            if (isDirectorDomain && isOutbox) {
-                var isRelay = matchLabel(labels, "relay");
-                if (isRelay) {
-                    actorOutboxRecoverRelayProcessor.process(job);
-                }
-                var isPurge = matchLabel(labels, "purge");
-                if (isPurge) {
-                    actorOutboxRecoverPurgeProcessor.process(job);
-                }
-            }
-        }
-    }
+			if (CollectionUtils.isNullOrEmpty(labels)) {
+				log.info("No labels found for job");
+				continue;
+			}
 
-    public static boolean matchLabel(List<String> labels, String label) {
-        return labels.stream()
-                .anyMatch(l -> l.equals(label));
-    }
+			var isActorDomain = matchLabel(labels, "actor");
+			var isOutbox = matchLabel(labels, "outbox");
+
+			if (isActorDomain && isOutbox) {
+				var isRelay = matchLabel(labels, "relay");
+				if (isRelay) {
+					actorOutboxRecoverRelayProcessor.process(job);
+				}
+				var isPurge = matchLabel(labels, "purge");
+				if (isPurge) {
+					actorOutboxRecoverPurgeProcessor.process(job);
+				}
+			}
+		}
+	}
+
+	public static boolean matchLabel(List<String> labels, String label) {
+		return labels.stream().anyMatch(l -> l.equals(label));
+	}
+
 }

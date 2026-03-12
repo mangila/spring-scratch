@@ -12,24 +12,25 @@ import java.util.UUID;
 @Service
 public class MovieOutboxVersionService {
 
-    private final MovieOutboxVersionJdbcRepository jdbc;
+	private final MovieOutboxVersionJdbcRepository jdbc;
 
-    private final MovieOutboxVersionJpaRepository jpa;
+	private final MovieOutboxVersionJpaRepository jpa;
 
-    public MovieOutboxVersionService(MovieOutboxVersionJdbcRepository movieOutboxVersionJdbcRepository,
-                                     MovieOutboxVersionJpaRepository movieOutboxVersionJpaRepository) {
-        this.jdbc = movieOutboxVersionJdbcRepository;
-        this.jpa = movieOutboxVersionJpaRepository;
-    }
+	public MovieOutboxVersionService(MovieOutboxVersionJdbcRepository movieOutboxVersionJdbcRepository,
+			MovieOutboxVersionJpaRepository movieOutboxVersionJpaRepository) {
+		this.jdbc = movieOutboxVersionJdbcRepository;
+		this.jpa = movieOutboxVersionJpaRepository;
+	}
 
-    @Chaos
-    public boolean canProcess(UUID aggregateId, int version) {
-        return jdbc.canProcess(aggregateId, version);
-    }
+	@Chaos
+	public boolean canProcess(UUID aggregateId, int version) {
+		return jdbc.canProcess(aggregateId, version);
+	}
 
-    @Chaos
-    @Transactional(propagation = Propagation.MANDATORY)
-    public void increment(UUID aggregateId) {
-        jpa.increment(aggregateId);
-    }
+	@Chaos
+	@Transactional(propagation = Propagation.MANDATORY)
+	public void increment(UUID aggregateId) {
+		jpa.increment(aggregateId);
+	}
+
 }

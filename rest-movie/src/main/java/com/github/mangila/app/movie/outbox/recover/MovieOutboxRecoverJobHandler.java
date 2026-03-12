@@ -18,56 +18,57 @@ import java.util.List;
 @Component
 public class MovieOutboxRecoverJobHandler implements JobRequestHandler<MovieOutboxRecoverJobRequest> {
 
-    private static final Logger log = new JobRunrDashboardLogger(
-            LoggerFactory.getLogger(MovieOutboxRecoverJobHandler.class));
+	private static final Logger log = new JobRunrDashboardLogger(
+			LoggerFactory.getLogger(MovieOutboxRecoverJobHandler.class));
 
-    private final MovieOutboxRecoverRelayProcessor movieOutboxRecoverRelayProcessor;
-    private final MovieOutboxRecoverPurgeProcessor movieOutboxRecoverPurgeProcessor;
-    private final StorageProvider storageProvider;
+	private final MovieOutboxRecoverRelayProcessor movieOutboxRecoverRelayProcessor;
 
-    public MovieOutboxRecoverJobHandler(MovieOutboxRecoverRelayProcessor movieOutboxRecoverRelayProcessor,
-                                        MovieOutboxRecoverPurgeProcessor movieOutboxRecoverPurgeProcessor,
-                                        StorageProvider storageProvider) {
-        this.movieOutboxRecoverRelayProcessor = movieOutboxRecoverRelayProcessor;
-        this.movieOutboxRecoverPurgeProcessor = movieOutboxRecoverPurgeProcessor;
-        this.storageProvider = storageProvider;
-    }
+	private final MovieOutboxRecoverPurgeProcessor movieOutboxRecoverPurgeProcessor;
 
-    @Override
-    public void run(MovieOutboxRecoverJobRequest jobRequest) throws Exception {
-        final var context = ThreadLocalJobContext.getJobContext();
-        final var limit = jobRequest.limit();
+	private final StorageProvider storageProvider;
 
-        var jobs = storageProvider.getJobList(StateName.FAILED, new AmountRequest("", limit));
+	public MovieOutboxRecoverJobHandler(MovieOutboxRecoverRelayProcessor movieOutboxRecoverRelayProcessor,
+			MovieOutboxRecoverPurgeProcessor movieOutboxRecoverPurgeProcessor, StorageProvider storageProvider) {
+		this.movieOutboxRecoverRelayProcessor = movieOutboxRecoverRelayProcessor;
+		this.movieOutboxRecoverPurgeProcessor = movieOutboxRecoverPurgeProcessor;
+		this.storageProvider = storageProvider;
+	}
 
-        for (var job : jobs) {
-            log.info("Job: {}", job.getId());
+	@Override
+	public void run(MovieOutboxRecoverJobRequest jobRequest) throws Exception {
+		final var context = ThreadLocalJobContext.getJobContext();
+		final var limit = jobRequest.limit();
 
-            var labels = job.getLabels();
+		var jobs = storageProvider.getJobList(StateName.FAILED, new AmountRequest("", limit));
 
-            if (CollectionUtils.isNullOrEmpty(labels)) {
-                log.info("No labels found for job");
-                continue;
-            }
+		for (var job : jobs) {
+			log.info("Job: {}", job.getId());
 
-            var isMovieDomain = matchLabel(labels, "movie");
-            var isOutbox = matchLabel(labels, "outbox");
+			var labels = job.getLabels();
 
-            if (isMovieDomain && isOutbox) {
-                var isRelay = matchLabel(labels, "relay");
-                if (isRelay) {
-                    movieOutboxRecoverRelayProcessor.process(job);
-                }
-                var isPurge = matchLabel(labels, "purge");
-                if (isPurge) {
-                    movieOutboxRecoverPurgeProcessor.process(job);
-                }
-            }
-        }
-    }
+			if (CollectionUtils.isNullOrEmpty(labels)) {
+				log.info("No labels found for job");
+				continue;
+			}
 
-    public static boolean matchLabel(List<String> labels, String label) {
-        return labels.stream()
-                .anyMatch(l -> l.equals(label));
-    }
+			var isMovieDomain = matchLabel(labels, "movie");
+			var isOutbox = matchLabel(labels, "outbox");
+
+			if (isMovieDomain && isOutbox) {
+				var isRelay = matchLabel(labels, "relay");
+				if (isRelay) {
+					movieOutboxRecoverRelayProcessor.process(job);
+				}
+				var isPurge = matchLabel(labels, "purge");
+				if (isPurge) {
+					movieOutboxRecoverPurgeProcessor.process(job);
+				}
+			}
+		}
+	}
+
+	public static boolean matchLabel(List<String> labels, String label) {
+		return labels.stream().anyMatch(l -> l.equals(label));
+	}
+
 }

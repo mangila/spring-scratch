@@ -15,7 +15,7 @@ import java.nio.charset.StandardCharsets;
 @Route("")
 public class HomeView extends VerticalLayout {
 
-	public HomeView(@Value("markdown/hej.md") ClassPathResource resource) throws IOException {
+	public HomeView(@Value("markdown/greeting.md") ClassPathResource resource) throws IOException {
 		var md = new Markdown(resource.getContentAsString(StandardCharsets.UTF_8));
 		add(md);
 	}

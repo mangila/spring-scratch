@@ -12,40 +12,41 @@ import java.util.UUID;
 @Repository
 public class ActorOutboxDestinationJdbcRepository {
 
-    private final JdbcClient jdbcClient;
+	private final JdbcClient jdbcClient;
 
-    public ActorOutboxDestinationJdbcRepository(JdbcClient jdbcClient) {
-        this.jdbcClient = jdbcClient;
-    }
+	public ActorOutboxDestinationJdbcRepository(JdbcClient jdbcClient) {
+		this.jdbcClient = jdbcClient;
+	}
 
-    public List<OutboxDestinationProjection> claimBatch(UUID outboxId, Status from, Status to) {
-        @Language("PostgreSQL")
-        String sql = """
-                WITH claim_batch AS (
-                	SELECT id
-                	FROM actor_outbox_destination
-                	WHERE
-                	    outbox_id = :outboxId
-                	    AND
-                	    status = CAST(:from AS status)
-                	ORDER BY created_at
-                	FOR UPDATE SKIP LOCKED
-                )
-                UPDATE actor_outbox_destination
-                SET status = CAST(:to AS status),
-                    updated_at = transaction_timestamp()
-                FROM claim_batch
-                WHERE actor_outbox_destination.id = claim_batch.id
-                RETURNING actor_outbox_destination.id, actor_outbox_destination.outbox_id,
-                    actor_outbox_destination.destination,
-                    actor_outbox_destination.status
-                """;
+	public List<OutboxDestinationProjection> claimBatch(UUID outboxId, Status from, Status to) {
+		@Language("PostgreSQL")
+		String sql = """
+				WITH claim_batch AS (
+					SELECT id
+					FROM actor_outbox_destination
+					WHERE
+					    outbox_id = :outboxId
+					    AND
+					    status = CAST(:from AS status)
+					ORDER BY created_at
+					FOR UPDATE SKIP LOCKED
+				)
+				UPDATE actor_outbox_destination
+				SET status = CAST(:to AS status),
+				    updated_at = transaction_timestamp()
+				FROM claim_batch
+				WHERE actor_outbox_destination.id = claim_batch.id
+				RETURNING actor_outbox_destination.id, actor_outbox_destination.outbox_id,
+				    actor_outbox_destination.destination,
+				    actor_outbox_destination.status
+				""";
 
-        return jdbcClient.sql(sql)
-                .param("outboxId", outboxId)
-                .param("to", to.toString())
-                .param("from", from.toString())
-                .query(OutboxDestinationProjection.class)
-                .list();
-    }
+		return jdbcClient.sql(sql)
+			.param("outboxId", outboxId)
+			.param("to", to.toString())
+			.param("from", from.toString())
+			.query(OutboxDestinationProjection.class)
+			.list();
+	}
+
 }

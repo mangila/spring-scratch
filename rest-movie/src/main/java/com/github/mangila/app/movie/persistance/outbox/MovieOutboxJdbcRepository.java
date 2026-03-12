@@ -14,58 +14,58 @@ import java.util.UUID;
 @Repository
 public class MovieOutboxJdbcRepository {
 
-    private final JdbcClient jdbcClient;
+	private final JdbcClient jdbcClient;
 
-    public MovieOutboxJdbcRepository(JdbcClient jdbcClient) {
-        this.jdbcClient = jdbcClient;
-    }
+	public MovieOutboxJdbcRepository(JdbcClient jdbcClient) {
+		this.jdbcClient = jdbcClient;
+	}
 
-    public List<UUID> claimBatch(Status from, Status to, @Positive int limit) {
-        final var context = ThreadLocalJobContext.getJobContext();
-        @Language("PostgreSQL")
-        String sql = """
-                WITH claim_batch AS (
-                	SELECT id
-                	FROM movie_outbox
-                	WHERE status = CAST(:from AS status)
-                	ORDER BY created_at
-                	LIMIT :limit
-                	FOR UPDATE SKIP LOCKED
-                )
-                UPDATE movie_outbox
-                SET status = CAST(:to AS status),
-                    updated_at = transaction_timestamp(),
-                    modified_by = :modifiedBy
-                FROM claim_batch
-                WHERE movie_outbox.id = claim_batch.id
-                RETURNING movie_outbox.id
-                """;
+	public List<UUID> claimBatch(Status from, Status to, @Positive int limit) {
+		final var context = ThreadLocalJobContext.getJobContext();
+		@Language("PostgreSQL")
+		String sql = """
+				WITH claim_batch AS (
+					SELECT id
+					FROM movie_outbox
+					WHERE status = CAST(:from AS status)
+					ORDER BY created_at
+					LIMIT :limit
+					FOR UPDATE SKIP LOCKED
+				)
+				UPDATE movie_outbox
+				SET status = CAST(:to AS status),
+				    updated_at = transaction_timestamp(),
+				    modified_by = :modifiedBy
+				FROM claim_batch
+				WHERE movie_outbox.id = claim_batch.id
+				RETURNING movie_outbox.id
+				""";
 
-        return jdbcClient.sql(sql)
-                .param("to", to.toString())
-                .param("from", from.toString())
-                .param("modifiedBy", context.getJobId())
-                .param("limit", limit)
-                .query(UUID.class)
-                .list();
-    }
+		return jdbcClient.sql(sql)
+			.param("to", to.toString())
+			.param("from", from.toString())
+			.param("modifiedBy", context.getJobId())
+			.param("limit", limit)
+			.query(UUID.class)
+			.list();
+	}
 
-    public List<OutboxProjection> findAllByStatusSkipLocked(Status status, int limit) {
-        @Language("PostgreSQL")
-        String sql = """
-                SELECT id, history_id, aggregate_id, aggregate_version, status
-                FROM movie_outbox
-                WHERE status = CAST(:status AS status)
-                ORDER BY created_at
-                LIMIT :limit
-                FOR UPDATE SKIP LOCKED
-                """;
-        return jdbcClient.sql(sql)
-                .withFetchSize(256)
-                .param("status", status.toString())
-                .param("limit", limit)
-                .query(OutboxProjection.class)
-                .list();
-    }
+	public List<OutboxProjection> findAllByStatusSkipLocked(Status status, int limit) {
+		@Language("PostgreSQL")
+		String sql = """
+				SELECT id, history_id, aggregate_id, aggregate_version, status
+				FROM movie_outbox
+				WHERE status = CAST(:status AS status)
+				ORDER BY created_at
+				LIMIT :limit
+				FOR UPDATE SKIP LOCKED
+				""";
+		return jdbcClient.sql(sql)
+			.withFetchSize(256)
+			.param("status", status.toString())
+			.param("limit", limit)
+			.query(OutboxProjection.class)
+			.list();
+	}
 
 }

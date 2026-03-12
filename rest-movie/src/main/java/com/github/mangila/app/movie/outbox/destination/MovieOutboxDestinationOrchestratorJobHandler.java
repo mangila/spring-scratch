@@ -17,64 +17,67 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 @Component
-public class MovieOutboxDestinationOrchestratorJobHandler implements JobRequestHandler<MovieOutboxDestinationOrchestratorJobRequest> {
+public class MovieOutboxDestinationOrchestratorJobHandler
+		implements JobRequestHandler<MovieOutboxDestinationOrchestratorJobRequest> {
 
-    private static final Logger log = new JobRunrDashboardLogger(
-            LoggerFactory.getLogger(MovieOutboxDestinationOrchestratorJobHandler.class));
+	private static final Logger log = new JobRunrDashboardLogger(
+			LoggerFactory.getLogger(MovieOutboxDestinationOrchestratorJobHandler.class));
 
-    private final JsonMapper jsonMapper;
-    private final MovieOutboxDestinationOrchestratorClaimStep movieOutboxDestinationOrchestratorClaimStep;
-    private final MovieOutboxDestinationOrchestratorScheduleStep movieOutboxDestinationOrchestratorScheduleStep;
+	private final JsonMapper jsonMapper;
 
-    public MovieOutboxDestinationOrchestratorJobHandler(JsonMapper jsonMapper,
-                                                        MovieOutboxDestinationOrchestratorClaimStep movieOutboxDestinationOrchestratorClaimStep,
-                                                        MovieOutboxDestinationOrchestratorScheduleStep movieOutboxDestinationOrchestratorScheduleStep) {
-        this.jsonMapper = jsonMapper;
-        this.movieOutboxDestinationOrchestratorClaimStep = movieOutboxDestinationOrchestratorClaimStep;
-        this.movieOutboxDestinationOrchestratorScheduleStep = movieOutboxDestinationOrchestratorScheduleStep;
-    }
+	private final MovieOutboxDestinationOrchestratorClaimStep movieOutboxDestinationOrchestratorClaimStep;
 
-    @Override
-    public void run(MovieOutboxDestinationOrchestratorJobRequest jobRequest) throws Exception {
-        final var context = ThreadLocalJobContext.getJobContext();
-        final var outboxId = jobRequest.outboxId();
+	private final MovieOutboxDestinationOrchestratorScheduleStep movieOutboxDestinationOrchestratorScheduleStep;
 
-        String destinationProjections = context.runStepOnce("claim", () -> {
-            final var fromStatus = Status.PENDING;
-            final var toStatus = Status.CLAIMED;
-            return movieOutboxDestinationOrchestratorClaimStep.execute(outboxId, fromStatus, toStatus);
-        });
+	public MovieOutboxDestinationOrchestratorJobHandler(JsonMapper jsonMapper,
+			MovieOutboxDestinationOrchestratorClaimStep movieOutboxDestinationOrchestratorClaimStep,
+			MovieOutboxDestinationOrchestratorScheduleStep movieOutboxDestinationOrchestratorScheduleStep) {
+		this.jsonMapper = jsonMapper;
+		this.movieOutboxDestinationOrchestratorClaimStep = movieOutboxDestinationOrchestratorClaimStep;
+		this.movieOutboxDestinationOrchestratorScheduleStep = movieOutboxDestinationOrchestratorScheduleStep;
+	}
 
-        var destinations = jsonMapper.readValue(destinationProjections, OutboxDestinationProjection[].class);
+	@Override
+	public void run(MovieOutboxDestinationOrchestratorJobRequest jobRequest) throws Exception {
+		final var context = ThreadLocalJobContext.getJobContext();
+		final var outboxId = jobRequest.outboxId();
 
-        if (CollectionUtils.isNullOrEmpty(destinations)) {
-            log.info("No destinations found for outbox: {}", outboxId);
-            return;
-        }
+		String destinationProjections = context.runStepOnce("claim", () -> {
+			final var fromStatus = Status.PENDING;
+			final var toStatus = Status.CLAIMED;
+			return movieOutboxDestinationOrchestratorClaimStep.execute(outboxId, fromStatus, toStatus);
+		});
 
-        log.info("Scheduling {} destinations for outbox: {}", destinations.length, outboxId);
-        var errors = new ArrayList<UUID>(destinations.length);
-        for (var outboxDestination : destinations) {
-            final var destinationId = outboxDestination.id();
-            final var destination = outboxDestination.destination();
-            try {
-                context.runStepOnce("schedule:" + destination.toString(), () -> {
-                    var jobId = movieOutboxDestinationOrchestratorScheduleStep.execute(outboxDestination);
-                    log.info("outbox id: {} scheduled destination id: {} send to: {} jobId: {}", outboxId, destinationId, destination, jobId);
-                });
-            } catch (Exception e) {
-                log.error("Error scheduling destination id: {} - {}", destinationId, e.getMessage(), e);
-                errors.add(destinationId);
-            }
-        }
+		var destinations = jsonMapper.readValue(destinationProjections, OutboxDestinationProjection[].class);
 
-        if (CollectionUtils.isNotNullOrEmpty(errors)) {
-            var errorString = String.join(",", errors.stream()
-                    .map(UUID::toString)
-                    .toList());
-            context.saveMetadata("errors", errorString);
-            throw new IllegalStateException("Failed to schedule destinations: %s".formatted(errorString));
-        }
-    }
+		if (CollectionUtils.isNullOrEmpty(destinations)) {
+			log.info("No destinations found for outbox: {}", outboxId);
+			return;
+		}
+
+		log.info("Scheduling {} destinations for outbox: {}", destinations.length, outboxId);
+		var errors = new ArrayList<UUID>(destinations.length);
+		for (var outboxDestination : destinations) {
+			final var destinationId = outboxDestination.id();
+			final var destination = outboxDestination.destination();
+			try {
+				context.runStepOnce("schedule:" + destination.toString(), () -> {
+					var jobId = movieOutboxDestinationOrchestratorScheduleStep.execute(outboxDestination);
+					log.info("outbox id: {} scheduled destination id: {} send to: {} jobId: {}", outboxId,
+							destinationId, destination, jobId);
+				});
+			}
+			catch (Exception e) {
+				log.error("Error scheduling destination id: {} - {}", destinationId, e.getMessage(), e);
+				errors.add(destinationId);
+			}
+		}
+
+		if (CollectionUtils.isNotNullOrEmpty(errors)) {
+			var errorString = String.join(",", errors.stream().map(UUID::toString).toList());
+			context.saveMetadata("errors", errorString);
+			throw new IllegalStateException("Failed to schedule destinations: %s".formatted(errorString));
+		}
+	}
 
 }

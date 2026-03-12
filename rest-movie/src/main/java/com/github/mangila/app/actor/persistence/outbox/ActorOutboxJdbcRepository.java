@@ -42,12 +42,12 @@ public class ActorOutboxJdbcRepository {
 				""";
 
 		return jdbcClient.sql(sql)
-				.param("to", to.toString())
-				.param("from", from.toString())
-				.param("modifiedBy", context.getJobId())
-				.param("limit", limit)
-				.query(UUID.class)
-				.list();
+			.param("to", to.toString())
+			.param("from", from.toString())
+			.param("modifiedBy", context.getJobId())
+			.param("limit", limit)
+			.query(UUID.class)
+			.list();
 	}
 
 	public List<OutboxProjection> findAllByStatusSkipLocked(Status status, int limit) {
@@ -61,11 +61,11 @@ public class ActorOutboxJdbcRepository {
 				FOR UPDATE SKIP LOCKED
 				""";
 		return jdbcClient.sql(sql)
-				.withFetchSize(256)
-				.param("status", status.toString())
-				.param("limit", limit)
-				.query(OutboxProjection.class)
-				.list();
+			.withFetchSize(256)
+			.param("status", status.toString())
+			.param("limit", limit)
+			.query(OutboxProjection.class)
+			.list();
 	}
 
 }

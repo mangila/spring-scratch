@@ -16,50 +16,52 @@ import java.time.Instant;
 
 public class DirectorOutboxRecoverTask implements Runnable {
 
-    private static final Logger log = LoggerFactory.getLogger(DirectorOutboxRecoverTask.class);
+	private static final Logger log = LoggerFactory.getLogger(DirectorOutboxRecoverTask.class);
 
-    private final DirectorOutboxRecoverProperties properties;
-    private final LockingTaskExecutor lockingTaskExecutor;
-    private final StorageProvider storageProvider;
-    private final DirectorOutboxScheduler directorOutboxScheduler;
+	private final DirectorOutboxRecoverProperties properties;
 
-    public DirectorOutboxRecoverTask(DirectorOutboxRecoverProperties properties,
-                                  LockingTaskExecutor lockingTaskExecutor, StorageProvider storageProvider,
-                                  DirectorOutboxScheduler directorOutboxScheduler) {
-        this.properties = properties;
-        this.lockingTaskExecutor = lockingTaskExecutor;
-        this.storageProvider = storageProvider;
-        this.directorOutboxScheduler = directorOutboxScheduler;
-    }
+	private final LockingTaskExecutor lockingTaskExecutor;
 
-    @Override
-    public void run() {
-        try {
-            lockingTaskExecutor.executeWithLock((Runnable) () -> {
-                LockAssert.assertLocked();
-                final var limit = properties.getLimit();
-                final var request = new DirectorOutboxRecoverJobRequest(limit);
-                long failedJobs = storageProvider.countJobs(StateName.FAILED);
-                if (failedJobs == 0) {
-                    log.info("No failed jobs found");
-                    return;
-                }
-                var jobId = directorOutboxScheduler.schedule(request);
-                log.info("Scheduled recover job with id: {}", jobId);
-            }, getLockConfiguration());
-        } catch (Throwable e) {
-            throw new RuntimeException(e);
-        }
-    }
+	private final StorageProvider storageProvider;
 
-    private LockConfiguration getLockConfiguration() {
-        final var createdAt = Instant.now();
-        final var lockName = "director-recover";
-        final var lockAtMostFor = Duration.ofMinutes(3);
-        final var lockAtLeastFor = Duration.ofMinutes(3);
-        return new LockConfiguration(createdAt,
-                lockName,
-                lockAtMostFor,
-                lockAtLeastFor);
-    }
+	private final DirectorOutboxScheduler directorOutboxScheduler;
+
+	public DirectorOutboxRecoverTask(DirectorOutboxRecoverProperties properties,
+			LockingTaskExecutor lockingTaskExecutor, StorageProvider storageProvider,
+			DirectorOutboxScheduler directorOutboxScheduler) {
+		this.properties = properties;
+		this.lockingTaskExecutor = lockingTaskExecutor;
+		this.storageProvider = storageProvider;
+		this.directorOutboxScheduler = directorOutboxScheduler;
+	}
+
+	@Override
+	public void run() {
+		try {
+			lockingTaskExecutor.executeWithLock((Runnable) () -> {
+				LockAssert.assertLocked();
+				final var limit = properties.getLimit();
+				final var request = new DirectorOutboxRecoverJobRequest(limit);
+				long failedJobs = storageProvider.countJobs(StateName.FAILED);
+				if (failedJobs == 0) {
+					log.info("No failed jobs found");
+					return;
+				}
+				var jobId = directorOutboxScheduler.schedule(request);
+				log.info("Scheduled recover job with id: {}", jobId);
+			}, getLockConfiguration());
+		}
+		catch (Throwable e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private LockConfiguration getLockConfiguration() {
+		final var createdAt = Instant.now();
+		final var lockName = "director-recover";
+		final var lockAtMostFor = Duration.ofMinutes(3);
+		final var lockAtLeastFor = Duration.ofMinutes(3);
+		return new LockConfiguration(createdAt, lockName, lockAtMostFor, lockAtLeastFor);
+	}
+
 }

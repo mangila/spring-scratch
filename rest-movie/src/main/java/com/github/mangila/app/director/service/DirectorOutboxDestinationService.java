@@ -24,59 +24,62 @@ import java.util.UUID;
 @Validated
 public class DirectorOutboxDestinationService {
 
-    private final DirectorOutboxDestinationJdbcRepository jdbc;
+	private final DirectorOutboxDestinationJdbcRepository jdbc;
 
-    private final DirectorOutboxDestinationJpaRepository jpa;
+	private final DirectorOutboxDestinationJpaRepository jpa;
 
-    private final DirectorProperties directorProperties;
+	private final DirectorProperties directorProperties;
 
-    public DirectorOutboxDestinationService(DirectorOutboxDestinationJdbcRepository directorOutboxDestinationJdbcRepository,
-                                            DirectorOutboxDestinationJpaRepository directorOutboxDestinationJpaRepository, DirectorProperties directorProperties) {
-        this.jdbc = directorOutboxDestinationJdbcRepository;
-        this.jpa = directorOutboxDestinationJpaRepository;
-        this.directorProperties = directorProperties;
-    }
+	public DirectorOutboxDestinationService(
+			DirectorOutboxDestinationJdbcRepository directorOutboxDestinationJdbcRepository,
+			DirectorOutboxDestinationJpaRepository directorOutboxDestinationJpaRepository,
+			DirectorProperties directorProperties) {
+		this.jdbc = directorOutboxDestinationJdbcRepository;
+		this.jpa = directorOutboxDestinationJpaRepository;
+		this.directorProperties = directorProperties;
+	}
 
-    @Chaos
-    @Transactional(propagation = Propagation.MANDATORY)
-    public List<DirectorOutboxDestinationEntity> createDestinations(@NotNull UUID id) {
-        var destinations = directorProperties.getOutbox()
-                .getDestinations()
-                .stream()
-                .map(destination -> new DirectorOutboxDestinationEntity(id, destination, Status.PENDING))
-                .toList();
-        return jpa.persistAll(destinations);
-    }
+	@Chaos
+	@Transactional(propagation = Propagation.MANDATORY)
+	public List<DirectorOutboxDestinationEntity> createDestinations(@NotNull UUID id) {
+		var destinations = directorProperties.getOutbox()
+			.getDestinations()
+			.stream()
+			.map(destination -> new DirectorOutboxDestinationEntity(id, destination, Status.PENDING))
+			.toList();
+		return jpa.persistAll(destinations);
+	}
 
-    @Chaos
-    public boolean updateStatus(UUID destinationId, Status from, Status to) {
-        int result = jpa.changeStatus(destinationId, from, to);
-        return result > 0;
-    }
+	@Chaos
+	public boolean updateStatus(UUID destinationId, Status from, Status to) {
+		int result = jpa.changeStatus(destinationId, from, to);
+		return result > 0;
+	}
 
-    @Chaos
-    public List<OutboxDestinationProjection> findAllByOutboxIdAndStatus(UUID outboxId, Status status) {
-        return jpa.findAllByOutboxIdAndStatus(outboxId, status, OutboxDestinationProjection.class);
-    }
+	@Chaos
+	public List<OutboxDestinationProjection> findAllByOutboxIdAndStatus(UUID outboxId, Status status) {
+		return jpa.findAllByOutboxIdAndStatus(outboxId, status, OutboxDestinationProjection.class);
+	}
 
-    @Chaos
-    public List<DirectorOutboxDestinationEntity> findAllByStatus(Status status, @Positive int limit) {
-        var sort = Sort.by(Sort.Direction.ASC, "updated_at", "created_at");
-        return jpa.findAllByStatus(status, Limit.of(limit), sort);
-    }
+	@Chaos
+	public List<DirectorOutboxDestinationEntity> findAllByStatus(Status status, @Positive int limit) {
+		var sort = Sort.by(Sort.Direction.ASC, "updated_at", "created_at");
+		return jpa.findAllByStatus(status, Limit.of(limit), sort);
+	}
 
-    @Chaos
-    public void deleteAllById(ArrayList<UUID> destinationsIds) {
-        jpa.deleteAllByIdInBatch(destinationsIds);
-    }
+	@Chaos
+	public void deleteAllById(ArrayList<UUID> destinationsIds) {
+		jpa.deleteAllByIdInBatch(destinationsIds);
+	}
 
-    @Chaos
-    public List<OutboxDestinationProjection> findAllByOutboxId(UUID outboxId) {
-        return jpa.findAllByOutboxId(outboxId, OutboxDestinationProjection.class);
-    }
+	@Chaos
+	public List<OutboxDestinationProjection> findAllByOutboxId(UUID outboxId) {
+		return jpa.findAllByOutboxId(outboxId, OutboxDestinationProjection.class);
+	}
 
-    @Chaos
-    public List<OutboxDestinationProjection> claimBatch(UUID outboxId, Status from, Status to) {
-        return jdbc.claimBatch(outboxId, from, to);
-    }
+	@Chaos
+	public List<OutboxDestinationProjection> claimBatch(UUID outboxId, Status from, Status to) {
+		return jdbc.claimBatch(outboxId, from, to);
+	}
+
 }

@@ -14,19 +14,20 @@ import java.util.UUID;
 @Repository
 public interface MovieOutboxDestinationJpaRepository extends BaseJpaRepository<MovieOutboxDestinationEntity, UUID> {
 
-    <T> List<T> findAllByOutboxIdAndStatus(UUID outboxId, Status status, Class<T> type);
+	<T> List<T> findAllByOutboxIdAndStatus(UUID outboxId, Status status, Class<T> type);
 
-    @Modifying
-    @Query("""
-            UPDATE movie_outbox_destination d
-            SET d.status = :to,
-                d.updatedAt = CURRENT_TIMESTAMP
-            WHERE d.id = :outboxId
-            AND d.status = :from
-            """)
-    int changeStatus(UUID outboxId, Status from, Status to);
+	@Modifying
+	@Query("""
+			UPDATE movie_outbox_destination d
+			SET d.status = :to,
+			    d.updatedAt = CURRENT_TIMESTAMP
+			WHERE d.id = :outboxId
+			AND d.status = :from
+			""")
+	int changeStatus(UUID outboxId, Status from, Status to);
 
-    List<MovieOutboxDestinationEntity> findAllByStatus(Status status, Limit limit, Sort sort);
+	List<MovieOutboxDestinationEntity> findAllByStatus(Status status, Limit limit, Sort sort);
 
-    <T> List<T> findAllByOutboxId(UUID outboxId, Class<T> type);
+	<T> List<T> findAllByOutboxId(UUID outboxId, Class<T> type);
+
 }

@@ -10,11 +10,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class ActorOutboxRecoverPurgeProcessor {
 
-    private static final Logger log = new JobRunrDashboardLogger(
-            LoggerFactory.getLogger(ActorOutboxRecoverPurgeProcessor.class));
+	private static final Logger log = new JobRunrDashboardLogger(
+			LoggerFactory.getLogger(ActorOutboxRecoverPurgeProcessor.class));
 
-    @Retryable
-    public void process(Job job) {
-        log.info("Job has errors: {}", job.getMetadata().get("errors"));
-    }
+	@Retryable
+	public void process(Job job) {
+		log.info("Job has errors: {}", job.getMetadata().get("errors"));
+	}
+
 }

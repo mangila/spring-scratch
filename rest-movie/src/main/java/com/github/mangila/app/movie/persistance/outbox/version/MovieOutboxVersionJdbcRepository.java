@@ -9,26 +9,28 @@ import java.util.UUID;
 @Repository
 public class MovieOutboxVersionJdbcRepository {
 
-    private final JdbcClient jdbcClient;
+	private final JdbcClient jdbcClient;
 
-    public MovieOutboxVersionJdbcRepository(JdbcClient jdbcClient) {
-        this.jdbcClient = jdbcClient;
-    }
+	public MovieOutboxVersionJdbcRepository(JdbcClient jdbcClient) {
+		this.jdbcClient = jdbcClient;
+	}
 
-    public boolean canProcess(UUID aggregateId, int version) {
-        @Language("PostgreSQL") final String sql = """
-                SELECT EXISTS (
-                    SELECT 1
-                    FROM movie_outbox_version
-                    WHERE aggregate_id = :aggregateId
-                        AND current_version = :version
-                )
-                """;
-        Object ok = jdbcClient.sql(sql)
-                .param("aggregateId", aggregateId)
-                .param("version", version)
-                .query()
-                .singleValue();
-        return Boolean.TRUE.equals(ok);
-    }
+	public boolean canProcess(UUID aggregateId, int version) {
+		@Language("PostgreSQL")
+		final String sql = """
+				SELECT EXISTS (
+				    SELECT 1
+				    FROM movie_outbox_version
+				    WHERE aggregate_id = :aggregateId
+				        AND current_version = :version
+				)
+				""";
+		Object ok = jdbcClient.sql(sql)
+			.param("aggregateId", aggregateId)
+			.param("version", version)
+			.query()
+			.singleValue();
+		return Boolean.TRUE.equals(ok);
+	}
+
 }

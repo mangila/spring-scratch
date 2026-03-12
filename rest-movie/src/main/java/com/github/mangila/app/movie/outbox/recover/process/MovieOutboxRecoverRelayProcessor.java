@@ -10,11 +10,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class MovieOutboxRecoverRelayProcessor {
 
-    private static final Logger log = new JobRunrDashboardLogger(
-            LoggerFactory.getLogger(MovieOutboxRecoverRelayProcessor.class));
+	private static final Logger log = new JobRunrDashboardLogger(
+			LoggerFactory.getLogger(MovieOutboxRecoverRelayProcessor.class));
 
-    @Retryable
-    public void process(Job job) {
-        log.info("Job has errors: {}", job.getMetadata().get("errors"));
-    }
+	@Retryable
+	public void process(Job job) {
+		log.info("Job has errors: {}", job.getMetadata().get("errors"));
+	}
+
 }

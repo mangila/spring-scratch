@@ -12,21 +12,23 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface DirectorOutboxDestinationJpaRepository extends BaseJpaRepository<DirectorOutboxDestinationEntity, UUID> {
+public interface DirectorOutboxDestinationJpaRepository
+		extends BaseJpaRepository<DirectorOutboxDestinationEntity, UUID> {
 
-    <T> List<T> findAllByOutboxIdAndStatus(UUID outboxId, Status status, Class<T> type);
+	<T> List<T> findAllByOutboxIdAndStatus(UUID outboxId, Status status, Class<T> type);
 
-    @Modifying
-    @Query("""
-            UPDATE director_outbox_destination d
-            SET d.status = :to,
-                d.updatedAt = CURRENT_TIMESTAMP
-            WHERE d.id = :outboxId
-            AND d.status = :from
-            """)
-    int changeStatus(UUID outboxId, Status from, Status to);
+	@Modifying
+	@Query("""
+			UPDATE director_outbox_destination d
+			SET d.status = :to,
+			    d.updatedAt = CURRENT_TIMESTAMP
+			WHERE d.id = :outboxId
+			AND d.status = :from
+			""")
+	int changeStatus(UUID outboxId, Status from, Status to);
 
-    List<DirectorOutboxDestinationEntity> findAllByStatus(Status status, Limit limit, Sort sort);
+	List<DirectorOutboxDestinationEntity> findAllByStatus(Status status, Limit limit, Sort sort);
 
-    <T> List<T> findAllByOutboxId(UUID outboxId, Class<T> type);
+	<T> List<T> findAllByOutboxId(UUID outboxId, Class<T> type);
+
 }

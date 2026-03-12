@@ -10,37 +10,37 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 public class DirectorOutboxMonitorProperties {
 
-    private boolean enabled = false;
+	private boolean enabled = false;
 
-    @Language("CronExp")
-    @NotBlank
-    private String cron = "0 0/5 * * * ?";
+	@Language("CronExp")
+	@NotBlank
+	private String cron = "0 0/5 * * * ?";
 
-    @Positive
-    private int limit = 20;
+	@Positive
+	private int limit = 20;
 
-    public int getLimit() {
-        return limit;
-    }
+	public int getLimit() {
+		return limit;
+	}
 
-    public void setLimit(int limit) {
-        this.limit = limit;
-    }
+	public void setLimit(int limit) {
+		this.limit = limit;
+	}
 
-    public boolean isEnabled() {
-        return enabled;
-    }
+	public boolean isEnabled() {
+		return enabled;
+	}
 
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
 
-    public String getCron() {
-        return cron;
-    }
+	public String getCron() {
+		return cron;
+	}
 
-    public void setCron(@Language("CronExp") String cron) {
-        this.cron = cron;
-    }
+	public void setCron(@Language("CronExp") String cron) {
+		this.cron = cron;
+	}
 
 }

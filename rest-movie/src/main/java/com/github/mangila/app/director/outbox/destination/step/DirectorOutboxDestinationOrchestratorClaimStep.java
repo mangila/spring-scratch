@@ -18,30 +18,34 @@ import java.util.UUID;
 @Component
 public class DirectorOutboxDestinationOrchestratorClaimStep {
 
-    private static final Logger log = new JobRunrDashboardLogger(
-            LoggerFactory.getLogger(DirectorOutboxDestinationOrchestratorClaimStep.class));
+	private static final Logger log = new JobRunrDashboardLogger(
+			LoggerFactory.getLogger(DirectorOutboxDestinationOrchestratorClaimStep.class));
 
-    private final TransactionTemplate transactionTemplate;
-    private final JsonMapper jsonMapper;
-    private final DirectorOutboxDestinationService directorOutboxDestinationService;
+	private final TransactionTemplate transactionTemplate;
 
-    public DirectorOutboxDestinationOrchestratorClaimStep(TransactionTemplate transactionTemplate,
-                                                          JsonMapper jsonMapper,
-                                                          DirectorOutboxDestinationService directorOutboxDestinationService) {
-        this.transactionTemplate = transactionTemplate;
-        this.jsonMapper = jsonMapper;
-        this.directorOutboxDestinationService = directorOutboxDestinationService;
-    }
+	private final JsonMapper jsonMapper;
 
-    @Retryable
-    public String execute(UUID outboxId, Status from, Status to) {
-        try {
-            List<OutboxDestinationProjection> outboxIds = transactionTemplate.execute(_ -> directorOutboxDestinationService.claimBatch(outboxId, from, to));
-            Objects.requireNonNull(outboxIds, "outboxIds returned null");
-            return jsonMapper.writeValueAsString(outboxIds);
-        } catch (Exception e) {
-            log.error("Error while claiming outbox batch: {}", e.getMessage(), e);
-            throw e;
-        }
-    }
+	private final DirectorOutboxDestinationService directorOutboxDestinationService;
+
+	public DirectorOutboxDestinationOrchestratorClaimStep(TransactionTemplate transactionTemplate,
+			JsonMapper jsonMapper, DirectorOutboxDestinationService directorOutboxDestinationService) {
+		this.transactionTemplate = transactionTemplate;
+		this.jsonMapper = jsonMapper;
+		this.directorOutboxDestinationService = directorOutboxDestinationService;
+	}
+
+	@Retryable
+	public String execute(UUID outboxId, Status from, Status to) {
+		try {
+			List<OutboxDestinationProjection> outboxIds = transactionTemplate
+				.execute(_ -> directorOutboxDestinationService.claimBatch(outboxId, from, to));
+			Objects.requireNonNull(outboxIds, "outboxIds returned null");
+			return jsonMapper.writeValueAsString(outboxIds);
+		}
+		catch (Exception e) {
+			log.error("Error while claiming outbox batch: {}", e.getMessage(), e);
+			throw e;
+		}
+	}
+
 }

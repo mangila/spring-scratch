@@ -23,83 +23,82 @@ import java.util.UUID;
 @Component
 public class MovieOutboxPurgeJobHandler implements JobRequestHandler<MovieOutboxPurgeJobRequest> {
 
-    private static final Logger log = new JobRunrDashboardLogger(
-            LoggerFactory.getLogger(MovieOutboxPurgeJobHandler.class));
+	private static final Logger log = new JobRunrDashboardLogger(
+			LoggerFactory.getLogger(MovieOutboxPurgeJobHandler.class));
 
-    private final JsonMapper jsonMapper;
-    private final TransactionTemplate transactionTemplate;
-    private final MovieOutboxService movieOutboxService;
-    private final MovieOutboxDestinationService movieOutboxDestinationService;
+	private final JsonMapper jsonMapper;
 
-    public MovieOutboxPurgeJobHandler(JsonMapper jsonMapper,
-                                      TransactionTemplate transactionTemplate,
-                                      MovieOutboxService movieOutboxService,
-                                      MovieOutboxDestinationService movieOutboxDestinationService) {
-        this.jsonMapper = jsonMapper;
-        this.transactionTemplate = transactionTemplate;
-        this.movieOutboxService = movieOutboxService;
-        this.movieOutboxDestinationService = movieOutboxDestinationService;
-    }
+	private final TransactionTemplate transactionTemplate;
 
-    @Override
-    public void run(MovieOutboxPurgeJobRequest jobRequest) throws Exception {
-        final var context = ThreadLocalJobContext.getJobContext();
-        final var limit = jobRequest.limit();
+	private final MovieOutboxService movieOutboxService;
 
-        String batchAsJson = context.runStepOnce("claim", () -> {
-            var claim = transactionTemplate.execute(_ -> {
-                return movieOutboxService.claimBatch(
-                        Status.SUCCESS,
-                        Status.DELETING,
-                        limit);
-            });
-            Objects.requireNonNull(claim, "claim returned null");
-            return jsonMapper.writeValueAsString(claim);
-        });
+	private final MovieOutboxDestinationService movieOutboxDestinationService;
 
-        UUID[] batchIds = jsonMapper.readValue(batchAsJson, UUID[].class);
+	public MovieOutboxPurgeJobHandler(JsonMapper jsonMapper, TransactionTemplate transactionTemplate,
+			MovieOutboxService movieOutboxService, MovieOutboxDestinationService movieOutboxDestinationService) {
+		this.jsonMapper = jsonMapper;
+		this.transactionTemplate = transactionTemplate;
+		this.movieOutboxService = movieOutboxService;
+		this.movieOutboxDestinationService = movieOutboxDestinationService;
+	}
 
-        if (CollectionUtils.isNullOrEmpty(batchIds)) {
-            log.info("No outboxes to purge");
-            return;
-        }
+	@Override
+	public void run(MovieOutboxPurgeJobRequest jobRequest) throws Exception {
+		final var context = ThreadLocalJobContext.getJobContext();
+		final var limit = jobRequest.limit();
 
-        var outboxSuccess = new ArrayList<UUID>(batchIds.length);
-        var destinationSuccess = new ArrayList<UUID>(batchIds.length * MovieProperties.SUPPORTED_DESTINATIONS.size());
-        var errors = new ArrayList<UUID>(batchIds.length);
-        for (var outboxId : batchIds) {
-            try {
-                String destinationIdsAsJson = context.runStepOnce("destination:%s".formatted(outboxId), () -> {
-                    var destinationProjectionsIds = movieOutboxDestinationService.findAllByOutboxId(outboxId)
-                            .stream()
-                            .map(OutboxDestinationProjection::id)
-                            .toList();
-                    return jsonMapper.writeValueAsString(destinationProjectionsIds);
-                });
-                UUID[] destinationIds = jsonMapper.readValue(destinationIdsAsJson, UUID[].class);
-                destinationSuccess.addAll(Arrays.asList(destinationIds));
-                outboxSuccess.add(outboxId);
-            } catch (Exception e) {
-                errors.add(outboxId);
-                log.error("Error while purging outbox: {} - {}", outboxId, e.getMessage(), e);
-            }
-        }
+		String batchAsJson = context.runStepOnce("claim", () -> {
+			var claim = transactionTemplate.execute(_ -> {
+				return movieOutboxService.claimBatch(Status.SUCCESS, Status.DELETING, limit);
+			});
+			Objects.requireNonNull(claim, "claim returned null");
+			return jsonMapper.writeValueAsString(claim);
+		});
 
-        log.info("Purging outboxes: {} with destinations: {} errors: {}", outboxSuccess.size(), destinationSuccess.size(), errors.size());
+		UUID[] batchIds = jsonMapper.readValue(batchAsJson, UUID[].class);
 
-        if (CollectionUtils.isNotNullOrEmpty(outboxSuccess)) {
-            transactionTemplate.executeWithoutResult(_ -> {
-                movieOutboxService.deleteAllById(outboxSuccess);
-                movieOutboxDestinationService.deleteAllById(destinationSuccess);
-            });
-        }
+		if (CollectionUtils.isNullOrEmpty(batchIds)) {
+			log.info("No outboxes to purge");
+			return;
+		}
 
-        if (CollectionUtils.isNotNullOrEmpty(errors)) {
-            var errorString = String.join(",", errors.stream()
-                    .map(UUID::toString)
-                    .toList());
-            context.saveMetadata("errors", errorString);
-            throw new IllegalStateException("Failed to purge outboxes: %s".formatted(errors));
-        }
-    }
+		var outboxSuccess = new ArrayList<UUID>(batchIds.length);
+		var destinationSuccess = new ArrayList<UUID>(batchIds.length * MovieProperties.SUPPORTED_DESTINATIONS.size());
+		var errors = new ArrayList<UUID>(batchIds.length);
+		for (var outboxId : batchIds) {
+			try {
+				String destinationIdsAsJson = context.runStepOnce("destination:%s".formatted(outboxId), () -> {
+					var destinationProjectionsIds = movieOutboxDestinationService.findAllByOutboxId(outboxId)
+						.stream()
+						.map(OutboxDestinationProjection::id)
+						.toList();
+					return jsonMapper.writeValueAsString(destinationProjectionsIds);
+				});
+				UUID[] destinationIds = jsonMapper.readValue(destinationIdsAsJson, UUID[].class);
+				destinationSuccess.addAll(Arrays.asList(destinationIds));
+				outboxSuccess.add(outboxId);
+			}
+			catch (Exception e) {
+				errors.add(outboxId);
+				log.error("Error while purging outbox: {} - {}", outboxId, e.getMessage(), e);
+			}
+		}
+
+		log.info("Purging outboxes: {} with destinations: {} errors: {}", outboxSuccess.size(),
+				destinationSuccess.size(), errors.size());
+
+		if (CollectionUtils.isNotNullOrEmpty(outboxSuccess)) {
+			transactionTemplate.executeWithoutResult(_ -> {
+				movieOutboxService.deleteAllById(outboxSuccess);
+				movieOutboxDestinationService.deleteAllById(destinationSuccess);
+			});
+		}
+
+		if (CollectionUtils.isNotNullOrEmpty(errors)) {
+			var errorString = String.join(",", errors.stream().map(UUID::toString).toList());
+			context.saveMetadata("errors", errorString);
+			throw new IllegalStateException("Failed to purge outboxes: %s".formatted(errors));
+		}
+	}
+
 }

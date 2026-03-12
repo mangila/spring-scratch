@@ -18,30 +18,34 @@ import java.util.UUID;
 @Component
 public class MovieOutboxDestinationOrchestratorClaimStep {
 
-    private static final Logger log = new JobRunrDashboardLogger(
-            LoggerFactory.getLogger(MovieOutboxDestinationOrchestratorClaimStep.class));
+	private static final Logger log = new JobRunrDashboardLogger(
+			LoggerFactory.getLogger(MovieOutboxDestinationOrchestratorClaimStep.class));
 
-    private final TransactionTemplate transactionTemplate;
-    private final JsonMapper jsonMapper;
-    private final MovieOutboxDestinationService movieOutboxDestinationService;
+	private final TransactionTemplate transactionTemplate;
 
-    public MovieOutboxDestinationOrchestratorClaimStep(TransactionTemplate transactionTemplate,
-                                                       JsonMapper jsonMapper,
-                                                       MovieOutboxDestinationService movieOutboxDestinationService) {
-        this.transactionTemplate = transactionTemplate;
-        this.jsonMapper = jsonMapper;
-        this.movieOutboxDestinationService = movieOutboxDestinationService;
-    }
+	private final JsonMapper jsonMapper;
 
-    @Retryable
-    public String execute(UUID outboxId, Status from, Status to) {
-        try {
-            List<OutboxDestinationProjection> outboxIds = transactionTemplate.execute(_ -> movieOutboxDestinationService.claimBatch(outboxId, from, to));
-            Objects.requireNonNull(outboxIds, "outboxIds returned null");
-            return jsonMapper.writeValueAsString(outboxIds);
-        } catch (Exception e) {
-            log.error("Error while claiming outbox batch: {}", e.getMessage(), e);
-            throw e;
-        }
-    }
+	private final MovieOutboxDestinationService movieOutboxDestinationService;
+
+	public MovieOutboxDestinationOrchestratorClaimStep(TransactionTemplate transactionTemplate, JsonMapper jsonMapper,
+			MovieOutboxDestinationService movieOutboxDestinationService) {
+		this.transactionTemplate = transactionTemplate;
+		this.jsonMapper = jsonMapper;
+		this.movieOutboxDestinationService = movieOutboxDestinationService;
+	}
+
+	@Retryable
+	public String execute(UUID outboxId, Status from, Status to) {
+		try {
+			List<OutboxDestinationProjection> outboxIds = transactionTemplate
+				.execute(_ -> movieOutboxDestinationService.claimBatch(outboxId, from, to));
+			Objects.requireNonNull(outboxIds, "outboxIds returned null");
+			return jsonMapper.writeValueAsString(outboxIds);
+		}
+		catch (Exception e) {
+			log.error("Error while claiming outbox batch: {}", e.getMessage(), e);
+			throw e;
+		}
+	}
+
 }

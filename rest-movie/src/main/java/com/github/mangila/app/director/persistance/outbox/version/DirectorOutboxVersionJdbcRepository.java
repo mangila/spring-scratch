@@ -16,7 +16,8 @@ public class DirectorOutboxVersionJdbcRepository {
 	}
 
 	public boolean canProcess(UUID aggregateId, int version) {
-		@Language("PostgreSQL") final String sql = """
+		@Language("PostgreSQL")
+		final String sql = """
 				SELECT EXISTS (
 					SELECT 1
 					FROM director_outbox_version
@@ -25,10 +26,10 @@ public class DirectorOutboxVersionJdbcRepository {
 				)
 				""";
 		Object ok = jdbcClient.sql(sql)
-				.param("aggregateId", aggregateId)
-				.param("version", version)
-				.query()
-				.singleValue();
+			.param("aggregateId", aggregateId)
+			.param("version", version)
+			.query()
+			.singleValue();
 		return Boolean.TRUE.equals(ok);
 	}
 

@@ -6,8 +6,8 @@ import java.util.UUID;
 
 public record ActorOutboxDestinationOrchestratorJobRequest(UUID outboxId) implements JobRequest {
 
-    @Override
-    public Class<ActorOutboxDestinationOrchestratorJobHandler> getJobRequestHandler() {
-        return ActorOutboxDestinationOrchestratorJobHandler.class;
-    }
+	@Override
+	public Class<ActorOutboxDestinationOrchestratorJobHandler> getJobRequestHandler() {
+		return ActorOutboxDestinationOrchestratorJobHandler.class;
+	}
 }

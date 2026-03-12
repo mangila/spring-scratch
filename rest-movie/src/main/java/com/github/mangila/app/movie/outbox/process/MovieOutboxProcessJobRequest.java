@@ -6,8 +6,8 @@ import java.util.UUID;
 
 public record MovieOutboxProcessJobRequest(UUID outboxId) implements JobRequest {
 
-    @Override
-    public Class<MovieOutboxProcessJobHandler> getJobRequestHandler() {
-        return MovieOutboxProcessJobHandler.class;
-    }
+	@Override
+	public Class<MovieOutboxProcessJobHandler> getJobRequestHandler() {
+		return MovieOutboxProcessJobHandler.class;
+	}
 }

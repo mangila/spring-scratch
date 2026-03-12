@@ -15,54 +15,55 @@ import java.util.UUID;
 @EntityListeners(AuditingEntityListener.class)
 public class OutboxVersionBaseEntity {
 
-    @Id
-    @Column(name = "aggregate_id", columnDefinition = "UUID", nullable = false)
-    private UUID aggregateId;
+	@Id
+	@Column(name = "aggregate_id", columnDefinition = "UUID", nullable = false)
+	private UUID aggregateId;
 
-    @Column(name = "current_version", nullable = false)
-    private Integer currentVersion;
+	@Column(name = "current_version", nullable = false)
+	private Integer currentVersion;
 
-    @Column(name = "created_at", updatable = false, nullable = false)
-    @CreatedDate
-    private Instant createdAt;
+	@Column(name = "created_at", updatable = false, nullable = false)
+	@CreatedDate
+	private Instant createdAt;
 
-    @Column(name = "updated_at", updatable = true, nullable = false)
-    @LastModifiedDate
-    private Instant updatedAt;
+	@Column(name = "updated_at", updatable = true, nullable = false)
+	@LastModifiedDate
+	private Instant updatedAt;
 
-    public OutboxVersionBaseEntity() {
-        // do nothing, for JPA
-    }
+	public OutboxVersionBaseEntity() {
+		// do nothing, for JPA
+	}
 
-    public UUID getAggregateId() {
-        return aggregateId;
-    }
+	public UUID getAggregateId() {
+		return aggregateId;
+	}
 
-    public void setAggregateId(UUID aggregateId) {
-        this.aggregateId = aggregateId;
-    }
+	public void setAggregateId(UUID aggregateId) {
+		this.aggregateId = aggregateId;
+	}
 
-    public Integer getCurrentVersion() {
-        return currentVersion;
-    }
+	public Integer getCurrentVersion() {
+		return currentVersion;
+	}
 
-    public void setCurrentVersion(Integer currentVersion) {
-        this.currentVersion = currentVersion;
-    }
+	public void setCurrentVersion(Integer currentVersion) {
+		this.currentVersion = currentVersion;
+	}
 
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
+	public Instant getCreatedAt() {
+		return createdAt;
+	}
 
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
+	public void setCreatedAt(Instant createdAt) {
+		this.createdAt = createdAt;
+	}
 
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
+	public Instant getUpdatedAt() {
+		return updatedAt;
+	}
 
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
-    }
+	public void setUpdatedAt(Instant updatedAt) {
+		this.updatedAt = updatedAt;
+	}
+
 }

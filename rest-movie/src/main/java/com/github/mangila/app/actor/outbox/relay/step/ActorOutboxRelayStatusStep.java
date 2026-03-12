@@ -14,26 +14,27 @@ import java.util.UUID;
 @Component
 public class ActorOutboxRelayStatusStep {
 
-    private static final Logger log = new JobRunrDashboardLogger(
-            LoggerFactory.getLogger(ActorOutboxRelayStatusStep.class));
+	private static final Logger log = new JobRunrDashboardLogger(
+			LoggerFactory.getLogger(ActorOutboxRelayStatusStep.class));
 
-    private final TransactionTemplate transactionTemplate;
-    private final ActorOutboxService actorOutboxService;
+	private final TransactionTemplate transactionTemplate;
 
-    public ActorOutboxRelayStatusStep(TransactionTemplate transactionTemplate,
-                                      ActorOutboxService actorOutboxService) {
-        this.transactionTemplate = transactionTemplate;
-        this.actorOutboxService = actorOutboxService;
-    }
+	private final ActorOutboxService actorOutboxService;
 
-    @Retryable
-    public boolean execute(UUID outboxId, Status from, Status to) {
-        try {
-            return transactionTemplate.execute(_ -> actorOutboxService.changeStatus(outboxId, from, to));
-        } catch (Exception e) {
-            log.error("Error while changing status for outbox: {} - {}", outboxId, e.getMessage(), e);
-            throw e;
-        }
-    }
+	public ActorOutboxRelayStatusStep(TransactionTemplate transactionTemplate, ActorOutboxService actorOutboxService) {
+		this.transactionTemplate = transactionTemplate;
+		this.actorOutboxService = actorOutboxService;
+	}
+
+	@Retryable
+	public boolean execute(UUID outboxId, Status from, Status to) {
+		try {
+			return transactionTemplate.execute(_ -> actorOutboxService.changeStatus(outboxId, from, to));
+		}
+		catch (Exception e) {
+			log.error("Error while changing status for outbox: {} - {}", outboxId, e.getMessage(), e);
+			throw e;
+		}
+	}
 
 }

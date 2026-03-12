@@ -13,23 +13,25 @@ import java.util.UUID;
 @Component
 public class ActorOutboxRelayScheduleStep {
 
-    private static final Logger log = new JobRunrDashboardLogger(
-            LoggerFactory.getLogger(ActorOutboxRelayScheduleStep.class));
+	private static final Logger log = new JobRunrDashboardLogger(
+			LoggerFactory.getLogger(ActorOutboxRelayScheduleStep.class));
 
-    private final ActorOutboxScheduler actorOutboxScheduler;
+	private final ActorOutboxScheduler actorOutboxScheduler;
 
-    public ActorOutboxRelayScheduleStep(ActorOutboxScheduler actorOutboxScheduler) {
-        this.actorOutboxScheduler = actorOutboxScheduler;
-    }
+	public ActorOutboxRelayScheduleStep(ActorOutboxScheduler actorOutboxScheduler) {
+		this.actorOutboxScheduler = actorOutboxScheduler;
+	}
 
-    @Retryable
-    public UUID execute(UUID outboxId) {
-        try {
-            var jobId = actorOutboxScheduler.schedule(new ActorOutboxProcessJobRequest(outboxId));
-            return jobId.asUUID();
-        } catch (Exception e) {
-            log.error("Error while scheduling outbox: {} - {}", outboxId, e.getMessage(), e);
-            throw e;
-        }
-    }
+	@Retryable
+	public UUID execute(UUID outboxId) {
+		try {
+			var jobId = actorOutboxScheduler.schedule(new ActorOutboxProcessJobRequest(outboxId));
+			return jobId.asUUID();
+		}
+		catch (Exception e) {
+			log.error("Error while scheduling outbox: {} - {}", outboxId, e.getMessage(), e);
+			throw e;
+		}
+	}
+
 }

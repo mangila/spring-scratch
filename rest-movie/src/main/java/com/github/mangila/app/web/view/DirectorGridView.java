@@ -1,5 +1,6 @@
 package com.github.mangila.app.web.view;
 
+import com.github.mangila.app.config.VaadinAppConfig;
 import com.github.mangila.app.director.persistance.projection.DirectorProjection;
 import com.github.mangila.app.director.service.DirectorService;
 import com.vaadin.flow.component.avatar.Avatar;
@@ -7,8 +8,10 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.IconRenderer;
+import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+@PageTitle(VaadinAppConfig.PAGE_TITLE_PREFIX + "Director")
 @Route("director")
 public class DirectorGridView extends VerticalLayout {
 

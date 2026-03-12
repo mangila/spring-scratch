@@ -21,39 +21,37 @@ import javax.sql.DataSource;
 @EnableSchedulerLock(defaultLockAtMostFor = "10m")
 public class SchedulerConfig {
 
-    private static final Logger log = LoggerFactory.getLogger(SchedulerConfig.class);
+	private static final Logger log = LoggerFactory.getLogger(SchedulerConfig.class);
 
-    @Bean
-    public LockProvider lockProvider(DataSource dataSource) {
-        return new JdbcTemplateLockProvider(
-                JdbcTemplateLockProvider.Configuration.builder()
-                        .withJdbcTemplate(new JdbcTemplate(dataSource))
-                        .usingDbTime()
-                        .build()
-        );
-    }
+	@Bean
+	public LockProvider lockProvider(DataSource dataSource) {
+		return new JdbcTemplateLockProvider(JdbcTemplateLockProvider.Configuration.builder()
+			.withJdbcTemplate(new JdbcTemplate(dataSource))
+			.usingDbTime()
+			.build());
+	}
 
-    @Bean
-    public LockingTaskExecutor lockingTaskExecutor(LockProvider lockProvider) {
-        return new DefaultLockingTaskExecutor(lockProvider);
-    }
+	@Bean
+	public LockingTaskExecutor lockingTaskExecutor(LockProvider lockProvider) {
+		return new DefaultLockingTaskExecutor(lockProvider);
+	}
 
-    @Bean
-    public SimpleAsyncTaskScheduler simpleAsyncTaskScheduler() {
-        var taskScheduler = new SimpleAsyncTaskScheduler();
-        taskScheduler.setThreadNamePrefix("movie-scheduler-");
-        taskScheduler.setVirtualThreads(true);
-        taskScheduler.setErrorHandler(t -> {
-            log.error("Error in task scheduler", t);
-        });
-        return taskScheduler;
-    }
+	@Bean
+	public SimpleAsyncTaskScheduler simpleAsyncTaskScheduler() {
+		var taskScheduler = new SimpleAsyncTaskScheduler();
+		taskScheduler.setThreadNamePrefix("movie-scheduler-");
+		taskScheduler.setVirtualThreads(true);
+		taskScheduler.setErrorHandler(t -> {
+			log.error("Error in task scheduler", t);
+		});
+		return taskScheduler;
+	}
 
-    @Bean
-    public SimpleAsyncTaskExecutor simpleAsyncTaskExecutor() {
-        var executor = new SimpleAsyncTaskExecutor("movie-executor-");
-        executor.setVirtualThreads(true);
-        return executor;
-    }
+	@Bean
+	public SimpleAsyncTaskExecutor simpleAsyncTaskExecutor() {
+		var executor = new SimpleAsyncTaskExecutor("movie-executor-");
+		executor.setVirtualThreads(true);
+		return executor;
+	}
 
 }

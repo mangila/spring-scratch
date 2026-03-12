@@ -10,23 +10,24 @@ import java.util.UUID;
 @Service
 public class ActorOutboxVersionService {
 
-    private final ActorOutboxVersionJdbcRepository jdbc;
+	private final ActorOutboxVersionJdbcRepository jdbc;
 
-    private final ActorOutboxVersionJpaRepository jpa;
+	private final ActorOutboxVersionJpaRepository jpa;
 
-    public ActorOutboxVersionService(ActorOutboxVersionJdbcRepository actorOutboxVersionJdbcRepository,
-                                     ActorOutboxVersionJpaRepository actorOutboxVersionJpaRepository) {
-        this.jdbc = actorOutboxVersionJdbcRepository;
-        this.jpa = actorOutboxVersionJpaRepository;
-    }
+	public ActorOutboxVersionService(ActorOutboxVersionJdbcRepository actorOutboxVersionJdbcRepository,
+			ActorOutboxVersionJpaRepository actorOutboxVersionJpaRepository) {
+		this.jdbc = actorOutboxVersionJdbcRepository;
+		this.jpa = actorOutboxVersionJpaRepository;
+	}
 
-    @Chaos
-    public boolean canProcess(UUID aggregateId, int version) {
-        return jdbc.canProcess(aggregateId, version);
-    }
+	@Chaos
+	public boolean canProcess(UUID aggregateId, int version) {
+		return jdbc.canProcess(aggregateId, version);
+	}
 
-    @Chaos
-    public void increment(UUID aggregateId) {
-        jpa.increment(aggregateId);
-    }
+	@Chaos
+	public void increment(UUID aggregateId) {
+		jpa.increment(aggregateId);
+	}
+
 }

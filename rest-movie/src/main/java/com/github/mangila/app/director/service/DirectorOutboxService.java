@@ -20,41 +20,41 @@ import java.util.UUID;
 @Validated
 public class DirectorOutboxService {
 
-    private final DirectorOutboxJpaRepository jpa;
+	private final DirectorOutboxJpaRepository jpa;
 
-    private final DirectorOutboxJdbcRepository jdbc;
+	private final DirectorOutboxJdbcRepository jdbc;
 
-    public DirectorOutboxService(DirectorOutboxJpaRepository directorOutboxJpaRepository,
-                                 DirectorOutboxJdbcRepository directorOutboxJdbcRepository) {
-        this.jpa = directorOutboxJpaRepository;
-        this.jdbc = directorOutboxJdbcRepository;
-    }
+	public DirectorOutboxService(DirectorOutboxJpaRepository directorOutboxJpaRepository,
+			DirectorOutboxJdbcRepository directorOutboxJdbcRepository) {
+		this.jpa = directorOutboxJpaRepository;
+		this.jdbc = directorOutboxJdbcRepository;
+	}
 
-    @Chaos
-    @Transactional(propagation = Propagation.MANDATORY)
-    public List<UUID> claimBatch(Status from, Status to, @Positive int limit) {
-        return jdbc.claimBatch(from, to, limit);
-    }
+	@Chaos
+	@Transactional(propagation = Propagation.MANDATORY)
+	public List<UUID> claimBatch(Status from, Status to, @Positive int limit) {
+		return jdbc.claimBatch(from, to, limit);
+	}
 
-    @Chaos
-    public List<OutboxProjection> findAllByStatus(@NotNull Status status, @Positive int limit) {
-        return jpa.findAllByStatus(status, Limit.of(limit));
-    }
+	@Chaos
+	public List<OutboxProjection> findAllByStatus(@NotNull Status status, @Positive int limit) {
+		return jpa.findAllByStatus(status, Limit.of(limit));
+	}
 
-    @Chaos
-    public boolean changeStatus(UUID outboxId, Status from, Status to) {
-        var result = jpa.changeStatus(outboxId, from, to);
-        return result > 0;
-    }
+	@Chaos
+	public boolean changeStatus(UUID outboxId, Status from, Status to) {
+		var result = jpa.changeStatus(outboxId, from, to);
+		return result > 0;
+	}
 
-    @Chaos
-    public void deleteAllById(List<UUID> list) {
-        jpa.deleteAllByIdInBatch(list);
-    }
+	@Chaos
+	public void deleteAllById(List<UUID> list) {
+		jpa.deleteAllByIdInBatch(list);
+	}
 
-    @Chaos
-    public OutboxProjection findById(UUID outboxId) {
-        return jpa.findById(outboxId, OutboxProjection.class)
-                .orElseThrow();
-    }
+	@Chaos
+	public OutboxProjection findById(UUID outboxId) {
+		return jpa.findById(outboxId, OutboxProjection.class).orElseThrow();
+	}
+
 }

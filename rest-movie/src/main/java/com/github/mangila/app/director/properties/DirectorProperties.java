@@ -26,10 +26,15 @@ public class DirectorProperties {
 	public static class Outbox {
 
 		private boolean enabled = false;
+
 		private List<Destination> destinations = new ArrayList<>();
+
 		private DirectorOutboxMonitorProperties monitor = new DirectorOutboxMonitorProperties();
+
 		private DirectorOutboxRecoverProperties recover = new DirectorOutboxRecoverProperties();
+
 		private DirectorOutboxRelayProperties relay = new DirectorOutboxRelayProperties();
+
 		private DirectorOutboxPurgeProperties purge = new DirectorOutboxPurgeProperties();
 
 		public boolean isEnabled() {
@@ -83,6 +88,7 @@ public class DirectorProperties {
 		public void setPurge(DirectorOutboxPurgeProperties purge) {
 			this.purge = purge;
 		}
+
 	}
 
 }

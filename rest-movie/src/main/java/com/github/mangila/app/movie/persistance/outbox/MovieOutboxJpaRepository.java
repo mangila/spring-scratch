@@ -16,17 +16,18 @@ import java.util.UUID;
 @Repository
 public interface MovieOutboxJpaRepository extends BaseJpaRepository<MovieOutboxEntity, UUID> {
 
-    <T> Optional<T> findById(UUID outboxId, Class<T> type);
+	<T> Optional<T> findById(UUID outboxId, Class<T> type);
 
-    @Modifying
-    @Query("""
-            UPDATE movie_outbox o
-            SET o.status = :to,
-                o.updatedAt = CURRENT_TIMESTAMP
-            WHERE o.id = :outboxId
-            AND o.status = :from
-            """)
-    int changeStatus(UUID outboxId, Status from, Status to);
+	@Modifying
+	@Query("""
+			UPDATE movie_outbox o
+			SET o.status = :to,
+			    o.updatedAt = CURRENT_TIMESTAMP
+			WHERE o.id = :outboxId
+			AND o.status = :from
+			""")
+	int changeStatus(UUID outboxId, Status from, Status to);
 
-    List<OutboxProjection> findAllByStatus(@NotNull Status status, Limit limit);
+	List<OutboxProjection> findAllByStatus(@NotNull Status status, Limit limit);
+
 }

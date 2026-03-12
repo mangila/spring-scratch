@@ -2,6 +2,7 @@ package com.github.mangila.app.web.view;
 
 import com.github.mangila.app.actor.persistence.projection.ActorProjection;
 import com.github.mangila.app.actor.service.ActorService;
+import com.github.mangila.app.config.VaadinAppConfig;
 import com.github.mangila.app.shared.VaadinEventPublisher;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.DetachEvent;
@@ -10,11 +11,13 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.shared.Registration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@PageTitle(VaadinAppConfig.PAGE_TITLE_PREFIX + "Actor")
 @Route("actor")
 public class ActorGridView extends VerticalLayout {
 

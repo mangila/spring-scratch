@@ -27,14 +27,17 @@ public class DirectorOutboxPurgeJobHandler implements JobRequestHandler<Director
             LoggerFactory.getLogger(DirectorOutboxPurgeJobHandler.class));
 
     private final JsonMapper jsonMapper;
+
     private final TransactionTemplate transactionTemplate;
+
     private final DirectorOutboxService directorOutboxService;
+
     private final DirectorOutboxDestinationService directorOutboxDestinationService;
 
     public DirectorOutboxPurgeJobHandler(JsonMapper jsonMapper,
-                                      TransactionTemplate transactionTemplate,
-                                      DirectorOutboxService directorOutboxService,
-                                      DirectorOutboxDestinationService directorOutboxDestinationService) {
+                                         TransactionTemplate transactionTemplate,
+                                         DirectorOutboxService directorOutboxService,
+                                         DirectorOutboxDestinationService directorOutboxDestinationService) {
         this.jsonMapper = jsonMapper;
         this.transactionTemplate = transactionTemplate;
         this.directorOutboxService = directorOutboxService;
@@ -48,10 +51,7 @@ public class DirectorOutboxPurgeJobHandler implements JobRequestHandler<Director
 
         String batchAsJson = context.runStepOnce("claim", () -> {
             var claim = transactionTemplate.execute(_ -> {
-                return directorOutboxService.claimBatch(
-                        Status.SUCCESS,
-                        Status.DELETING,
-                        limit);
+                return directorOutboxService.claimBatch(Status.SUCCESS, Status.DELETING, limit);
             });
             Objects.requireNonNull(claim, "claim returned null");
             return jsonMapper.writeValueAsString(claim);
@@ -65,7 +65,8 @@ public class DirectorOutboxPurgeJobHandler implements JobRequestHandler<Director
         }
 
         var outboxSuccess = new ArrayList<UUID>(batchIds.length);
-        var destinationSuccess = new ArrayList<UUID>(batchIds.length * DirectorProperties.SUPPORTED_DESTINATIONS.size());
+        var destinationSuccess = new ArrayList<UUID>(
+                batchIds.length * DirectorProperties.SUPPORTED_DESTINATIONS.size());
         var errors = new ArrayList<UUID>(batchIds.length);
         for (var outboxId : batchIds) {
             try {
@@ -85,7 +86,8 @@ public class DirectorOutboxPurgeJobHandler implements JobRequestHandler<Director
             }
         }
 
-        log.info("Purging outboxes: {} with destinations: {} errors: {}", outboxSuccess.size(), destinationSuccess.size(), errors.size());
+        log.info("Purging outboxes: {} with destinations: {} errors: {}", outboxSuccess.size(),
+                destinationSuccess.size(), errors.size());
 
         if (CollectionUtils.isNotNullOrEmpty(outboxSuccess)) {
             transactionTemplate.executeWithoutResult(_ -> {
@@ -95,11 +97,10 @@ public class DirectorOutboxPurgeJobHandler implements JobRequestHandler<Director
         }
 
         if (CollectionUtils.isNotNullOrEmpty(errors)) {
-            var errorString = String.join(",", errors.stream()
-                    .map(UUID::toString)
-                    .toList());
+            var errorString = String.join(",", errors.stream().map(UUID::toString).toList());
             context.saveMetadata("errors", errorString);
             throw new IllegalStateException("Failed to purge outboxes: %s".formatted(errors));
         }
     }
+
 }

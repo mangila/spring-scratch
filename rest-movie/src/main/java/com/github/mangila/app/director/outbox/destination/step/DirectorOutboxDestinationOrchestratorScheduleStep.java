@@ -13,22 +13,25 @@ import java.util.UUID;
 @Component
 public class DirectorOutboxDestinationOrchestratorScheduleStep {
 
-    private final DirectorOutboxScheduler directorOutboxScheduler;
+	private final DirectorOutboxScheduler directorOutboxScheduler;
 
-    public DirectorOutboxDestinationOrchestratorScheduleStep(DirectorOutboxScheduler directorOutboxScheduler) {
-        this.directorOutboxScheduler = directorOutboxScheduler;
-    }
+	public DirectorOutboxDestinationOrchestratorScheduleStep(DirectorOutboxScheduler directorOutboxScheduler) {
+		this.directorOutboxScheduler = directorOutboxScheduler;
+	}
 
-    @Retryable(excludes = IllegalStateException.class)
-    public UUID execute(OutboxDestinationProjection outboxDestination) {
-        final var destinationId = outboxDestination.id();
-        final var destination = outboxDestination.destination();
-        var jobId = switch (destination) {
-            case HTTP -> directorOutboxScheduler.schedule(new DirectorHttpDestinationJobRequest(destinationId,destination));
-            case KAFKA -> directorOutboxScheduler.schedule(new DirectorKafkaDestinationJobRequest(destinationId,destination));
-            default ->
-                    throw new IllegalStateException("Unsupported destination: %s - supported are: %s".formatted(destination, DirectorProperties.SUPPORTED_DESTINATIONS));
-        };
-        return jobId.asUUID();
-    }
+	@Retryable(excludes = IllegalStateException.class)
+	public UUID execute(OutboxDestinationProjection outboxDestination) {
+		final var destinationId = outboxDestination.id();
+		final var destination = outboxDestination.destination();
+		var jobId = switch (destination) {
+			case HTTP ->
+				directorOutboxScheduler.schedule(new DirectorHttpDestinationJobRequest(destinationId, destination));
+			case KAFKA ->
+				directorOutboxScheduler.schedule(new DirectorKafkaDestinationJobRequest(destinationId, destination));
+			default -> throw new IllegalStateException("Unsupported destination: %s - supported are: %s"
+				.formatted(destination, DirectorProperties.SUPPORTED_DESTINATIONS));
+		};
+		return jobId.asUUID();
+	}
+
 }

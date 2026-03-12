@@ -19,66 +19,72 @@ import java.util.UUID;
 @Component
 public class MovieOutboxMonitorJobHandler implements JobRequestHandler<MovieOutboxMonitorJobRequest> {
 
-    private static final Logger log = new JobRunrDashboardLogger(
-            LoggerFactory.getLogger(MovieOutboxMonitorJobHandler.class));
+	private static final Logger log = new JobRunrDashboardLogger(
+			LoggerFactory.getLogger(MovieOutboxMonitorJobHandler.class));
 
-    private final TransactionTemplate transactionTemplate;
-    private final MovieOutboxVersionService movieOutboxVersionService;
-    private final MovieOutboxService movieOutboxService;
-    private final MovieOutboxDestinationService movieOutboxDestinationService;
+	private final TransactionTemplate transactionTemplate;
 
-    public MovieOutboxMonitorJobHandler(TransactionTemplate transactionTemplate,
-                                        MovieOutboxVersionService movieOutboxVersionService,
-                                        MovieOutboxService movieOutboxService,
-                                        MovieOutboxDestinationService movieOutboxDestinationService) {
-        this.transactionTemplate = transactionTemplate;
-        this.movieOutboxVersionService = movieOutboxVersionService;
-        this.movieOutboxService = movieOutboxService;
-        this.movieOutboxDestinationService = movieOutboxDestinationService;
-    }
+	private final MovieOutboxVersionService movieOutboxVersionService;
 
-    @Override
-    public void run(MovieOutboxMonitorJobRequest jobRequest) throws Exception {
-        final var context = ThreadLocalJobContext.getJobContext();
-        final var limit = jobRequest.limit();
+	private final MovieOutboxService movieOutboxService;
 
-        var outboxes = movieOutboxService.findAllByStatus(Status.PROCESSING, limit);
-        log.info("Found {} outboxes to monitor", outboxes.size());
+	private final MovieOutboxDestinationService movieOutboxDestinationService;
 
-        var errors = new ArrayList<UUID>(outboxes.size());
-        for (var outbox : outboxes) {
-            final var outboxId = outbox.id();
-            final var aggregateId = outbox.aggregateId();
-            try {
-                var destinationEntities = movieOutboxDestinationService.findAllByOutboxId(outboxId);
-                if (destinationEntities.isEmpty()) {
-                    log.info("No destinations for outbox: {}", outboxId);
-                    continue;
-                }
-                log.info("Found {} destinations for outbox: {}", destinationEntities.size(), outboxId);
-                var allSuccessMatch = destinationEntities.stream()
-                        .allMatch(destinationEntity -> destinationEntity.status() == Status.SUCCESS);
-                if (allSuccessMatch) {
-                    final var fromStatus = Status.PROCESSING;
-                    final var toStatus = Status.SUCCESS;
-                    transactionTemplate.executeWithoutResult(_ -> {
-                        final boolean ok = movieOutboxService.changeStatus(outboxId, fromStatus, toStatus);
-                        if (!ok) {
-                            throw new IllegalStateException("Outbox: %s failed to change status from %s to %s".formatted(outboxId, fromStatus, toStatus));
-                        }
-                        movieOutboxVersionService.increment(aggregateId);
-                        log.info("Outbox: {} changed status from {} to {} and bumped version on aggregate: {}", outboxId, fromStatus, toStatus, aggregateId);
-                    });
-                }
-            } catch (Exception e) {
-                log.error("Error while monitoring outbox: {} - {}", outboxId, e.getMessage(), e);
-                errors.add(outboxId);
-            }
-        }
+	public MovieOutboxMonitorJobHandler(TransactionTemplate transactionTemplate,
+			MovieOutboxVersionService movieOutboxVersionService, MovieOutboxService movieOutboxService,
+			MovieOutboxDestinationService movieOutboxDestinationService) {
+		this.transactionTemplate = transactionTemplate;
+		this.movieOutboxVersionService = movieOutboxVersionService;
+		this.movieOutboxService = movieOutboxService;
+		this.movieOutboxDestinationService = movieOutboxDestinationService;
+	}
 
-        if (CollectionUtils.isNotNullOrEmpty(errors)) {
-            throw new IllegalStateException("Failed to monitor outboxes: %s".formatted(errors));
-        }
+	@Override
+	public void run(MovieOutboxMonitorJobRequest jobRequest) throws Exception {
+		final var context = ThreadLocalJobContext.getJobContext();
+		final var limit = jobRequest.limit();
 
-    }
+		var outboxes = movieOutboxService.findAllByStatus(Status.PROCESSING, limit);
+		log.info("Found {} outboxes to monitor", outboxes.size());
+
+		var errors = new ArrayList<UUID>(outboxes.size());
+		for (var outbox : outboxes) {
+			final var outboxId = outbox.id();
+			final var aggregateId = outbox.aggregateId();
+			try {
+				var destinationEntities = movieOutboxDestinationService.findAllByOutboxId(outboxId);
+				if (destinationEntities.isEmpty()) {
+					log.info("No destinations for outbox: {}", outboxId);
+					continue;
+				}
+				log.info("Found {} destinations for outbox: {}", destinationEntities.size(), outboxId);
+				var allSuccessMatch = destinationEntities.stream()
+					.allMatch(destinationEntity -> destinationEntity.status() == Status.SUCCESS);
+				if (allSuccessMatch) {
+					final var fromStatus = Status.PROCESSING;
+					final var toStatus = Status.SUCCESS;
+					transactionTemplate.executeWithoutResult(_ -> {
+						final boolean ok = movieOutboxService.changeStatus(outboxId, fromStatus, toStatus);
+						if (!ok) {
+							throw new IllegalStateException("Outbox: %s failed to change status from %s to %s"
+								.formatted(outboxId, fromStatus, toStatus));
+						}
+						movieOutboxVersionService.increment(aggregateId);
+						log.info("Outbox: {} changed status from {} to {} and bumped version on aggregate: {}",
+								outboxId, fromStatus, toStatus, aggregateId);
+					});
+				}
+			}
+			catch (Exception e) {
+				log.error("Error while monitoring outbox: {} - {}", outboxId, e.getMessage(), e);
+				errors.add(outboxId);
+			}
+		}
+
+		if (CollectionUtils.isNotNullOrEmpty(errors)) {
+			throw new IllegalStateException("Failed to monitor outboxes: %s".formatted(errors));
+		}
+
+	}
+
 }

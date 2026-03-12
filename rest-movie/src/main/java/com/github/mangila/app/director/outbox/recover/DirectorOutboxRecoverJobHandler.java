@@ -18,56 +18,57 @@ import java.util.List;
 @Component
 public class DirectorOutboxRecoverJobHandler implements JobRequestHandler<DirectorOutboxRecoverJobRequest> {
 
-    private static final Logger log = new JobRunrDashboardLogger(
-            LoggerFactory.getLogger(DirectorOutboxRecoverJobHandler.class));
+	private static final Logger log = new JobRunrDashboardLogger(
+			LoggerFactory.getLogger(DirectorOutboxRecoverJobHandler.class));
 
-    private final DirectorOutboxRecoverRelayProcessor directorOutboxRecoverRelayProcessor;
-    private final DirectorOutboxRecoverPurgeProcessor directorOutboxRecoverPurgeProcessor;
-    private final StorageProvider storageProvider;
+	private final DirectorOutboxRecoverRelayProcessor directorOutboxRecoverRelayProcessor;
 
-    public DirectorOutboxRecoverJobHandler(DirectorOutboxRecoverRelayProcessor directorOutboxRecoverRelayProcessor,
-                                        DirectorOutboxRecoverPurgeProcessor directorOutboxRecoverPurgeProcessor,
-                                        StorageProvider storageProvider) {
-        this.directorOutboxRecoverRelayProcessor = directorOutboxRecoverRelayProcessor;
-        this.directorOutboxRecoverPurgeProcessor = directorOutboxRecoverPurgeProcessor;
-        this.storageProvider = storageProvider;
-    }
+	private final DirectorOutboxRecoverPurgeProcessor directorOutboxRecoverPurgeProcessor;
 
-    @Override
-    public void run(DirectorOutboxRecoverJobRequest jobRequest) throws Exception {
-        final var context = ThreadLocalJobContext.getJobContext();
-        final var limit = jobRequest.limit();
+	private final StorageProvider storageProvider;
 
-        var jobs = storageProvider.getJobList(StateName.FAILED, new AmountRequest("", limit));
+	public DirectorOutboxRecoverJobHandler(DirectorOutboxRecoverRelayProcessor directorOutboxRecoverRelayProcessor,
+			DirectorOutboxRecoverPurgeProcessor directorOutboxRecoverPurgeProcessor, StorageProvider storageProvider) {
+		this.directorOutboxRecoverRelayProcessor = directorOutboxRecoverRelayProcessor;
+		this.directorOutboxRecoverPurgeProcessor = directorOutboxRecoverPurgeProcessor;
+		this.storageProvider = storageProvider;
+	}
 
-        for (var job : jobs) {
-            log.info("Job: {}", job.getId());
+	@Override
+	public void run(DirectorOutboxRecoverJobRequest jobRequest) throws Exception {
+		final var context = ThreadLocalJobContext.getJobContext();
+		final var limit = jobRequest.limit();
 
-            var labels = job.getLabels();
+		var jobs = storageProvider.getJobList(StateName.FAILED, new AmountRequest("", limit));
 
-            if (CollectionUtils.isNullOrEmpty(labels)) {
-                log.info("No labels found for job");
-                continue;
-            }
+		for (var job : jobs) {
+			log.info("Job: {}", job.getId());
 
-            var isDirectorDomain = matchLabel(labels, "director");
-            var isOutbox = matchLabel(labels, "outbox");
+			var labels = job.getLabels();
 
-            if (isDirectorDomain && isOutbox) {
-                var isRelay = matchLabel(labels, "relay");
-                if (isRelay) {
-                    directorOutboxRecoverRelayProcessor.process(job);
-                }
-                var isPurge = matchLabel(labels, "purge");
-                if (isPurge) {
-                    directorOutboxRecoverPurgeProcessor.process(job);
-                }
-            }
-        }
-    }
+			if (CollectionUtils.isNullOrEmpty(labels)) {
+				log.info("No labels found for job");
+				continue;
+			}
 
-    public static boolean matchLabel(List<String> labels, String label) {
-        return labels.stream()
-                .anyMatch(l -> l.equals(label));
-    }
+			var isDirectorDomain = matchLabel(labels, "director");
+			var isOutbox = matchLabel(labels, "outbox");
+
+			if (isDirectorDomain && isOutbox) {
+				var isRelay = matchLabel(labels, "relay");
+				if (isRelay) {
+					directorOutboxRecoverRelayProcessor.process(job);
+				}
+				var isPurge = matchLabel(labels, "purge");
+				if (isPurge) {
+					directorOutboxRecoverPurgeProcessor.process(job);
+				}
+			}
+		}
+	}
+
+	public static boolean matchLabel(List<String> labels, String label) {
+		return labels.stream().anyMatch(l -> l.equals(label));
+	}
+
 }
