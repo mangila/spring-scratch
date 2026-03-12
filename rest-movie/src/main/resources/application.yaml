@@ -118,17 +118,20 @@ jobrunr:
 # Vaadin
 vaadin:
   launch-browser: false
-# Springdoc
-springdoc:
-  swagger-ui:
-    enabled: false
-  show-actuator: false
 # Actuator
 management:
   endpoints:
     web:
       exposure:
         include: "health"
+  server:
+    port: 8001
+# Springdoc
+springdoc:
+  swagger-ui:
+    enabled: false
+  show-actuator: false
+  use-management-port: true
 # Logging
 logging:
   level:
