@@ -22,7 +22,7 @@
     <spring-cloud.version>2025.1.3</spring-cloud.version>
     <spring-modulith.version>2.1.1</spring-modulith.version>
     <surefire.version>3.6.0</surefire.version>
-    <vaadin.version>25.3.2</vaadin.version>
+    <vaadin.version>25.3.3</vaadin.version>
   </properties>
 
   <dependencyManagement>
